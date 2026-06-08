@@ -1,0 +1,154 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/@prisma/client/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+
+  username  String   @unique
+  email     String   @unique
+  password  String
+
+  avatar    String?
+  bio       String?
+
+  recipes   Recipe[]
+
+  likes     RecipeLike[]
+
+  saves     SavedRecipe[]
+
+  followers Follow[] @relation("followers")
+  following Follow[] @relation("following")
+  comments  Comment[]
+  notifications Notification[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Recipe {
+  id            String   @id @default(cuid())
+
+  title         String
+
+  description   String
+
+  image         String
+
+  ingredients   Json
+
+  steps         Json
+
+  cuisine       String?
+
+  foodType      String?
+
+  authorId      String
+
+  author        User @relation(fields: [authorId], references: [id])
+
+  likes         RecipeLike[]
+
+  saves         SavedRecipe[]
+
+  comments      Comment[]
+
+  createdAt     DateTime @default(now())
+
+  updatedAt     DateTime @updatedAt
+}
+
+model RecipeLike {
+  id            String @id @default(cuid())
+
+  userId        String
+
+  recipeId      String
+
+  user          User @relation(fields: [userId], references: [id])
+
+  recipe        Recipe @relation(fields: [recipeId], references: [id])
+
+  createdAt     DateTime @default(now())
+
+  @@unique([userId, recipeId])
+}
+model SavedRecipe {
+  id            String @id @default(cuid())
+
+  userId        String
+
+  recipeId      String
+
+  user          User @relation(fields: [userId], references: [id])
+
+  recipe        Recipe @relation(fields: [recipeId], references: [id])
+
+  createdAt     DateTime @default(now())
+
+  @@unique([userId, recipeId])
+}
+
+
+model Follow {
+  id          String @id @default(cuid())
+
+  followerId  String
+  followingId String
+
+  follower    User @relation("following", fields: [followerId], references: [id])
+
+  following   User @relation("followers", fields: [followingId], references: [id])
+
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+}
+
+model Comment {
+  id            String @id @default(cuid())
+
+  text          String
+
+  userId        String
+
+  recipeId      String
+
+  user          User @relation(fields: [userId], references: [id])
+
+  recipe        Recipe @relation(fields: [recipeId], references: [id])
+
+  createdAt     DateTime @default(now())
+
+  updatedAt     DateTime @updatedAt
+}
+
+model Notification {
+  id            String @id @default(cuid())
+
+  userId        String
+
+  senderId      String?
+
+  recipeId      String?
+
+  type          String
+
+  isRead        Boolean @default(false)
+
+  user          User @relation(fields: [userId], references: [id])
+
+  createdAt     DateTime @default(now())
+}
