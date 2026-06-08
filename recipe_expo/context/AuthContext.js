@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getMe } from "../api/authApi";
 
 const AuthContext = createContext();
 
@@ -17,16 +18,24 @@ export const AuthProvider = ({ children }) => {
         if (savedToken) {
           setToken(savedToken);
         }
+        const response = await getMe()
+        // if (savedUser) {
+        //   setUser(JSON.parse(savedUser));
+        // }
 
-        if (savedUser) {
-          setUser(JSON.parse(savedUser));
-        }
+        setUser(response.data.user)
+
+        await AsyncStorage.setItem(
+          "user",
+          JSON.stringify(response.data.user)
+        )
       } catch (error) {
         console.log(error);
       } finally {
         setLoading(false);
       }
     };
+
 
     loadAuth();
   }, []);
