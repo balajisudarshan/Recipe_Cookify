@@ -48,21 +48,23 @@ const LoginScreen = () => {
         text1: "Login failed",
         text2: message,
       });
-      console.error(error);
+      console.log("ERROR RESPONSE:", error?.response?.data);
+      console.log("ERROR STATUS:", error?.response?.status);
+      console.log("ERROR MESSAGE:", error?.message);
     } finally {
       setLoading(false);
     }
   };
   useEffect(() => {
     const checkAuth = async () => {
-      const token = await AsyncStorage.getItem("token")
-      if(token){
-        navigation.replace("MainTabs")
+      const token = await AsyncStorage.getItem("token");
+      if (token) {
+        navigation.replace("MainTabs");
       }
-      console.log(token)
+      console.log(token);
     };
-    checkAuth()
-  },[]);
+    checkAuth();
+  }, []);
 
   return (
     <ScreenWrapper>
@@ -210,8 +212,9 @@ const LoginScreen = () => {
                     fontWeight: "700",
                     fontSize: width * 0.042,
                   }}
+                  disabled={loading}
                 >
-                  {loading ? "Loggingin" : "Login"}
+                  {loading ? "Loading" : "Login"}
                 </Text>
               </TouchableOpacity>
 
