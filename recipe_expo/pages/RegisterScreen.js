@@ -15,6 +15,9 @@ import { registerUser } from "../api/authApi";
 import { useAuth } from "../context/AuthContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Toast from "react-native-toast-message";
+// import * as ImagePicker from "expo-image-picker"
+
+
 const RegisterScreen = () => {
   const { width, height } = useWindowDimensions();
   const navigation = useNavigation();

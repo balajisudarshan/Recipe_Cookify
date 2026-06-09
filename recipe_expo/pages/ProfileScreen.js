@@ -1,119 +1,205 @@
-import { View, Text, TouchableOpacity, Image } from "react-native";
-import React from "react";
-import ScreenHeader from "../components/ScreenHeader";
+import {
+  View,
+  Text,
+  Image,
+  ActivityIndicator,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
+import React, { useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from "../context/AuthContext";
-
+import { StyleSheet } from "react-native";
+import ScreenHeader from "../components/ScreenHeader";
+import { Feather } from "@expo/vector-icons";
 const ProfileScreen = () => {
-  const { user, setUser, setToken } = useAuth();
+  const { user, loading } = useAuth();
 
-  const handleLogout = async () => {
-    try {
-      await AsyncStorage.removeItem("token");
-      await AsyncStorage.removeItem("user");
+  useEffect(() => {
+    console.log(user);
+  });
 
-      setUser(null);
-      setToken(null);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  if (loading) {
+    return (
+      <ActivityIndicator size="large" color="#FF7A00" style={styles.loader} />
+    );
+  }
+
+  if (!user) {
+    return <Text style={styles.errorText}>Please log in</Text>;
+  }
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#fff" }}>
-      <ScreenHeader title="Profile" />
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <ScreenHeader title="My Kitchen Profile" />
 
-      <View
-        style={{
-          alignItems: "center",
-          marginTop: 30,
-        }}
-      >
-        <Image
-          source={{
-            uri:
-              user?.avatar ||
-              "https://ui-avatars.com/api/?name=" + user?.username,
-          }}
-          style={{
-            width: 120,
-            height: 120,
-            borderRadius: 60,
-          }}
-        />
+      <View style={styles.profileHero}>
+        <View style={styles.avatarContainer}>
+          <Image
+            source={{
+              uri:
+                user.avatar ||
+                `https://ui-avatars.com/api/?name=${user.username}`,
+            }}
+            style={styles.avatarImage} // 👈 Added the mandatory image styling here
+          />
+        </View>
+        <View style={styles.details}>
+          <Text style={styles.usernameText}>@{user.username}</Text>
 
-        <Text
-          style={{
-            fontSize: 24,
-            fontWeight: "700",
-            marginTop: 15,
-          }}
-        >
-          {user?.username}
-        </Text>
+          <Text>{user.bio}</Text>
+        </View>
+        <View style={styles.statContainer}>
+          <View style={styles.statBox}>
+            <Text style={styles.statNumber}>12</Text>
+            <Text style={styles.statLabel}>Recipes</Text>
+          </View>
+          <View style={styles.divider} />
 
-        <Text
-          style={{
-            color: "#777",
-            marginTop: 5,
-          }}
-        >
-          {user?.email}
-        </Text>
-      </View>
+          <View style={styles.statBox}>
+            <Text style={styles.statNumber}>2</Text>
+            <Text style={styles.statLabel}>Followers</Text>
+          </View>
+          <View style={styles.divider} />
 
-      <View
-        style={{
-          marginTop: 40,
-          paddingHorizontal: 20,
-        }}
-      >
-        <View
-          style={{
-            backgroundColor: "#F7F7F7",
-            padding: 15,
-            borderRadius: 12,
-            marginBottom: 15,
-          }}
-        >
-          <Text style={{ color: "#888" }}>User ID</Text>
-          <Text style={{ fontWeight: "600" }}>{user?.id}</Text>
+          <View style={styles.statBox}>
+            <Text style={styles.statNumber}>26</Text>
+            <Text style={styles.statLabel}>Following</Text>
+          </View>
+          <View style={styles.divider} />
         </View>
 
-        <View
-          style={{
-            backgroundColor: "#F7F7F7",
-            padding: 15,
-            borderRadius: 12,
-          }}
-        >
-          <Text style={{ color: "#888" }}>Bio</Text>
-          <Text>{user?.bio || "No bio added yet"}</Text>
+        <View style={styles.btnContainer}>
+          <TouchableOpacity style={styles.editButton}>
+            <Feather
+              name="edit-3"
+              size={16}
+              color="#fff"
+              style={{ marginRight: 8 }}
+            />
+            <Text style={styles.btnText}>Edit Kitchen Profile</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.shareBtn}>
+            <Feather
+              name="share-2"
+              size={18}
+              color="#FF7A00"
+              style={{ marginRight: 8 }}
+            />
+          </TouchableOpacity>
         </View>
       </View>
-
-      <TouchableOpacity
-        onPress={handleLogout}
-        style={{
-          marginTop: 40,
-          marginHorizontal: 20,
-          backgroundColor: "#FF4D4F",
-          padding: 15,
-          borderRadius: 12,
-          alignItems: "center",
-        }}
-      >
-        <Text
-          style={{
-            color: "#fff",
-            fontWeight: "700",
-          }}
-        >
-          Logout
-        </Text>
-      </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fffbfe", // 👈 Added the missing '#' here
+  },
+  details: {
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 5,
+  },
+  loader: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  errorText: {
+    textAlign: "center",
+    marginTop: 40,
+    fontSize: 16,
+    color: "#666",
+  },
+  profileHero: {
+    alignItems: "center",
+    marginTop: 30,
+  },
+  avatarContainer: {
+    elevation: 4, // Shadow for Android
+    shadowColor: "#000", // Shadow for iOS
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 6,
+  },
+  avatarImage: {
+    width: 120, // 👈 Explicit width (Mandatory)
+    height: 120, // 👈 Explicit height (Mandatory)
+    borderRadius: 60, // Perfect circle (half of width/height)
+    borderWidth: 3,
+    borderColor: "#FF7A00", // Matches Cookify orange
+    backgroundColor: "#eee", // Background color while image loads
+  },
+  usernameText: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#111",
+    marginTop: 15,
+  },
+  statContainer: {
+    flexDirection: "row",
+    backgroundColor: "#fff",
+    marginHorizontal: 24,
+    marginTop: 25,
+    paddingVertical: 16,
+    borderRadius: 16,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOpacity: 0.06,
+    shadowOffset: { width: 0, height: 3 },
+    shadowRadius: 6,
+    alignItems: "center",
+  },
+  statBox: { flex: 1, alignItems: "center" },
+  statNumber: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#111",
+  },
+  statLabel: {
+    fontSize: 12,
+    color: "#777",
+    marginTop: 2,
+  },
+  divider: {
+    width: 1,
+    height: 30,
+    backgroundColor: "#eee",
+  },
+  editButton: {
+    backgroundColor: "#FF7A00",
+    flexDirection: "row",
+    paddingVertical: 20,
+    borderRadius: 20,
+    paddingHorizontal: 30,
+    flex:1
+  },
+  btnText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  shareBtn: {
+    justifyContent: "center",
+    alignItems: "center",
+    width: 48,
+    height: 48,
+    backgroundColor: "#FFF0E0",
+    borderWidth: 1,
+    borderColor: "#FF7A00",
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  btnContainer: {
+    flexDirection: "row",
+    marginHorizontal: 24,
+    marginTop: 20,
+    gap: 12,
+    alignItems:"center"
+  },
+});
 
 export default ProfileScreen;

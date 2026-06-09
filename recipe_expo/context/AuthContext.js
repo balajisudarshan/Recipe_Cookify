@@ -18,19 +18,37 @@ export const AuthProvider = ({ children }) => {
         if (savedToken) {
           setToken(savedToken);
         }
-        const response = await getMe()
-        // if (savedUser) {
-        //   setUser(JSON.parse(savedUser));
-        // }
+        // const response = await getMe()
+        if (savedUser) {
+          setUser(JSON.parse(savedUser));
+        }
+        if(savedToken){
+          const response = await getMe()
 
-        setUser(response.data.user)
+          if(response && response.data && response.data.user){
+            const freshUser = response.data.user
 
-        await AsyncStorage.setItem(
-          "user",
-          JSON.stringify(response.data.user)
-        )
+            setUser(freshUser)
+
+            await AsyncStorage.setItem("user",JSON.stringify(freshUser))
+          }
+        }
+        // setUser(response.data.user)
+
+        // await AsyncStorage.setItem(
+        //   "user",
+        //   JSON.stringify(response.data.user)
+        // )
       } catch (error) {
-        console.log(error);
+        console.log("Auth initialization token verification failed:", error);
+        
+        // Optional: If token is expired or invalid (401 error), clear storage
+        if (error?.response?.status === 401) {
+          await AsyncStorage.removeItem("token");
+          await AsyncStorage.removeItem("user");
+          setToken(null);
+          setUser(null);
+        }
       } finally {
         setLoading(false);
       }
