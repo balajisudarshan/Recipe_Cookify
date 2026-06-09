@@ -11,7 +11,7 @@ import Header from "../components/Header";
 import ScreenWrapper from "../components/ScreenWrapper";
 import AuthContainer from "../components/AuthContainer";
 import { useNavigation } from "@react-navigation/native";
-import { registerUser } from "../api/authApi";
+import { registerUser } from "../api/apiRoute";
 import { useAuth } from "../context/AuthContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Toast from "react-native-toast-message";

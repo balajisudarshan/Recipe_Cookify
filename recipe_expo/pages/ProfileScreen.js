@@ -12,12 +12,31 @@ import { useAuth } from "../context/AuthContext";
 import { StyleSheet } from "react-native";
 import ScreenHeader from "../components/ScreenHeader";
 import { Feather } from "@expo/vector-icons";
-const ProfileScreen = () => {
-  const { user, loading } = useAuth();
+import { getMyRecipes } from "../api/apiRoute";
+import { useNavigation } from "@react-navigation/native";
 
+const ProfileScreen = () => {
+  const navigation = useNavigation()
+  const { user, loading } = useAuth();
+  // const getMyRecipes =  getMyRecipes()
+  // const userId = route
+  const getMyRecipes = async()=>{
+    try {
+      const response = await getMyRecipes()
+      console.log(response.data)
+    } catch (error) {
+      console.log(error)
+    }
+  }
   useEffect(() => {
     console.log(user);
-  });
+    getMyRecipes()
+  },[]);
+  // const handleLogOut = ()=>{
+  //   AsyncStorage.removeItem("user");
+  //   AsyncStorage.removeItem("token")
+  //   navigation.navigate("LoginScreen")
+  // }
 
   if (loading) {
     return (
@@ -70,7 +89,10 @@ const ProfileScreen = () => {
         </View>
 
         <View style={styles.btnContainer}>
-          <TouchableOpacity style={styles.editButton}>
+          <TouchableOpacity
+            style={styles.editButton}
+            onPress={() => navigation.navigate("EditProfile")}
+          >
             <Feather
               name="edit-3"
               size={16}
@@ -87,6 +109,13 @@ const ProfileScreen = () => {
               style={{ marginRight: 8 }}
             />
           </TouchableOpacity>
+          <TouchableOpacity>
+            <Text>LogOut</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View>
+
         </View>
       </View>
     </ScrollView>

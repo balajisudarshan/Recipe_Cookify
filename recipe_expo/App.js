@@ -15,6 +15,7 @@ import SearchScreen from "./pages/SearchScreen";
 import FavouriteScreen from "./pages/FavouriteScreen";
 import LoginScreen from "./pages/LoginScreen";
 import RegisterScreen from "./pages/RegisterScreen";
+import EditProfileScreen from "./pages/EditProfileScreen";
 
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
@@ -53,32 +54,14 @@ function MainTabs() {
             iconName = "person";
           }
 
-          return (
-            <Ionicons
-              name={iconName}
-              size={size}
-              color={color}
-            />
-          );
+          return <Ionicons name={iconName} size={size} color={color} />;
         },
       })}
     >
-      <Tab.Screen
-        name="Home"
-        component={HomeScreen}
-      />
-      <Tab.Screen
-        name="Search"
-        component={SearchScreen}
-      />
-      <Tab.Screen
-        name="Favorites"
-        component={FavouriteScreen}
-      />
-      <Tab.Screen
-        name="Profile"
-        component={ProfileScreen}
-      />
+      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Search" component={SearchScreen} />
+      <Tab.Screen name="Favorites" component={FavouriteScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
 }
@@ -98,20 +81,14 @@ function RootNavigator() {
         }}
       >
         {token ? (
-          <Stack.Screen
-            name="MainTabs"
-            component={MainTabs}
-          />
+          <>
+            <Stack.Screen name="MainTabs" component={MainTabs} />
+            <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+          </>
         ) : (
           <>
-            <Stack.Screen
-              name="Login"
-              component={LoginScreen}
-            />
-            <Stack.Screen
-              name="Register"
-              component={RegisterScreen}
-            />
+            <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="Register" component={RegisterScreen} />
           </>
         )}
       </Stack.Navigator>

@@ -102,6 +102,30 @@ const getSingleRecipe = async (req, res) => {
   }
 };
 
+const getMyRecipes = async(req,res)=>{
+  try {
+    const userId = req.user.id
 
+    const recipes = await prisma.recipe.findMany({
+      where:{
+        authorId:userId
+      },
+      orderBy:{
+        createdAt:"desc"
+      }
+    })
 
-module.exports = { createRecipe, getAllRecipes,getSingleRecipe};
+    return res.status(200).json({
+      count:recipes.length,
+      recipes,
+    })
+  } catch (error) {
+    console.error("Error fetching user recipes:", error);
+    return res.status(500).json({ 
+      success: false, 
+      message: "Internal server error fetching your recipes" 
+    });
+  }
+}
+
+module.exports = { createRecipe, getAllRecipes,getSingleRecipe,getMyRecipes};
