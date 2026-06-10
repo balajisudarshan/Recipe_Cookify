@@ -17,13 +17,14 @@ import { useNavigation } from "@react-navigation/native";
 
 const ProfileScreen = () => {
   const navigation = useNavigation()
-  const { user, loading } = useAuth();
+  const { user, loading ,handleLogout} = useAuth();
+
   // const getMyRecipes =  getMyRecipes()
   // const userId = route
   const getMyRecipes = async()=>{
     try {
       const response = await getMyRecipes()
-      console.log(response.data)
+      // console.log(response.data)
     } catch (error) {
       console.log(error)
     }
@@ -109,7 +110,9 @@ const ProfileScreen = () => {
               style={{ marginRight: 8 }}
             />
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleLogout}
+          >
             <Text>LogOut</Text>
           </TouchableOpacity>
         </View>

@@ -103,4 +103,26 @@ const getProfile = async(req,res)=>{
   }
 }
 
-module.exports = {updateProfile,me,getProfile}
+const getAllUsers = async(req,res)=>{
+  const userId = req.user.id
+  try {
+    const users = await prisma.user.findMany({
+      where:{
+        id:{
+          not:userId
+        }
+      },
+      select:{
+        id:true,
+        username:true,
+        avatar:true,
+        bio:true
+      }
+    })
+    return res.status(200).json({users})
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({message:"Internal server error`"})
+  }
+}
+module.exports = {updateProfile,me,getProfile,getAllUsers}

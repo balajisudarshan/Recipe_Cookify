@@ -58,6 +58,13 @@ export const AuthProvider = ({ children }) => {
     loadAuth();
   }, []);
 
+  const handleLogout = async()=>{
+    await AsyncStorage.removeItem("token");
+          await AsyncStorage.removeItem("user");
+          setToken(null);
+          setUser(null);
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -66,6 +73,7 @@ export const AuthProvider = ({ children }) => {
         token,
         setToken,
         loading,
+        handleLogout,
       }}
     >
       {children}

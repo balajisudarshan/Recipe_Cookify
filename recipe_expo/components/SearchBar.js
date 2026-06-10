@@ -2,7 +2,7 @@ import { View, Text } from "react-native";
 import React from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { TextInput } from "react-native-gesture-handler";
-const SearchBar = () => {
+const SearchBar = ({placeholder}) => {
   return (
     <View
       style={{
@@ -38,7 +38,7 @@ const SearchBar = () => {
         color="#6B7280"
         style={{ marginRight: 8 }}
       />
-      <TextInput placeholder="Search for your Favourite Recipe" />
+      <TextInput placeholder={placeholder} />
     </View>
   );
 };
