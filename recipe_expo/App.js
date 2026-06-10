@@ -1,9 +1,6 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
+import { SafeAreaProvider, useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -16,13 +13,24 @@ import FavouriteScreen from "./pages/FavouriteScreen";
 import LoginScreen from "./pages/LoginScreen";
 import RegisterScreen from "./pages/RegisterScreen";
 import EditProfileScreen from "./pages/EditProfileScreen";
+import AddRecipePage from "./pages/AddRecipePage"; // <-- Don't forget to import this!
 
 import { AuthProvider, useAuth } from "./context/AuthContext";
-
 import Toast from "react-native-toast-message";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
+const HomeStack = createNativeStackNavigator(); // <-- Create the new Home stack
+
+// --- NEW: This stack keeps AddRecipe INSIDE the Home Tab ---
+function HomeStackNavigator() {
+  return (
+    <HomeStack.Navigator screenOptions={{ headerShown: false }}>
+      <HomeStack.Screen name="HomeMain" component={HomeScreen} />
+      <HomeStack.Screen name="AddRecipe" component={AddRecipePage} />
+    </HomeStack.Navigator>
+  );
+}
 
 function MainTabs() {
   const insets = useSafeAreaInsets();
@@ -43,7 +51,6 @@ function MainTabs() {
         },
         tabBarIcon: ({ color, size }) => {
           let iconName;
-
           if (route.name === "Home") {
             iconName = "home";
           } else if (route.name === "Search") {
@@ -53,12 +60,13 @@ function MainTabs() {
           } else {
             iconName = "person";
           }
-
           return <Ionicons name={iconName} size={size} color={color} />;
         },
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
+      {/* Point the Home tab to the new Stack we created above */}
+      <Tab.Screen name="Home" component={HomeStackNavigator} />
+      
       <Tab.Screen name="Search" component={SearchScreen} />
       <Tab.Screen name="Favorites" component={FavouriteScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
@@ -84,6 +92,7 @@ function RootNavigator() {
           <>
             <Stack.Screen name="MainTabs" component={MainTabs} />
             <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+            {/* Note: AddRecipe is NO LONGER here, it's safe inside HomeStackNavigator */}
           </>
         ) : (
           <>

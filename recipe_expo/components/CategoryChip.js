@@ -1,32 +1,71 @@
-import { View, Text, TouchableOpacity } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import React from 'react'
 
 const CategoryChip = ({ title, active, onPress }) => {
-  let bgColor;
+  // Define our base color themes for each category
+  let themeColor;
 
   if (title === "Veg") {
-    bgColor = active ? "#22C55E" : "rgba(34,197,94,0.15)";
-    
+    themeColor = "#22C55E"; // Fresh Green
   } else if (title === "Non Veg") {
-    bgColor = active ? "#FF7A00" : "rgba(255,122,0,0.15)";
+    themeColor = "#FF7A00"; // Cookify Orange
+  } else if (title === "Desserts") {
+    themeColor = "#EAB308"; // Golden Yellow
   } else {
-    bgColor = active ? "#FFE5B4" : "rgba(255,229,180,0.4)";
+    themeColor = "#3B82F6"; // Action Blue (for + Add Recipe)
   }
+
+  
+  const chipStyle = [
+    styles.chipBase,
+    {
+      backgroundColor: active ? themeColor : `${themeColor}15`, 
+      borderColor: active ? themeColor : `${themeColor}40`,     
+      borderWidth: active ? 0 : 1,
+    },
+    active && styles.activeShadow 
+  ];
+
+  const textStyle = [
+    styles.textBase,
+    {
+      color: active ? "#FFFFFF" : themeColor,
+      fontWeight: active ? "700" : "600",
+    }
+  ];
 
   return (
     <TouchableOpacity
+      activeOpacity={0.7}
       onPress={onPress}
-      style={{
-        backgroundColor: bgColor,
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        borderRadius: 20,
-        marginRight: 10,
-      }}
+      style={chipStyle}
     >
-      <Text>{title}</Text>
+      <Text style={textStyle}>{title}</Text>
     </TouchableOpacity>
   );
 };
 
-export default CategoryChip
+const styles = StyleSheet.create({
+  chipBase: {
+    paddingVertical: 10,
+    paddingHorizontal: 22,
+    borderRadius: 25, 
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  textBase: {
+    fontSize: 15,
+    letterSpacing: 0.3,
+  },
+  activeShadow: {
+    // Android Shadow
+    elevation: 6,
+    // iOS Shadow
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 5,
+  }
+});
+
+export default CategoryChip;

@@ -5,48 +5,59 @@ import {
   ActivityIndicator,
   ScrollView,
   TouchableOpacity,
+  StyleSheet,
+  Dimensions,
 } from "react-native";
-import React, { useEffect } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { StyleSheet } from "react-native";
 import ScreenHeader from "../components/ScreenHeader";
 import { Feather } from "@expo/vector-icons";
 import { getMyRecipes } from "../api/apiRoute";
 import { useNavigation } from "@react-navigation/native";
 
-const ProfileScreen = () => {
-  const navigation = useNavigation()
-  const { user, loading ,handleLogout} = useAuth();
+// 1. Establish Responsive Scale Anchors based on Device Dimensions
+const { width, height } = Dimensions.get("window");
 
-  // const getMyRecipes =  getMyRecipes()
-  // const userId = route
-  const getMyRecipes = async()=>{
+const ProfileScreen = () => {
+  const navigation = useNavigation();
+  const { user, loading, handleLogout } = useAuth();
+  
+  const [userRecipes, setUserRecipes] = useState([]);
+  const [loadingRecipes, setLoadingRecipes] = useState(true);
+
+  const fetchUserRecipes = async () => {
     try {
-      const response = await getMyRecipes()
-      // console.log(response.data)
+      const response = await getMyRecipes();
+      if (response && response.data && response.data.recipes) {
+        setUserRecipes(response.data.recipes);
+      }
     } catch (error) {
-      console.log(error)
+      console.log("Error loading recipes:", error);
+    } finally {
+      setLoadingRecipes(false);
     }
-  }
+  };
+
   useEffect(() => {
-    console.log(user);
-    getMyRecipes()
-  },[]);
-  // const handleLogOut = ()=>{
-  //   AsyncStorage.removeItem("user");
-  //   AsyncStorage.removeItem("token")
-  //   navigation.navigate("LoginScreen")
-  // }
+    if (user) {
+      fetchUserRecipes();
+    }
+  }, [user]);
 
   if (loading) {
     return (
-      <ActivityIndicator size="large" color="#FF7A00" style={styles.loader} />
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color="#FF7A00" />
+      </View>
     );
   }
 
   if (!user) {
-    return <Text style={styles.errorText}>Please log in</Text>;
+    return (
+      <View style={styles.centerContainer}>
+        <Text style={styles.errorText}>Please log in</Text>
+      </View>
+    );
   }
 
   return (
@@ -54,24 +65,27 @@ const ProfileScreen = () => {
       <ScreenHeader title="My Kitchen Profile" />
 
       <View style={styles.profileHero}>
+        {/* Dynamic Avatar Container Scaled proportionally */}
         <View style={styles.avatarContainer}>
           <Image
             source={{
-              uri:
-                user.avatar ||
-                `https://ui-avatars.com/api/?name=${user.username}`,
+              uri: user.avatar || `https://ui-avatars.com/api/?name=${user.username}`,
             }}
-            style={styles.avatarImage} // 👈 Added the mandatory image styling here
+            style={styles.avatarImage}
           />
         </View>
+
         <View style={styles.details}>
           <Text style={styles.usernameText}>@{user.username}</Text>
-
-          <Text>{user.bio}</Text>
+          <Text style={styles.bioText}>{user.bio || "No bio added yet"}</Text>
         </View>
+
+        {/* Responsive Performance Metric Row Matrix */}
         <View style={styles.statContainer}>
           <View style={styles.statBox}>
-            <Text style={styles.statNumber}>12</Text>
+            <Text style={styles.statNumber}>
+              {loadingRecipes ? "..." : userRecipes.length}
+            </Text>
             <Text style={styles.statLabel}>Recipes</Text>
           </View>
           <View style={styles.divider} />
@@ -86,40 +100,28 @@ const ProfileScreen = () => {
             <Text style={styles.statNumber}>26</Text>
             <Text style={styles.statLabel}>Following</Text>
           </View>
-          <View style={styles.divider} />
         </View>
 
+        {/* Flexible Control Actions Grid Interface */}
         <View style={styles.btnContainer}>
           <TouchableOpacity
             style={styles.editButton}
             onPress={() => navigation.navigate("EditProfile")}
           >
-            <Feather
-              name="edit-3"
-              size={16}
-              color="#fff"
-              style={{ marginRight: 8 }}
-            />
-            <Text style={styles.btnText}>Edit Kitchen Profile</Text>
+            <Feather name="edit-3" size={width * 0.04} color="#fff" style={{ marginRight: 6 }} />
+            <Text style={styles.btnText} numberOfLines={1}>Edit Profile</Text>
           </TouchableOpacity>
+
           <TouchableOpacity style={styles.shareBtn}>
-            <Feather
-              name="share-2"
-              size={18}
-              color="#FF7A00"
-              style={{ marginRight: 8 }}
-            />
+            <Feather name="share-2" size={width * 0.045} color="#FF7A00" />
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={handleLogout}
-          >
-            <Text>LogOut</Text>
+
+          <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+            <Feather name="log-out" size={width * 0.04} color="#EF4444" style={{ marginRight: 6 }} />
+            <Text style={styles.logoutBtnText} numberOfLines={1}>Log Out</Text>
           </TouchableOpacity>
         </View>
 
-        <View>
-
-        </View>
       </View>
     </ScrollView>
   );
@@ -128,55 +130,64 @@ const ProfileScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fffbfe", // 👈 Added the missing '#' here
+    backgroundColor: "#fffbfe",
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fffbfe",
+    paddingTop: height * 0.2,
   },
   details: {
     alignItems: "center",
     justifyContent: "center",
-    gap: 5,
-  },
-  loader: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    paddingHorizontal: width * 0.06,
+    marginTop: height * 0.02,
+    gap: 4,
   },
   errorText: {
     textAlign: "center",
-    marginTop: 40,
-    fontSize: 16,
+    fontSize: width * 0.04,
     color: "#666",
   },
   profileHero: {
     alignItems: "center",
-    marginTop: 30,
+    marginTop: height * 0.03,
   },
   avatarContainer: {
-    elevation: 4, // Shadow for Android
-    shadowColor: "#000", // Shadow for iOS
+    elevation: 4,
+    shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 6,
   },
   avatarImage: {
-    width: 120, // 👈 Explicit width (Mandatory)
-    height: 120, // 👈 Explicit height (Mandatory)
-    borderRadius: 60, // Perfect circle (half of width/height)
+    // Scales dynamically to occupy exactly 30% of standard phone widths
+    width: width * 0.3,
+    height: width * 0.3,
+    borderRadius: (width * 0.3) / 2,
     borderWidth: 3,
-    borderColor: "#FF7A00", // Matches Cookify orange
-    backgroundColor: "#eee", // Background color while image loads
+    borderColor: "#FF7A00",
+    backgroundColor: "#eee",
   },
   usernameText: {
-    fontSize: 20,
+    fontSize: width * 0.055, // Fluid Typography Scaling
     fontWeight: "700",
     color: "#111",
-    marginTop: 15,
+  },
+  bioText: {
+    fontSize: width * 0.036,
+    color: "#555",
+    textAlign: "center",
+    lineHeight: width * 0.05,
   },
   statContainer: {
     flexDirection: "row",
     backgroundColor: "#fff",
-    marginHorizontal: 24,
-    marginTop: 25,
-    paddingVertical: 16,
+    width: width * 0.88, // Uniform box alignment regardless of display limits
+    marginTop: height * 0.03,
+    paddingVertical: height * 0.018,
     borderRadius: 16,
     elevation: 3,
     shadowColor: "#000",
@@ -185,52 +196,73 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     alignItems: "center",
   },
-  statBox: { flex: 1, alignItems: "center" },
+  statBox: { 
+    flex: 1, 
+    alignItems: "center",
+  },
   statNumber: {
-    fontSize: 18,
+    fontSize: width * 0.045,
     fontWeight: "700",
     color: "#111",
   },
   statLabel: {
-    fontSize: 12,
+    fontSize: width * 0.03,
     color: "#777",
     marginTop: 2,
   },
   divider: {
     width: 1,
-    height: 30,
+    height: height * 0.035,
     backgroundColor: "#eee",
+  },
+  btnContainer: {
+    flexDirection: "row",
+    width: width * 0.88,
+    marginTop: height * 0.025,
+    gap: width * 0.025,
+    alignItems: "center",
   },
   editButton: {
     backgroundColor: "#FF7A00",
     flexDirection: "row",
-    paddingVertical: 20,
-    borderRadius: 20,
-    paddingHorizontal: 30,
-    flex:1
+    height: height * 0.055, // Heights tied strictly to screen runtime heights
+    borderRadius: 12,
+    flex: 2, // Takes up twice the space of the share block
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 4,
+  },
+  logoutBtn: {
+    backgroundColor: "#FEE2E2",
+    borderWidth: 1,
+    borderColor: "#FCA5A5",
+    flexDirection: "row",
+    height: height * 0.055,
+    borderRadius: 12,
+    flex: 2,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 4,
   },
   btnText: {
     color: "#fff",
-    fontWeight: "bold",
+    fontWeight: "700",
+    fontSize: width * 0.036,
+  },
+  logoutBtnText: {
+    color: "#EF4444",
+    fontWeight: "700",
+    fontSize: width * 0.036,
   },
   shareBtn: {
-    justifyContent: "center",
-    alignItems: "center",
-    width: 48,
-    height: 48,
+    width: height * 0.055, // Keeps it perfectly square with line heights
+    height: height * 0.055,
     backgroundColor: "#FFF0E0",
     borderWidth: 1,
     borderColor: "#FF7A00",
     borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
-  },
-  btnContainer: {
-    flexDirection: "row",
-    marginHorizontal: 24,
-    marginTop: 20,
-    gap: 12,
-    alignItems:"center"
   },
 });
 
