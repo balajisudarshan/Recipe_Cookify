@@ -5,55 +5,97 @@ import {
   Dimensions,
   TouchableOpacity,
   TextInput,
+  ScrollView,
 } from "react-native";
-import SelectDropdown from 'react-native-select-dropdown'
-import React from "react";
+import React, { useState } from "react";
 import { Feather } from "@expo/vector-icons";
 import ScreenWrapper from "../components/ScreenWrapper";
-import { useState } from "react";
-import {Picker} from "@react-native-picker/picker"
-
+import { Picker } from "@react-native-picker/picker";
+import RadioGroup from "../components/RadioGroup";
 
 const { width } = Dimensions.get("window");
 
 const AddRecipePage = () => {
-  const [ingredientRowCount, setIngredientRowCount] = useState(0);
-  const [stepCount, setStepCount] = useState(0);
-
+  // Main form states
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [selectedCourse, setSelectedCourse] = useState("");
-  const [showDropdown, setShowDropdown] = useState(false);
+  const [selectedCuisine, setSelectedCuisine] = useState("");
+  const [selectedDiet, setSelectedDiet] = useState("Veg");
+
+  // Arrays handle their own lengths now—no extra row counts needed!
+  const [ingredients, setIngredients] = useState([{ name: "", quantity: "" }]);
+  const [steps, setSteps] = useState([""]);
 
   const courseOptions = [
-    { label: "Starter", title: "Starter", value: "STARTER" },
-  { label: "Main Dish", title: "Main Dish", value: "MAIN_DISH" },
-  { label: "Side Dish", title: "Side Dish", value: "SIDE_DISH" },
-  { label: "Dessert", title: "Dessert", value: "DESSERT" },
-  { label: "Beverage", title: "Beverage", value: "BEVERAGE" },
-  { label: "Snack", title: "Snack", value: "SNACK" },
+    { label: "Starter", value: "STARTER" },
+    { label: "Main Dish", value: "MAIN_DISH" },
+    { label: "Side Dish", value: "SIDE_DISH" },
+    { label: "Dessert", value: "DESSERT" },
+    { label: "Beverage", value: "BEVERAGE" },
+    { label: "Snack", value: "SNACK" },
   ];
+
+  const Cuisine = [
+    { label: "Indian", value: "INDIAN" },
+    { label: "South Indian", value: "SOUTH_INDIAN" },
+    { label: "North Indian", value: "NORTH_INDIAN" },
+    { label: "Italian", value: "ITALIAN" },
+    { label: "Chinese", value: "CHINESE" },
+    { label: "Mexican", value: "MEXICAN" },
+    { label: "Continental", value: "CONTINENTAL" },
+    { label: "Thai", value: "THAI" },
+    { label: "American", value: "AMERICAN" },
+    { label: "Japanese", value: "JAPANESE" },
+    { label: "Mediterranean", value: "MEDITERRANEAN" },
+    { label: "Middle Eastern", value: "MIDDLE_EASTERN" },
+    { label: "Spanish", value: "SPANISH" },
+    { label: "French", value: "FRENCH" },
+  ];
+  
+  const dietaryType = ["Veg", "Non-Veg"];
+
+  // Core update Handlers
+  const handleIngredientChange = (index, field, value) => {
+    const updatedIngredient = [...ingredients];
+    updatedIngredient[index][field] = value;
+    setIngredients(updatedIngredient);
+  };
+
+  const handleStepChange = (index, value) => {
+    const newSteps = [...steps];
+    newSteps[index] = value; // Fixed to handle plain string arrays cleanly
+    setSteps(newSteps);
+  };
+
+  // Row modifier logic
+  const addIngredientRow = () => setIngredients([...ingredients, { name: "", quantity: "" }]);
+  const removeIngredientRow = () => setIngredients(ingredients.slice(0, -1));
+
+  const addStepRow = () => setSteps([...steps, ""]);
+  const removeStepRow = () => setSteps(steps.slice(0, -1));
+
+  const handleSubmit = () => {
+    const data = { title, description, ingredients, steps, selectedCourse, selectedCuisine, selectedDiet };
+    console.log("Submitting Recipe Draft Matrix:", data);
+  };
 
   return (
     <ScreenWrapper>
-      <View style={styles.container}>
-        <View
-          style={[
-            styles.curveView,
-            {
-              backgroundColor: "#FF7A00",
-            },
-          ]}
-        >
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+        {/* Banner Curve Header */}
+        <View style={[styles.curveView, { backgroundColor: "#FF7A00" }]}>
           <View style={styles.headerContent}>
             <View style={styles.textContainer}>
               <Text style={styles.title}>Add Recipe</Text>
-              <Text style={styles.subtitle}>
-                Share Your Recipe to the World
-              </Text>
+              <Text style={styles.subtitle}>Share Your Recipe to the World</Text>
             </View>
           </View>
         </View>
 
+        {/* Central Layout Body Container */}
         <View style={styles.addRecipeContainer}>
+          {/* Upload Media Area */}
           <TouchableOpacity style={styles.uploadBox} activeOpacity={0.7}>
             <View style={styles.iconCircle}>
               <Feather name="camera" size={28} color="#FF7A00" />
@@ -62,152 +104,203 @@ const AddRecipePage = () => {
             <Text style={styles.uploadSubtext}>Max size 5MB</Text>
           </TouchableOpacity>
 
+          {/* Recipe Title Field */}
           <View style={styles.col}>
             <Text style={styles.inputTxt}>Recipe Title</Text>
             <TextInput
               style={styles.input}
-              placeholder="e.g Spicy Lentil Coup"
+              placeholder="e.g Spicy Lentil Soup"
+              placeholderTextColor="#A0AEC0"
+              value={title}
+              onChangeText={setTitle}
             />
           </View>
 
+          {/* Recipe Description Area Box Field */}
           <View style={styles.col}>
             <Text style={styles.inputTxt}>Recipe Description</Text>
             <TextInput
-              style={[styles.inputBase, styles.textArea]}
+              style={[styles.input, styles.textArea]}
               placeholder="e.g. A rich and spicy lentil soup perfect for winter nights..."
               placeholderTextColor="#A0AEC0"
-              style={styles.input}
               multiline={true}
               numberOfLines={4}
+              value={description}
+              onChangeText={setDescription}
             />
           </View>
+
+          {/* Dynamic Matrix Rows Section: Ingredients & Quantities */}
           <View style={styles.col}>
             <View style={styles.row}>
               <View style={{ flex: 1, gap: 10 }}>
                 <Text style={styles.inputTxt}>Ingredients</Text>
-                {Array.from({ length: ingredientRowCount }).map((_, index) => (
+                {ingredients.map((item, index) => (
                   <TextInput
-                    key={index}
+                    key={`ing-${index}`}
                     style={styles.input}
                     placeholder={`Ingredient ${index + 1}`}
+                    placeholderTextColor="#A0AEC0"
+                    value={item.name}
+                    onChangeText={(text) => handleIngredientChange(index, "name", text)}
                   />
                 ))}
               </View>
               <View style={{ flex: 1, gap: 10 }}>
-                <Text style={styles.inputTxt}>Quantity {"(e.g 5 Cups)"}</Text>
-                {Array.from({ length: ingredientRowCount }).map((_, index) => (
+                <Text style={styles.inputTxt}>Quantity</Text>
+                {ingredients.map((item, index) => (
                   <TextInput
                     key={`qty-${index}`}
                     style={styles.input}
-                    placeholder={`e.g. 5 Cups`}
+                    placeholder="e.g. 5 Cups"
+                    placeholderTextColor="#A0AEC0"
+                    value={item.quantity}
+                    onChangeText={(text) => handleIngredientChange(index, "quantity", text)}
                   />
                 ))}
               </View>
             </View>
-            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
-              <TouchableOpacity
-                style={styles.addRowBtn}
-                onPress={() => setIngredientRowCount(ingredientRowCount + 1)}
-              >
+
+            {/* Ingredient Action Buttons */}
+            <View style={styles.buttonActionRow}>
+              <TouchableOpacity style={styles.addRowBtn} onPress={addIngredientRow}>
                 <Text style={styles.addRowTxt}>Add Row</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.removeRowBtn}
-                onPress={() => setIngredientRowCount(ingredientRowCount - 1)}
-              >
-                <Text style={styles.removeRowTxt}>Remove Row</Text>
-              </TouchableOpacity>
+
+              {ingredients.length > 1 && (
+                <TouchableOpacity style={styles.removeRowBtn} onPress={removeIngredientRow}>
+                  <Text style={styles.removeRowTxt}>Remove Row</Text>
+                </TouchableOpacity>
+              )}
             </View>
           </View>
+
+          {/* Dynamic Preparation Sequential Steps Module */}
           <View style={styles.col}>
             <Text style={styles.inputTxt}>Preparation Steps</Text>
-            {Array.from({ length: stepCount }).map((_, index) => (
-              <TextInput
-                style={styles.input}
-                key={index}
-                placeholder={`Enter step ${index}`}
-              />
-            ))}
+            <View style={{ gap: 10 }}>
+              {steps.map((step, index) => (
+                <TextInput
+                  key={`step-${index}`}
+                  style={styles.input}
+                  placeholder={`Enter step ${index + 1}`}
+                  placeholderTextColor="#A0AEC0"
+                  value={step}
+                  onChangeText={(text) => handleStepChange(index, text)}
+                />
+              ))}
+            </View>
 
-            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
-              <TouchableOpacity
-                style={styles.addRowBtn}
-                onPress={() => setStepCount(stepCount + 1)}
-              >
+            {/* Steps Action Buttons */}
+            <View style={styles.buttonActionRow}>
+              <TouchableOpacity style={styles.addRowBtn} onPress={addStepRow}>
                 <Text style={styles.addRowTxt}>Add Row</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.removeRowBtn}
-                onPress={() => setStepCount(stepCount - 1)}
-              >
-                <Text style={styles.removeRowTxt}>Remove Row</Text>
-              </TouchableOpacity>
+
+              {steps.length > 1 && (
+                <TouchableOpacity style={styles.removeRowBtn} onPress={removeStepRow}>
+                  <Text style={styles.removeRowTxt}>Remove Row</Text>
+                </TouchableOpacity>
+              )}
             </View>
           </View>
-          <View>
-            <Text style={styles.inputTxt}>Select Course</Text>
-          <View style={styles.pickerWrapper}>
-            
-           <Picker 
-            selectedValue={selectedCourse}
-            onValueChange={(itemVal)=>setSelectedCourse(itemVal)}
-            dropdownIconColor="#FF7A00"
-            mode="dropdown"
-            style={styles.pickerStyle}
-            
-            >
-              {courseOptions.map((option)=>(
-                
-                <Picker.Item 
-                    key={option.value} 
-                    label={option.label || option.title}
-                    value={option.value} 
-                    color="#2D3748"
-                  />
-                  
-              ))}
-            </Picker>
-          </View>
+
+          {/* Dropdown System Pickers Row */}
+          <View style={{ flexDirection: "row", gap: 16, marginTop: 5 }}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.inputTxt}>Select Course</Text>
+              <View style={styles.pickerWrapper}>
+                <Picker
+                  selectedValue={selectedCourse}
+                  onValueChange={(itemVal) => setSelectedCourse(itemVal)}
+                  dropdownIconColor="#FF7A00"
+                  mode="dropdown"
+                  style={styles.pickerStyle}
+                >
+                  <Picker.Item label="Course..." value="" color="#A0AEC0" />
+                  {courseOptions.map((option) => (
+                    <Picker.Item
+                      key={option.value}
+                      label={option.label}
+                      value={option.value}
+                      color="#2D3748"
+                    />
+                  ))}
+                </Picker>
+              </View>
+            </View>
+
+            <View style={{ flex: 1 }}>
+              <Text style={styles.inputTxt}>Select Cuisine</Text>
+              <View style={styles.pickerWrapper}>
+                <Picker
+                  selectedValue={selectedCuisine}
+                  onValueChange={(itemVal) => setSelectedCuisine(itemVal)}
+                  dropdownIconColor="#FF7A00"
+                  mode="dropdown"
+                  style={styles.pickerStyle}
+                >
+                  <Picker.Item label="Cuisine..." value="" color="#A0AEC0" />
+                  {Cuisine.map((option) => (
+                    <Picker.Item
+                      key={option.value}
+                      label={option.label}
+                      value={option.value}
+                      color="#2D3748"
+                    />
+                  ))}
+                </Picker>
+              </View>
+            </View>
           </View>
 
+          {/* Radio Group Selector Component */}
+          <View style={{ marginTop: 5 }}>
+            <RadioGroup
+              label="Dietary Type"
+              options={dietaryType}
+              selectedValue={selectedDiet}
+              onSelect={setSelectedDiet}
+            />
+          </View>
+
+          {/* Draft Actions Control Row */}
+          <View style={[styles.row, { marginBottom: 35, marginTop: 15 }]}>
+            <TouchableOpacity style={styles.primaryBtn} activeOpacity={0.8} onPress={handleSubmit}>
+              <Text style={styles.primaryBtnTxt}>Add Recipe</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.discardBtn} activeOpacity={0.8}>
+              <Text style={styles.removeRowTxt}>Discard Draft</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      </ScrollView>
     </ScreenWrapper>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FFF8F2" },
+  container: { flex: 1, backgroundColor: "#fffbfe" },
   curveView: {
     paddingTop: 30,
     paddingHorizontal: 20,
     paddingBottom: 50,
     borderBottomLeftRadius: 40,
     borderBottomRightRadius: 40,
-    overflow: "hidden",
-    position: "relative",
   },
-  headerContent: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
+  headerContent: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   textContainer: { flex: 1, paddingRight: width * 0.25 },
   title: { color: "#FFFFFF", fontSize: width * 0.085, fontWeight: "800" },
   subtitle: { color: "#FFE5D0", fontSize: width * 0.04, marginTop: 8 },
-  category: {
-    color: "#f3f3f3",
-  },
   addRecipeContainer: {
     flex: 1,
-    backgroundColor: "#fffbfe", // Matches your Profile and Search screens
+    backgroundColor: "#fffbfe",
     paddingHorizontal: 24,
     paddingTop: 20,
-    gap: 10,
+    gap: 16,
   },
-
   uploadBox: {
-    height: 150,
+    height: 140,
     width: "100%",
     borderWidth: 2,
     borderColor: "#FF7A00",
@@ -216,101 +309,103 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFF5EC",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 5,
   },
   iconCircle: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     backgroundColor: "#FFE0C2",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: 10,
   },
-  uploadText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#FF7A00",
-  },
-  uploadSubtext: {
-    fontSize: 12,
-    color: "#FCA5A5", // Faded text for instructions
-    marginTop: 4,
-  },
-  col: {
-    flexDirection: "column",
-    justifyContent: "center",
-    gap: 5,
-    // alignItems:"center"
-  },
-  row: {
+  uploadText: { fontSize: 16, fontWeight: "600", color: "#FF7A00" },
+  uploadSubtext: { fontSize: 12, color: "#FCA5A5", marginTop: 4 },
+  col: { flexDirection: "column", gap: 6 },
+  row: { flexDirection: "row", gap: 16 },
+  buttonActionRow: {
     flexDirection: "row",
-    gap: 20,
+    flexWrap: "wrap",
+    gap: 10,
+    marginTop: 4,
   },
   input: {
     borderColor: "#00000028",
     borderWidth: 1,
     borderRadius: 15,
-    paddingHorizontal: 20,
-    // height:35
+    paddingHorizontal: 16,
+    height: 48,
+    backgroundColor: "#FFF",
+    fontSize: 15,
+    color: "#2D3748",
+  },
+  textArea: {
+    height: 95,
+    paddingTop: 12,
+    paddingBottom: 12,
+    textAlignVertical: "top",
   },
   inputTxt: {
-    paddingLeft: 10,
+    paddingLeft: 4,
     fontWeight: "bold",
     fontSize: 15,
+    color: "#4A5568",
   },
   addRowBtn: {
     flex: 2,
     backgroundColor: "#FFF5EC",
-    marginTop: 10,
-    // textAlign:"center"
-    padding: 10,
-    // borderRadius:20,
-    width: "100%",
+    padding: 12,
     borderWidth: 2,
     borderColor: "#FF7A00",
     borderStyle: "dashed",
     borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
   },
-  addRowTxt: {
-    textAlign: "center",
-    color: "#FF7A00",
-    fontWeight: "bold",
-    fontSize: 15,
-  },
-
+  addRowTxt: { textAlign: "center", color: "#FF7A00", fontWeight: "bold", fontSize: 15 },
   removeRowBtn: {
     flex: 1,
     backgroundColor: "#ffbaba",
-    marginTop: 10,
-    // textAlign:"center"
-    padding: 10,
-    // borderRadius:20,
-    width: "100%",
+    padding: 12,
     borderWidth: 2,
     borderColor: "#ff0000",
     borderStyle: "dashed",
     borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
   },
-  removeRowTxt: {
-    textAlign: "center",
-    color: "#ff0000",
-    fontWeight: "bold",
-    fontSize: 15,
-  },
-  pickerStyle:{
-    width: "100%",
-    color: "#2D3748",
-  },
-  pickerWrapper:{
+  removeRowTxt: { textAlign: "center", color: "#ff0000", fontWeight: "bold", fontSize: 15 },
+  pickerWrapper: {
     borderColor: "#00000028",
     borderWidth: 1,
     borderRadius: 15,
     backgroundColor: "#FFF",
-    height: 50,
+    height: 48,
     justifyContent: "center",
     overflow: "hidden",
-  }
+    marginTop: 4,
+  },
+  pickerStyle: { width: "100%", color: "#2D3748" },
+  primaryBtn: {
+    flex: 1.3,
+    backgroundColor: "#FF7A00",
+    padding: 14,
+    borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  primaryBtnTxt: { color: "#FFF", fontWeight: "bold", fontSize: 16 },
+  discardBtn: {
+    flex: 1,
+    backgroundColor: "#FEE2E2",
+    padding: 14,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#FCA5A5",
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });
 
 export default AddRecipePage;
