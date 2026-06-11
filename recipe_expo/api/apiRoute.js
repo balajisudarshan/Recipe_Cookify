@@ -27,7 +27,11 @@ export const loginUser = (data) => api.post("/auth/login", data)
 
 
 export const getMyRecipes = ()=>api.get('/recipe/my')
-
+export const createRecipe = (formData)=>api.post("/recipe/create",formData,{
+  headers:{
+    'Content-Type':'multipart/form-data'
+  }
+})
 
 export const getMe = () => api.get("/profile/me")
 export const getUsers = ()=>api.get('/profile/all-users')

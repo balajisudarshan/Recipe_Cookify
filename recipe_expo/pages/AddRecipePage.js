@@ -6,13 +6,16 @@ import {
   TouchableOpacity,
   TextInput,
   ScrollView,
+  Image,
+  ActivityIndicator,
 } from "react-native";
 import React, { useState } from "react";
 import { Feather } from "@expo/vector-icons";
 import ScreenWrapper from "../components/ScreenWrapper";
 import { Picker } from "@react-native-picker/picker";
 import RadioGroup from "../components/RadioGroup";
-
+import * as ImagePicker from "expo-image-picker";
+import { createRecipe } from "../api/apiRoute";
 const { width } = Dimensions.get("window");
 
 const AddRecipePage = () => {
@@ -27,6 +30,9 @@ const AddRecipePage = () => {
   const [ingredients, setIngredients] = useState([{ name: "", quantity: "" }]);
   const [steps, setSteps] = useState([""]);
 
+  const [image, setImage] = useState(null);
+
+  const [loading, setLoading] = useState(false);
   const courseOptions = [
     { label: "Starter", value: "STARTER" },
     { label: "Main Dish", value: "MAIN_DISH" },
@@ -52,8 +58,29 @@ const AddRecipePage = () => {
     { label: "Spanish", value: "SPANISH" },
     { label: "French", value: "FRENCH" },
   ];
-  
+
   const dietaryType = ["Veg", "Non-Veg"];
+
+  const pickImage = async () => {
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      alert("Permission to access camera roll is required!");
+      return;
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri); // Saves the local file link to state
+    }
+  };
 
   // Core update Handlers
   const handleIngredientChange = (index, field, value) => {
@@ -69,15 +96,82 @@ const AddRecipePage = () => {
   };
 
   // Row modifier logic
-  const addIngredientRow = () => setIngredients([...ingredients, { name: "", quantity: "" }]);
+  const addIngredientRow = () =>
+    setIngredients([...ingredients, { name: "", quantity: "" }]);
   const removeIngredientRow = () => setIngredients(ingredients.slice(0, -1));
 
   const addStepRow = () => setSteps([...steps, ""]);
   const removeStepRow = () => setSteps(steps.slice(0, -1));
 
-  const handleSubmit = () => {
-    const data = { title, description, ingredients, steps, selectedCourse, selectedCuisine, selectedDiet };
-    console.log("Submitting Recipe Draft Matrix:", data);
+  const handleSubmit = async () => {
+    if (
+      !title.trim() ||
+      !description.trim() ||
+      !selectedCourse ||
+      !selectedCuisine ||
+      !image
+    ) {
+      alert("Please fill out all fields and upload an image!");
+      return;
+    }
+    // const data = {
+    //   title: title.trim(),
+    //   description: description.trim(),
+    //   image: image,
+    //   ingredients: ingredients,
+    //   steps: steps,
+    //   course: selectedCourse,
+    //   cuisine: selectedCuisine,
+    //   dietaryType: selectedDiet,
+    // };
+    setLoading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("title", title.trim());
+      formData.append("description", description.trim());
+      formData.append("course", selectedCourse);
+      formData.append("cuisine", selectedCuisine);
+      formData.append("foodType", selectedDiet.toUpperCase());
+
+      formData.append(
+        "ingredients",
+        JSON.stringify(ingredients.filter((i) => i.name.trim() !== "")),
+      );
+      formData.append(
+        "steps",
+        JSON.stringify(steps.filter((s) => s.trim() !== "")),
+      );
+
+      const filename = image.split("/").pop();
+      const match = /\.(\w+)$/.exec(filename);
+      const type = match ? `image/${match[1]}` : `image`;
+
+      formData.append("image", {
+        uri: image,
+        name: filename,
+        type: type,
+      });
+
+      const response = await createRecipe(formData);
+      if (response.status === 201 || response.status === 200) {
+        alert("🎉 Recipe uploaded successfully!");
+        setTitle("");
+        setDescription("");
+        setImage(null);
+        setIngredients([{ name: "", quantity: "" }]);
+        setSteps([""]);
+      }
+    } catch (error) {
+      console.error(
+        "Axios Recipe Upload Error:",
+        error.response?.data || error.message,
+      );
+      alert(`Upload failed: ${error.response?.data?.error || "Network error"}`);
+    } finally {
+      setLoading(false);
+    }
+    // console.log("Submitting Recipe Draft Matrix:", data);
   };
 
   return (
@@ -88,7 +182,9 @@ const AddRecipePage = () => {
           <View style={styles.headerContent}>
             <View style={styles.textContainer}>
               <Text style={styles.title}>Add Recipe</Text>
-              <Text style={styles.subtitle}>Share Your Recipe to the World</Text>
+              <Text style={styles.subtitle}>
+                Share Your Recipe to the World
+              </Text>
             </View>
           </View>
         </View>
@@ -96,12 +192,25 @@ const AddRecipePage = () => {
         {/* Central Layout Body Container */}
         <View style={styles.addRecipeContainer}>
           {/* Upload Media Area */}
-          <TouchableOpacity style={styles.uploadBox} activeOpacity={0.7}>
-            <View style={styles.iconCircle}>
-              <Feather name="camera" size={28} color="#FF7A00" />
-            </View>
-            <Text style={styles.uploadText}>Upload Recipe Image</Text>
-            <Text style={styles.uploadSubtext}>Max size 5MB</Text>
+          <TouchableOpacity
+            style={styles.uploadBox}
+            activeOpacity={0.7}
+            onPress={pickImage}
+          >
+            {image ? (
+              <>
+                {console.log(image)}
+                <Image source={{ uri: image }} style={styles.previewImage} />
+              </>
+            ) : (
+              <>
+                <View style={styles.iconCircle}>
+                  <Feather name="camera" size={28} color="#FF7A00" />
+                </View>
+                <Text style={styles.uploadText}>Upload Recipe Image</Text>
+                <Text style={styles.uploadSubtext}>Max size 5MB</Text>
+              </>
+            )}
           </TouchableOpacity>
 
           {/* Recipe Title Field */}
@@ -142,7 +251,9 @@ const AddRecipePage = () => {
                     placeholder={`Ingredient ${index + 1}`}
                     placeholderTextColor="#A0AEC0"
                     value={item.name}
-                    onChangeText={(text) => handleIngredientChange(index, "name", text)}
+                    onChangeText={(text) =>
+                      handleIngredientChange(index, "name", text)
+                    }
                   />
                 ))}
               </View>
@@ -155,7 +266,9 @@ const AddRecipePage = () => {
                     placeholder="e.g. 5 Cups"
                     placeholderTextColor="#A0AEC0"
                     value={item.quantity}
-                    onChangeText={(text) => handleIngredientChange(index, "quantity", text)}
+                    onChangeText={(text) =>
+                      handleIngredientChange(index, "quantity", text)
+                    }
                   />
                 ))}
               </View>
@@ -163,12 +276,18 @@ const AddRecipePage = () => {
 
             {/* Ingredient Action Buttons */}
             <View style={styles.buttonActionRow}>
-              <TouchableOpacity style={styles.addRowBtn} onPress={addIngredientRow}>
+              <TouchableOpacity
+                style={styles.addRowBtn}
+                onPress={addIngredientRow}
+              >
                 <Text style={styles.addRowTxt}>Add Row</Text>
               </TouchableOpacity>
 
               {ingredients.length > 1 && (
-                <TouchableOpacity style={styles.removeRowBtn} onPress={removeIngredientRow}>
+                <TouchableOpacity
+                  style={styles.removeRowBtn}
+                  onPress={removeIngredientRow}
+                >
                   <Text style={styles.removeRowTxt}>Remove Row</Text>
                 </TouchableOpacity>
               )}
@@ -198,7 +317,10 @@ const AddRecipePage = () => {
               </TouchableOpacity>
 
               {steps.length > 1 && (
-                <TouchableOpacity style={styles.removeRowBtn} onPress={removeStepRow}>
+                <TouchableOpacity
+                  style={styles.removeRowBtn}
+                  onPress={removeStepRow}
+                >
                   <Text style={styles.removeRowTxt}>Remove Row</Text>
                 </TouchableOpacity>
               )}
@@ -266,8 +388,17 @@ const AddRecipePage = () => {
 
           {/* Draft Actions Control Row */}
           <View style={[styles.row, { marginBottom: 35, marginTop: 15 }]}>
-            <TouchableOpacity style={styles.primaryBtn} activeOpacity={0.8} onPress={handleSubmit}>
-              <Text style={styles.primaryBtnTxt}>Add Recipe</Text>
+            <TouchableOpacity
+              style={[styles.primaryBtn, loading && styles.disabledBtn]} // Dims the button visually when loading
+              activeOpacity={0.8}
+              onPress={handleSubmit}
+              disabled={loading} // 👈 Disables all touch triggers while loading is active
+            >
+              {loading ? (
+                <ActivityIndicator size="small" color="#FFFFFF" /> // 👈 Shows spinning wheel
+              ) : (
+                <Text style={styles.primaryBtnTxt}>Add Recipe</Text>
+              )}
             </TouchableOpacity>
             <TouchableOpacity style={styles.discardBtn} activeOpacity={0.8}>
               <Text style={styles.removeRowTxt}>Discard Draft</Text>
@@ -288,7 +419,11 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 40,
     borderBottomRightRadius: 40,
   },
-  headerContent: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  headerContent: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
   textContainer: { flex: 1, paddingRight: width * 0.25 },
   title: { color: "#FFFFFF", fontSize: width * 0.085, fontWeight: "800" },
   subtitle: { color: "#FFE5D0", fontSize: width * 0.04, marginTop: 8 },
@@ -310,6 +445,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 5,
+    overflow: "hidden",
+  },
+  previewImage: {
+    position: "absolute", // 👈 2. ADD THIS: Forces the image to break free from centering
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
   },
   iconCircle: {
     width: 52,
@@ -363,7 +509,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  addRowTxt: { textAlign: "center", color: "#FF7A00", fontWeight: "bold", fontSize: 15 },
+  addRowTxt: {
+    textAlign: "center",
+    color: "#FF7A00",
+    fontWeight: "bold",
+    fontSize: 15,
+  },
   removeRowBtn: {
     flex: 1,
     backgroundColor: "#ffbaba",
@@ -375,7 +526,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  removeRowTxt: { textAlign: "center", color: "#ff0000", fontWeight: "bold", fontSize: 15 },
+  removeRowTxt: {
+    textAlign: "center",
+    color: "#ff0000",
+    fontWeight: "bold",
+    fontSize: 15,
+  },
   pickerWrapper: {
     borderColor: "#00000028",
     borderWidth: 1,
