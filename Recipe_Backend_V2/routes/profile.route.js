@@ -2,6 +2,7 @@ const checkAuth= require('../middleware/checkAuth')
 const {updateProfile,me, getProfile, getAllUsers} = require('../controller/profile.controller')
 const router = require('express').Router()
 const upload = require('../middleware/upload')
+
 router.get('/me',checkAuth,me)
 router.get('/all-users',checkAuth,getAllUsers)
 router.get('/:id',getProfile)

@@ -21,8 +21,9 @@ const { width, height } = Dimensions.get("window");
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const { user, loading, handleLogout } = useAuth();
-  
+
   const [userRecipes, setUserRecipes] = useState([]);
+  const [userRecipeCount,setUserRecipeCount] = useState(0)
   const [loadingRecipes, setLoadingRecipes] = useState(true);
 
   const fetchUserRecipes = async () => {
@@ -30,7 +31,9 @@ const ProfileScreen = () => {
       const response = await getMyRecipes();
       if (response && response.data && response.data.recipes) {
         setUserRecipes(response.data.recipes);
+        setUserRecipeCount(response.data.count)
       }
+      console.log(response.data.recipes)
     } catch (error) {
       console.log("Error loading recipes:", error);
     } finally {
@@ -69,7 +72,9 @@ const ProfileScreen = () => {
         <View style={styles.avatarContainer}>
           <Image
             source={{
-              uri: user.avatar || `https://ui-avatars.com/api/?name=${user.username}`,
+              uri:
+                user.avatar ||
+                `https://ui-avatars.com/api/?name=${user.username}`,
             }}
             style={styles.avatarImage}
           />
@@ -108,8 +113,15 @@ const ProfileScreen = () => {
             style={styles.editButton}
             onPress={() => navigation.navigate("EditProfile")}
           >
-            <Feather name="edit-3" size={width * 0.04} color="#fff" style={{ marginRight: 6 }} />
-            <Text style={styles.btnText} numberOfLines={1}>Edit Profile</Text>
+            <Feather
+              name="edit-3"
+              size={width * 0.04}
+              color="#fff"
+              style={{ marginRight: 6 }}
+            />
+            <Text style={styles.btnText} numberOfLines={1}>
+              Edit Profile
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.shareBtn}>
@@ -117,11 +129,26 @@ const ProfileScreen = () => {
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-            <Feather name="log-out" size={width * 0.04} color="#EF4444" style={{ marginRight: 6 }} />
-            <Text style={styles.logoutBtnText} numberOfLines={1}>Log Out</Text>
+            <Feather
+              name="log-out"
+              size={width * 0.04}
+              color="#EF4444"
+              style={{ marginRight: 6 }}
+            />
+            <Text style={styles.logoutBtnText} numberOfLines={1}>
+              Log Out
+            </Text>
           </TouchableOpacity>
         </View>
+        <>
+          <View style={styles.yourRecipeContainer}>
+            <Text style={styles.headingTxt}>Your Recipes - {userRecipeCount}</Text>
+          </View>
 
+          <View>
+             
+          </View>
+        </>
       </View>
     </ScrollView>
   );
@@ -196,8 +223,8 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     alignItems: "center",
   },
-  statBox: { 
-    flex: 1, 
+  statBox: {
+    flex: 1,
     alignItems: "center",
   },
   statNumber: {
@@ -263,6 +290,17 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
+  },
+  yourRecipeContainer: {
+    marginTop: height * 0.02,
+    width: width * 0.88,
+    alignSelf: "center",
+  },
+  headingTxt: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#6b6b6b",
+    textAlign: "left",
   },
 });
 

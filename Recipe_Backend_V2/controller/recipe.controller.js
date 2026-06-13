@@ -2,6 +2,8 @@ const prisma = require("../config/prisma");
 const cloudinary = require("../config/cloudinary");
 const express = require("express");
 
+
+
 const createRecipe = async (req, res) => {
   try {
     const authorId = req.user.id;
@@ -55,13 +57,17 @@ const createRecipe = async (req, res) => {
 };
 
 const getAllRecipes = async (req, res) => {
+  const page = Number(req.query.page)||1
+  const limit = 10
   try {
     const {foodType} = req.query
-
+    
     
       const recipes = await prisma.recipe.findMany({
       where: foodType ? { foodType: { equals: foodType, mode: "insensitive" } } : {},
       orderBy: { createdAt: "desc" },
+      skip:(page-1) * limit,
+      take:limit,
       include: { author: { select: { username: true, avatar: true } } }
     });
 
