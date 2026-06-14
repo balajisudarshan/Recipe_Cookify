@@ -50,6 +50,7 @@ const createRecipe = async (req, res, next) => {
       recipe: newRecipe,
     });
   } catch (error) {
+    console.log(error)
     next(error)
   }
 };
