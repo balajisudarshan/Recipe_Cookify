@@ -57,8 +57,10 @@ function MainTabs() {
             iconName = "search";
           } else if (route.name === "Favorites") {
             iconName = "heart";
-          } else {
-            iconName = "person";
+          } else if(route.name === "AddRecipe"){
+            iconName = "add";
+          }else{
+            iconName="person"
           }
           return <Ionicons name={iconName} size={size} color={color} />;
         },
@@ -68,6 +70,7 @@ function MainTabs() {
       <Tab.Screen name="Home" component={HomeStackNavigator} />
       
       <Tab.Screen name="Search" component={SearchScreen} />
+      <Tab.Screen name="AddRecipe" component={AddRecipePage}/>
       <Tab.Screen name="Favorites" component={FavouriteScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
