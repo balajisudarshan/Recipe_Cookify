@@ -1,8 +1,6 @@
-const express = require("express");
-const upload = require("../middleware/upload");
 const cloudinary = require("../config/cloudinary");
 
-const avatarUpload = async (req, res) => {
+const avatarUpload = async (req, res, next) => {
   try {
     const file = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
 
@@ -11,34 +9,30 @@ const avatarUpload = async (req, res) => {
     });
 
     res.status(200).json({
+      success: true,
+      message: "Image uploaded successfully",
       imageUrl: result.secure_url,
     });
   } catch (error) {
-    console.log(error);
-
-    res.status(500).json({
-      message: "Upload failed",
-    });
+    next(error)
   }
 };
 
-const recipeUpload = async (req, res) => {
+const recipeUpload = async (req, res, next) => {
   try {
     const file = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
     const result = await cloudinary.uploader.upload(file, {
       folder: "recipe-app/recipes",
     });
     res.status(200).json({
+      success: true,
+      message: "Image uploaded successfully",
       imageUrl: result.secure_url,
     });
   } catch (error) {
-    console.log(error);
-
-    res.status(500).json({
-      message: "Upload failed",
-    });
+    next(error)
   }
 };
 
 
-module.exports = {avatarUpload,recipeUpload}
+module.exports = { avatarUpload, recipeUpload }

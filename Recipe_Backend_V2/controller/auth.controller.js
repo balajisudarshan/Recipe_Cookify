@@ -10,11 +10,18 @@ if (!JWT_SECRET) {
 
 const sanitizeUser = (user) => {
   if (!user) return null
-  const { password, ...safeUser } = user
-  return safeUser
+  return {
+    id: user.id,
+    username: user.username,
+    email: user.email,
+    avatar: user.avatar,
+    bio: user.bio,
+    followerCount: user.followers ? user.followers.length : 0,
+    followingCount: user.following ? user.following.length : 0
+  }
 }
 
-const register = async (req, res) => {
+const register = async (req, res, next) => {
   try {
     const { username, email, password } = req.body
 
@@ -47,30 +54,39 @@ const register = async (req, res) => {
     const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '1h' })
 
     res.status(201).json({
+      success: true,
       message: 'User registered successfully',
       user: sanitizeUser(user),
       token,
     })
   } catch (error) {
-    console.error(error)
-    return res.status(500).json({ message: 'Internal server error' })
+    next(error)
   }
 }
 
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   try {
     const { email, password } = req.body
 
     if (!email || !password) {
-      return res.status(400).json({ message: 'email and password are required' })
+      return res.status(400).json({ message: 'email/username and password are required' })
     }
 
-    const user = await prisma.user.findUnique({
-      where: { email },
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: email },
+          { username: email }
+        ]
+      },
+      include: {
+        followers: true,
+        following: true
+      }
     })
 
     if (!user) {
-      return res.status(401).json({ message: 'Invalid email or password' })
+      return res.status(401).json({ message: 'Invalid email/username or password' })
     }
 
     const isMatch = await bcrypt.compare(password, user.password)
@@ -80,14 +96,35 @@ const login = async (req, res) => {
 
     const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '1h' })
     res.status(200).json({
+      success: true,
       message: 'Login successful',
       user: sanitizeUser(user),
       token,
     })
   } catch (error) {
-    console.error(error)
-    return res.status(500).json({ message: 'Internal server error' })
+    next(error)
   }
 }
 
-module.exports = { register, login }
+const me = async (req, res, next) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: req.user.id,
+      },
+      include: {
+        followers: true,
+        following: true
+      }
+    })
+    res.status(200).json({
+      success: true,
+      message: 'User fetched successfully',
+      user: sanitizeUser(user),
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+module.exports = { register, login, me }

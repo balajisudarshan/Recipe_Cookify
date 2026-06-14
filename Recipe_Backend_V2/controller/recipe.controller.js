@@ -1,14 +1,12 @@
 const prisma = require("../config/prisma");
 const cloudinary = require("../config/cloudinary");
-const express = require("express");
 
 
-
-const createRecipe = async (req, res) => {
+const createRecipe = async (req, res, next) => {
   try {
     const authorId = req.user.id;
 
-    const { title, description, cuisine, foodType } = req.body;
+    const { title, description, cuisine, dietaryType, mealType, course } = req.body;
 
     if (!req.file) {
       return res.status(400).json({ error: "Recipe image is required" });
@@ -21,7 +19,7 @@ const createRecipe = async (req, res) => {
     } catch (parseError) {
       return res
         .status(400)
-        .json({ error: "Invalid format for ingredients or steps arrays" });
+        .json({ message: "Invalid format for ingredients or steps arrays" });
     }
     const file = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
 
@@ -39,48 +37,77 @@ const createRecipe = async (req, res) => {
         ingredients,
         steps,
         cuisine,
-        foodType,
+        dietaryType,
+        mealType,
+        course,
         authorId,
       },
     });
 
     return res.status(201).json({
+      success: true,
       message: "Recipe uploaded successfully",
       recipe: newRecipe,
     });
   } catch (error) {
-    console.error("Error creating recipe:", error);
-    return res.status(500).json({
-      message: "Server Error",
-    });
+    next(error)
   }
 };
 
-const getAllRecipes = async (req, res) => {
-  const page = Number(req.query.page)||1
+const getAllRecipes = async (req, res, next) => {
+  const page = Number(req.query.page) || 1
   const limit = 10
   try {
-    const {foodType} = req.query
-    
-    
-      const recipes = await prisma.recipe.findMany({
-      where: foodType ? { foodType: { equals: foodType, mode: "insensitive" } } : {},
+    const { dietaryType, mealType, course, query } = req.query
+
+    const whereClause = {
+      ...(dietaryType && { dietaryType: dietaryType.toUpperCase() }),
+      ...(mealType && { mealType: mealType.toUpperCase() }),
+      ...(course && { course: course.toUpperCase() }),
+      ...(query && {
+        OR: [
+          { title: { contains: query, mode: "insensitive" } },
+          { description: { contains: query, mode: "insensitive" } }
+        ]
+      })
+    };
+
+    const recipes = await prisma.recipe.findMany({
+      where: whereClause,
       orderBy: { createdAt: "desc" },
-      skip:(page-1) * limit,
-      take:limit,
-      include: { author: { select: { username: true, avatar: true } } }
+      skip: (page - 1) * limit,
+      take: limit,
+      include: {
+        author: { select: { username: true, avatar: true } },
+        likes: { where: { userId: req.user.id } },
+        saves: { where: { userId: req.user.id } },
+        _count: { select: { likes: true, saves: true, comments: true } }
+      }
     });
 
-    return res.status(200).json({ recipes });
-  } catch (error) {
-    console.error("Error fetching recipes:", error);
-    return res.status(500).json({
-      message: "Server Error",
+    const formattedRecipes = recipes.map(recipe => {
+      const { likes, saves, ...rest } = recipe;
+      return {
+        ...rest,
+        isLiked: likes.length > 0,
+        isSaved: saves.length > 0
+      };
     });
+
+    return res.status(200).json({
+      success: true,
+      message: "Recipes fetched successfully",
+      count: formattedRecipes.length,
+      page,
+      limit,
+      recipes: formattedRecipes
+    });
+  } catch (error) {
+    next(error)
   }
 };
 
-const getSingleRecipe = async (req, res) => {
+const getSingleRecipe = async (req, res, next) => {
   const recipeId = req.params.id;
   try {
     const recipe = await prisma.recipe.findUnique({
@@ -95,68 +122,352 @@ const getSingleRecipe = async (req, res) => {
             avatar: true,
           },
         },
+        likes: { where: { userId: req.user.id } },
+        saves: { where: { userId: req.user.id } },
+        _count: { select: { likes: true, saves: true, comments: true } }
       },
     });
 
     if (!recipe) {
       return res.status(404).json({ message: "Recipe not found" });
     }
-    return res.status(200).json({ recipe });
+
+    const { likes, saves, ...rest } = recipe;
+    const formattedRecipe = {
+      ...rest,
+      isLiked: likes.length > 0,
+      isSaved: saves.length > 0
+    };
+
+    return res.status(200).json({ success: true, message: "Recipe fetched successfully", recipe: formattedRecipe });
   } catch (error) {
-    console.error("Error fetching recipe:", error);
-    return res.status(500).json({ message: "Server Error" });
+    next(error)
   }
 };
 
-const getMyRecipes = async(req,res)=>{
+const getMyRecipes = async (req, res, next) => {
   try {
     const userId = req.user.id
+    const { query } = req.query
 
     const recipes = await prisma.recipe.findMany({
-      where:{
-        authorId:userId
+      where: {
+        authorId: userId,
+        ...(query && {
+          OR: [
+            { title: { contains: query, mode: "insensitive" } },
+            { description: { contains: query, mode: "insensitive" } }
+          ]
+        })
       },
-      orderBy:{
-        createdAt:"desc"
+      orderBy: {
+        createdAt: "desc"
+      },
+      include: {
+        likes: { where: { userId: req.user.id } },
+        saves: { where: { userId: req.user.id } },
+        _count: { select: { likes: true, saves: true, comments: true } }
       }
     })
 
+    const formattedRecipes = recipes.map(recipe => {
+      const { likes, saves, ...rest } = recipe;
+      return {
+        ...rest,
+        isLiked: likes.length > 0,
+        isSaved: saves.length > 0
+      };
+    });
+
     return res.status(200).json({
-      count:recipes.length,
-      recipes,
+      success: true,
+      message: "Recipes fetched successfully",
+      count: formattedRecipes.length,
+      recipes: formattedRecipes,
     })
   } catch (error) {
-    console.error("Error fetching user recipes:", error);
-    return res.status(500).json({ 
-      success: false, 
-      message: "Internal server error fetching your recipes" 
-    });
+    next(error)
   }
 }
 
-const getUserRecipes = async(req,res)=>{
+const getUserRecipes = async (req, res, next) => {
   try {
     const userId = req.params.id
     const recipes = await prisma.recipe.findMany({
-      where:{
-        authorId:userId
+      where: {
+        authorId: userId
       },
-      orderBy:{
-        createdAt:'desc'
+      orderBy: {
+        createdAt: 'desc'
+      },
+      include: {
+        likes: { where: { userId: req.user.id } },
+        saves: { where: { userId: req.user.id } },
+        _count: { select: { likes: true, saves: true, comments: true } }
       }
     })
 
-    if(recipes.length === 0){
-      return res.status(200).json({message:"No recipes found"})
+    if (recipes.length === 0) {
+      return res.status(200).json({ success: true, message: "Recipes fetched successfully", recipes: [], count: 0 })
     }
 
+    const formattedRecipes = recipes.map(recipe => {
+      const { likes, saves, ...rest } = recipe;
+      return {
+        ...rest,
+        isLiked: likes.length > 0,
+        isSaved: saves.length > 0
+      };
+    });
+
     return res.status(200).json({
-      recipes
+      success: true,
+      message: "Recipes fetched successfully",
+      count: formattedRecipes.length,
+      recipes: formattedRecipes
     })
   } catch (error) {
-    console.log(error.message)
-    return res.status(500).json({message:"Internal server error"})
+    next(error)
   }
 }
 
-module.exports = { createRecipe, getAllRecipes,getSingleRecipe,getMyRecipes,getUserRecipes};
+const updateRecipe = async (req, res, next) => {
+  try {
+    const recipeId = req.params.id;
+    const userId = req.user.id;
+
+    const recipe = await prisma.recipe.findFirst({
+      where: {
+        id: recipeId
+      }
+    })
+    if (!recipe) {
+      return res.status(404).json({ message: "Recipe not found" })
+    }
+
+    if (recipe.authorId !== userId) {
+      return res.status(401).json({ message: "Unauthorized" })
+    }
+
+    const { title, description, ingredients, steps, cuisine, dietaryType, mealType, course } = req.body;
+
+    if (req.file) {
+      const file = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+
+      const result = await cloudinary.uploader.upload(file, {
+        folder: 'recipe-app/recipes',
+      });
+
+      await prisma.recipe.update({
+        where: { id: recipeId },
+        data: {
+          title,
+          description,
+          ingredients,
+          steps,
+          cuisine,
+          dietaryType,
+          mealType,
+          course,
+          image: result.secure_url,
+        },
+      });
+
+      return res.status(200).json({ success: true, message: "Recipe updated successfully" });
+    } else {
+      await prisma.recipe.update({
+        where: { id: recipeId },
+        data: {
+          title,
+          description,
+          ingredients,
+          steps,
+          cuisine,
+          dietaryType,
+          mealType,
+          course,
+        },
+      });
+
+      return res.status(200).json({ success: true, message: "Recipe updated successfully" });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+const deleteRecipe = async (req, res, next) => {
+  try {
+    const recipeId = req.params.id;
+    const userId = req.user.id;
+    const recipe = await prisma.recipe.findFirst({
+      where: {
+        id: recipeId
+      }
+    })
+
+    if (!recipe) {
+      return res.status(404).json({ message: "Recipe not found" })
+    }
+
+    if (recipe.authorId !== userId) {
+      return res.status(401).json({ message: "Unauthorized" })
+    }
+
+    await prisma.recipe.delete({
+      where: {
+        id: recipeId
+      }
+    })
+    return res.status(200).json({ success: true, message: "Recipe deleted successfully" })
+  } catch (error) {
+    next(error);
+  }
+}
+
+const likeRecipe = async (req, res, next) => {
+  try {
+    const recipeId = req.params.id;
+    const like = await prisma.recipeLike.findFirst({
+      where: {
+        recipeId: recipeId,
+        userId: req.user.id
+      }
+    })
+    if (like) {
+      await prisma.recipeLike.delete({
+        where: {
+          id: like.id
+        }
+      })
+      return res.status(200).json({ success: true, message: "Recipe unliked successfully" })
+    }
+    else {
+      await prisma.recipeLike.create({
+        data: {
+          recipeId: recipeId,
+          userId: req.user.id
+        }
+      })
+      return res.status(200).json({ success: true, message: "Recipe liked successfully" })
+    }
+  } catch (error) {
+    next(error);
+  }
+}
+const saveRecipe = async (req, res, next) => {
+  try {
+    const recipeId = req.params.id;
+    const savedRecipe = await prisma.savedRecipe.findFirst({
+      where: {
+        recipeId: recipeId,
+        userId: req.user.id
+      }
+    })
+
+    if (savedRecipe) {
+      await prisma.savedRecipe.delete({
+        where: {
+          id: savedRecipe.id
+        }
+      })
+      return res.status(200).json({ success: true, message: "Recipe unsaved successfully" })
+    } else {
+      await prisma.savedRecipe.create({
+        data: {
+          recipeId: recipeId,
+          userId: req.user.id
+        }
+      })
+      return res.status(200).json({ success: true, message: "Recipe saved successfully" })
+    }
+  } catch (error) {
+    next(error)
+  }
+
+}
+const getLikedRecipes = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const recipes = await prisma.recipe.findMany({
+      where: {
+        likes: {
+          some: {
+            userId: userId
+          }
+        }
+      },
+      orderBy: {
+        createdAt: "desc"
+      },
+      include: {
+        author: { select: { username: true, avatar: true } },
+        likes: { where: { userId: userId } },
+        saves: { where: { userId: userId } },
+        _count: { select: { likes: true, saves: true, comments: true } }
+      }
+    });
+
+    const formattedRecipes = recipes.map(recipe => {
+      const { likes, saves, ...rest } = recipe;
+      return {
+        ...rest,
+        isLiked: likes.length > 0,
+        isSaved: saves.length > 0
+      };
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Recipes fetched successfully",
+      count: formattedRecipes.length,
+      recipes: formattedRecipes
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getSavedRecipes = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const recipes = await prisma.recipe.findMany({
+      where: {
+        saves: {
+          some: {
+            userId: userId
+          }
+        }
+      },
+      orderBy: {
+        createdAt: "desc"
+      },
+      include: {
+        author: { select: { username: true, avatar: true } },
+        likes: { where: { userId: userId } },
+        saves: { where: { userId: userId } },
+        _count: { select: { likes: true, saves: true, comments: true } }
+      }
+    });
+
+    const formattedRecipes = recipes.map(recipe => {
+      const { likes, saves, ...rest } = recipe;
+      return {
+        ...rest,
+        isLiked: likes.length > 0,
+        isSaved: saves.length > 0
+      };
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Recipes fetched successfully",
+      count: formattedRecipes.length,
+      recipes: formattedRecipes
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { createRecipe, getAllRecipes, getSingleRecipe, getMyRecipes, getUserRecipes, updateRecipe, deleteRecipe, likeRecipe, saveRecipe, getLikedRecipes, getSavedRecipes };

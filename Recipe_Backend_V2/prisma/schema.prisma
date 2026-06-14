@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../node_modules/@prisma/client/.prisma/client"
 }
 
 datasource db {
@@ -33,10 +32,9 @@ model Recipe {
   ingredients Json
   steps       Json
   cuisine     String?
-  foodType    String?
-  
-  // 1. ADDED BACK: The course field
-  course      CourseType?   
+  dietaryType DietaryType
+  mealType    MealType
+  course      CourseType
 
   authorId    String
   createdAt   DateTime      @default(now())
@@ -102,11 +100,25 @@ model Notification {
   user      User     @relation(fields: [userId], references: [id])
 }
 
+enum DietaryType {
+  VEGAN
+  VEGETARIAN
+  EGGETARIAN
+  NON_VEG
+}
+
+enum MealType {
+  BREAKFAST
+  LUNCH
+  DINNER
+  SNACK
+}
+
 enum CourseType {
-  STARTER
-  MAIN_DISH
+  APPETIZER
+  MAIN_COURSE
   SIDE_DISH
+  SOUP
   DESSERT
   BEVERAGE
-  SNACK
 }

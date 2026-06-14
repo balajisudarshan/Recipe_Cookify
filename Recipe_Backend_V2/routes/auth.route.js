@@ -1,5 +1,6 @@
 const router = require("express").Router()
-const {register,login} = require("../controller/auth.controller")
+const { register, login, me } = require("../controller/auth.controller")
+const checkAuth = require("../middleware/checkAuth")
 /**
  * @swagger
  * /api/auth/register:
@@ -61,5 +62,20 @@ router.post("/register", register);
  *         description: Login successful
  */
 router.post("/login", login);
+
+/**
+ * @swagger
+ * /api/auth/me:
+ *   get:
+ *     summary: Get current logged-in user
+ *     tags:
+ *       - Auth
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved user data
+ *       401:
+ *         description: Unauthorized
+ */
+router.get("/me", checkAuth, me);
 
 module.exports = router
