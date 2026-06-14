@@ -13,15 +13,42 @@ import vegDelight from "../assets/vegdelights.png";
 import nonVegDelight from "../assets/nonvegdelights.png";
 import dessertDelight from "../assets/dessertdelight.png";
 import PopularRecipe from "../components/PopularRecipe";
-const { width } = Dimensions.get("window");
+import AllFoodIcon from "../icons/AllFoodIcon";
+import CategoryCard from "../components/cards/CategoryCard";
+import CATEGORIES from "../const/CATEGORIES";
+const { width, height } = Dimensions.get("window");
 
-// 1. CHANGE THIS: Use 'navigation' instead of 'navigate'
+// const CATEGORIES = [
+//   {
+//     id: "1",
+//     title: "All",
+//     bg: "#FFF2E0",
+//     border: "#FFD090",
+//     icon: AllFoodIcon,
+//   },
+//   {
+//     id: "2",
+//     title: "Burger",
+//     bg: "#FFEBEA",
+//     border: "#FFC4C1",
+//     icon: AllFoodIcon, // Replace with your Burger Icon later
+//   },
+//   {
+//     id: "3",
+//     title: "Sweets",
+//     bg: "#FCEEFF",
+//     border: "#EFAFFF",
+//     icon: AllFoodIcon, // Replace with your Sweets/Cupcake Icon later
+//   },
+// ];
+
 const HomeScreen = ({ navigation }) => {
-  const logoSize = width * 0.45;
+  const logoSize = width * 0.42;
   const [category, setCategory] = useState("Veg");
 
   return (
     <View style={styles.container}>
+      {/* Top Banner View */}
       <View
         style={[
           styles.curveView,
@@ -30,8 +57,8 @@ const HomeScreen = ({ navigation }) => {
               category === "Veg"
                 ? "#FF7A00"
                 : category === "Non Veg"
-                  ? "#e9281a"
-                  : "#3ca7ff",
+                ? "#e9281a"
+                : "#3ca7ff",
           },
         ]}
       >
@@ -41,8 +68,8 @@ const HomeScreen = ({ navigation }) => {
               {category === "Veg"
                 ? "Veg Delights"
                 : category === "Non Veg"
-                  ? "Non-Veg"
-                  : "Dessert Delights"}
+                ? "Non-Veg"
+                : "Dessert Delights"}
             </Text>
             <Text style={styles.subtitle}>Discover delicious recipes</Text>
           </View>
@@ -53,82 +80,83 @@ const HomeScreen = ({ navigation }) => {
             category === "Veg"
               ? vegDelight
               : category === "Non Veg"
-                ? nonVegDelight
-                : dessertDelight
+              ? nonVegDelight
+              : dessertDelight
           }
           style={{
             width: logoSize,
             height: logoSize,
             position: "absolute",
             right: width * 0.02,
-            bottom: -(logoSize * 0.35),
+            bottom: -(logoSize * 0.28),
             resizeMode: "contain",
           }}
         />
       </View>
-      <SearchBar />
-      <View
-        style={{
-          flexDirection: "row",
-          marginTop: 20,
-          marginHorizontal: 20,
-          gap: 10,
-          justifyContent: "center",
-        }}
-      >
-        {/* <CategoryChip title={"Veg"} active={category === "Veg"} onPress={() => setCategory("Veg")}/>
-        <CategoryChip title={"Non Veg"} active={category === "Non Veg"} onPress={() => setCategory("Non Veg")}/>
-        <CategoryChip title={"Desserts"} active={category === "Desserts"} onPress={() => setCategory("Desserts")}/> */}
 
-        {/* 2. CHANGE THIS: Use 'navigation.navigate' */}
-        {/* <CategoryChip title={"+ Add Recipe"} active={category === "Add"} onPress={() => navigation.navigate("AddRecipe")}/> */}
+      {/* Search Bar section */}
+      <View style={styles.searchContainer}>
+        <SearchBar placeholder="Search Recipes" />
+      </View>
 
+      {/* Primary Toggle Chips */}
+      <View style={styles.chipsContainer}>
+        <CategoryChip
+          title={"Veg"}
+          icon={"leaf"}
+          active={category === "Veg"}
+          onPress={() => setCategory("Veg")}
+        />
+        <CategoryChip
+          title={"Non Veg"}
+          icon={"food-drumstick-outline"}
+          active={category === "Non Veg"}
+          onPress={() => setCategory("Non Veg")}
+        />
+      </View>
+
+      {/* Horizontal Dynamic Cards Track */}
+      <View style={styles.cardsContainerTrack}>
         <ScrollView
           horizontal
-          showsHorizontalScrollIndicator={false} // Hides the ugly scrollbar
-          style={{ marginTop: 20 }}
-          contentContainerStyle={{
-            paddingHorizontal: 20, // Use padding instead of margin so it scrolls cleanly off the edge
-            gap: 10,
-            alignItems: "center",
-          }}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContainer}
         >
-          <CategoryChip
-            title={"Veg"}
-            active={category === "Veg"}
-            onPress={() => setCategory("Veg")}
-          />
-          <CategoryChip
-            title={"Non Veg"}
-            active={category === "Non Veg"}
-            onPress={() => setCategory("Non Veg")}
-          />
-          <CategoryChip
-            title={"Desserts"}
-            active={category === "Desserts"}
-            onPress={() => setCategory("Desserts")}
-          />
-
-          <CategoryChip
-            title={"+ Add Recipe"}
-            active={category === "Add"}
-            onPress={() => navigation.navigate("AddRecipe")}
-          />
+          {CATEGORIES.map((item) => (
+            <CategoryCard
+              key={item.id}
+              title={item.title}
+              backgroundColor={item.bg}
+              borderColor={item.border}
+              Icon={item.icon}
+              onPress={() => setCategory(item.title)}
+            />
+          ))}
         </ScrollView>
       </View>
-      <PopularRecipe />
+
+      {/* Main List Section */}
+      <ScrollView 
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.popularSectionContainer}
+      >
+        <PopularRecipe />
+      </ScrollView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FFF8F2" },
+  container: { 
+    flex: 1, 
+    backgroundColor: "#FFF8F2" 
+  },
   curveView: {
-    paddingTop: 60,
-    paddingHorizontal: 20,
-    paddingBottom: 50,
-    borderBottomLeftRadius: 40,
-    borderBottomRightRadius: 40,
+    paddingTop: height * 0.065,
+    paddingHorizontal: width * 0.05,
+    paddingBottom: height * 0.06,
+    borderBottomLeftRadius: width * 0.1,
+    borderBottomRightRadius: width * 0.1,
     overflow: "hidden",
     position: "relative",
   },
@@ -137,11 +165,43 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-  textContainer: { flex: 1, paddingRight: width * 0.25 },
-  title: { color: "#FFFFFF", fontSize: width * 0.085, fontWeight: "800" },
-  subtitle: { color: "#FFE5D0", fontSize: width * 0.04, marginTop: 8 },
-  category:{
-    color:"#f3f3f3"
+  textContainer: { 
+    flex: 1, 
+    paddingRight: width * 0.3 
+  },
+  title: { 
+    color: "#FFFFFF", 
+    fontSize: width * 0.075, 
+    fontWeight: "800" 
+  },
+  subtitle: { 
+    color: "#FFE5D0", 
+    fontSize: width * 0.038, 
+    marginTop: 6 
+  },
+  searchContainer: {
+    marginTop: height * 0.015,
+  },
+  chipsContainer: {
+    flexDirection: "row",
+    marginTop: height * 0.02,
+    paddingHorizontal: width * 0.05,
+    gap: width * 0.03,
+    justifyContent: "space-evenly",
+    alignItems: "center"
+  },
+  cardsContainerTrack: {
+    height: 115, 
+    marginTop: height * 0.015,
+    justifyContent: "center",
+  },
+  scrollContainer: {
+    paddingHorizontal: width * 0.05,
+    alignItems: "center",
+    gap: width * 0.032,
+  },
+  popularSectionContainer: {
+    paddingBottom: 20,
   }
 });
 

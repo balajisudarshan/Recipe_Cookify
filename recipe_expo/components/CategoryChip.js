@@ -1,7 +1,7 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
-import React from 'react'
-
-const CategoryChip = ({ title, active, onPress }) => {
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import React from "react";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+const CategoryChip = ({ title, icon, active, onPress }) => {
   // Define our base color themes for each category
   let themeColor;
 
@@ -15,15 +15,14 @@ const CategoryChip = ({ title, active, onPress }) => {
     themeColor = "#3B82F6"; // Action Blue (for + Add Recipe)
   }
 
-  
   const chipStyle = [
     styles.chipBase,
     {
-      backgroundColor: active ? themeColor : `${themeColor}15`, 
-      borderColor: active ? themeColor : `${themeColor}40`,     
+      backgroundColor: active ? themeColor : `${themeColor}15`,
+      borderColor: active ? themeColor : `${themeColor}40`,
       borderWidth: active ? 0 : 1,
     },
-    active && styles.activeShadow 
+    active && styles.activeShadow,
   ];
 
   const textStyle = [
@@ -31,15 +30,17 @@ const CategoryChip = ({ title, active, onPress }) => {
     {
       color: active ? "#FFFFFF" : themeColor,
       fontWeight: active ? "700" : "600",
-    }
+    },
   ];
 
   return (
-    <TouchableOpacity
-      activeOpacity={0.7}
-      onPress={onPress}
-      style={chipStyle}
-    >
+    <TouchableOpacity activeOpacity={0.7} onPress={onPress} style={chipStyle}>
+      <MaterialCommunityIcons
+        name={icon}
+        size={20}
+        color={active ? "#FFFFFF" : themeColor}
+      />
+
       <Text style={textStyle}>{title}</Text>
     </TouchableOpacity>
   );
@@ -47,11 +48,13 @@ const CategoryChip = ({ title, active, onPress }) => {
 
 const styles = StyleSheet.create({
   chipBase: {
-    paddingVertical: 10,
-    paddingHorizontal: 22,
-    borderRadius: 25, 
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    gap: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 25,
   },
   textBase: {
     fontSize: 15,
@@ -65,7 +68,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.15,
     shadowRadius: 5,
-  }
+  },
 });
 
 export default CategoryChip;
