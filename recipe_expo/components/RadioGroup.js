@@ -46,6 +46,7 @@ const styles = StyleSheet.create({
     gap: 24,
     paddingLeft: 4,
     marginTop: 6,
+    flexWrap:"wrap"
   },
   radioContainer: {
     flexDirection: "row",

@@ -25,6 +25,7 @@ const AddRecipePage = () => {
   const [selectedCourse, setSelectedCourse] = useState("");
   const [selectedCuisine, setSelectedCuisine] = useState("");
   const [selectedDiet, setSelectedDiet] = useState("Veg");
+  const [selectedMealType,setSelectedMealType] = useState("")
 
   // Arrays handle their own lengths now—no extra row counts needed!
   const [ingredients, setIngredients] = useState([{ name: "", quantity: "" }]);
@@ -34,14 +35,19 @@ const AddRecipePage = () => {
 
   const [loading, setLoading] = useState(false);
   const courseOptions = [
-    { label: "Starter", value: "STARTER" },
-    { label: "Main Dish", value: "MAIN_DISH" },
+    { label: "APPETIZER", value: "APPETIZER" },
+    { label: "Main Course", value: "MAIN_COURSE" },
     { label: "Side Dish", value: "SIDE_DISH" },
     { label: "Dessert", value: "DESSERT" },
     { label: "Beverage", value: "BEVERAGE" },
-    { label: "Snack", value: "SNACK" },
+    { label: "Soup", value: "SOUP" },
   ];
-
+  const mealTypes = [
+    {label:"BreakFast",value:"BREAKFAST"}, 
+    {label:"Lunch",value:"LUNCH"}, 
+    {label:"Dinner",value:"DINNER"}, 
+    {label:"Snack",value:"SNACK"},
+  ];
   const Cuisine = [
     { label: "Indian", value: "INDIAN" },
     { label: "South Indian", value: "SOUTH_INDIAN" },
@@ -59,7 +65,11 @@ const AddRecipePage = () => {
     { label: "French", value: "FRENCH" },
   ];
 
-  const dietaryType = ["Veg", "Non-Veg"];
+  const dietaryType = ["VEGAN", "VEGETARIAN", "EGGETARIAN", "NON_VEG"];
+  //   VEGAN
+  // VEGETARIAN
+  // EGGETARIAN
+  // NON_VEG
 
   const pickImage = async () => {
     const permissionResult =
@@ -109,6 +119,7 @@ const AddRecipePage = () => {
       !description.trim() ||
       !selectedCourse ||
       !selectedCuisine ||
+      !selectedMealType||
       !image
     ) {
       alert("Please fill out all fields and upload an image!");
@@ -132,7 +143,8 @@ const AddRecipePage = () => {
       formData.append("description", description.trim());
       formData.append("course", selectedCourse);
       formData.append("cuisine", selectedCuisine);
-      formData.append("foodType", selectedDiet.toUpperCase());
+      formData.append("mealType",selectedMealType)
+      formData.append("dietaryType", selectedDiet.toUpperCase());
 
       formData.append(
         "ingredients",
@@ -375,9 +387,31 @@ const AddRecipePage = () => {
               </View>
             </View>
           </View>
+          <View >
+              <Text style={styles.inputTxt}>Select MealType</Text>
+              <View style={styles.pickerWrapper}>
+                <Picker
+                  selectedValue={selectedMealType}
+                  onValueChange={(itemVal) => setSelectedMealType(itemVal)}
+                  dropdownIconColor="#FF7A00"
+                  mode="dropdown"
+                  style={styles.pickerStyle}
+                >
+                  <Picker.Item label="Meal Type..." value="" color="#A0AEC0" />
+                  {mealTypes.map((option) => (
+                    <Picker.Item
+                      key={option.value}
+                      label={option.label}
+                      value={option.value}
+                      color="#2D3748"
+                    />
+                  ))}
+                </Picker>
+              </View>
+            </View>
 
           {/* Radio Group Selector Component */}
-          <View style={{ marginTop: 5 }}>
+          <View style={{ marginTop: 5, flexWrap: "wrap" }}>
             <RadioGroup
               label="Dietary Type"
               options={dietaryType}

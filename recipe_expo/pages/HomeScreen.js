@@ -16,6 +16,7 @@ import PopularRecipe from "../components/PopularRecipe";
 import AllFoodIcon from "../icons/AllFoodIcon";
 import CategoryCard from "../components/cards/CategoryCard";
 import CATEGORIES from "../const/CATEGORIES";
+import RecipeOfTheDayCard from "../components/cards/RecipeOfTheDayCard";
 const { width, height } = Dimensions.get("window");
 
 // const CATEGORIES = [
@@ -114,6 +115,7 @@ const HomeScreen = ({ navigation }) => {
           onPress={() => setCategory("Non Veg")}
         />
       </View>
+      <RecipeOfTheDayCard/>
 
       {/* Horizontal Dynamic Cards Track */}
       <View style={styles.cardsContainerTrack}>
@@ -135,13 +137,7 @@ const HomeScreen = ({ navigation }) => {
         </ScrollView>
       </View>
 
-      {/* Main List Section */}
-      <ScrollView 
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.popularSectionContainer}
-      >
-        <PopularRecipe />
-      </ScrollView>
+
     </View>
   );
 };

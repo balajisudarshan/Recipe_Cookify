@@ -15,7 +15,10 @@ import ScreenHeader from "../components/ScreenHeader";
 import { Feather } from "@expo/vector-icons";
 import { getMyRecipes } from "../api/apiRoute";
 import { useNavigation } from "@react-navigation/native";
-
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import ProfileStat from "../components/profile/ProfileStat";
+import ProfileActionButtons from "../components/profile/ProfileActionButtons";
+import RecipeCard from "../components/cards/RecipeCard";
 // 1. Establish Responsive Scale Anchors based on Device Dimensions
 const { width, height } = Dimensions.get("window");
 
@@ -88,60 +91,11 @@ const ProfileScreen = () => {
         </View>
 
         {/* Responsive Performance Metric Row Matrix */}
-        <View style={styles.statContainer}>
-          <View style={styles.statBox}>
-            <Text style={styles.statNumber}>
-              {loadingRecipes ? "..." : userRecipes.length}
-            </Text>
-            <Text style={styles.statLabel}>Recipes</Text>
-          </View>
-          <View style={styles.divider} />
-
-          <View style={styles.statBox}>
-            <Text style={styles.statNumber}>2</Text>
-            <Text style={styles.statLabel}>Followers</Text>
-          </View>
-          <View style={styles.divider} />
-
-          <View style={styles.statBox}>
-            <Text style={styles.statNumber}>26</Text>
-            <Text style={styles.statLabel}>Following</Text>
-          </View>
-        </View>
+        <ProfileStat loadingRecipes={loadingRecipes} userRecipes={userRecipes}/>
 
         {/* Flexible Control Actions Grid Interface */}
-        <View style={styles.btnContainer}>
-          <TouchableOpacity
-            style={styles.editButton}
-            onPress={() => navigation.navigate("EditProfile")}
-          >
-            <Feather
-              name="edit-3"
-              size={width * 0.04}
-              color="#fff"
-              style={{ marginRight: 6 }}
-            />
-            <Text style={styles.btnText} numberOfLines={1}>
-              Edit Profile
-            </Text>
-          </TouchableOpacity>
+        <ProfileActionButtons/>
 
-          <TouchableOpacity style={styles.shareBtn}>
-            <Feather name="share-2" size={width * 0.045} color="#FF7A00" />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-            <Feather
-              name="log-out"
-              size={width * 0.04}
-              color="#EF4444"
-              style={{ marginRight: 6 }}
-            />
-            <Text style={styles.logoutBtnText} numberOfLines={1}>
-              Log Out
-            </Text>
-          </TouchableOpacity>
-        </View>
         {loadingRecipes ? (
           <View style={{ marginTop: height * 0.02 }}>
             <ActivityIndicator />
@@ -156,43 +110,8 @@ const ProfileScreen = () => {
 
             <View style={styles.profileRecipeContainer}>
               {userRecipes.slice(0, 5).map((recipe) => (
-                <View key={recipe.id} style={styles.profileRecipeCard}>
-                  <Image
-                    source={{ uri: recipe.image }}
-                    style={styles.recipeImage}
-                  />
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <View style={styles.recipeContent}>
-                      <Text style={styles.recipeTitle} numberOfLines={1}>
-                        {recipe.title}
-                      </Text>
-                      <Text style={styles.recipeCuisine}>{recipe.cuisine}</Text>
-                      <Text
-                        style={[
-                          styles.badge,
-                          recipe.foodType === "VEG"
-                            ? styles.vegBadge
-                            : styles.nonVegBadge,
-                        ]}
-                      >
-                        {recipe.foodType}
-                      </Text>
-                    </View>
-                    <View
-                      style={{ flex: "1", marginRight: "5%", marginTop: "5%" }}
-                    >
-                      <Feather name="heart" size={15} color="red" />
-                      <Text style={{ fontWeight: "800", color: "red" }}>
-                        13
-                      </Text>
-                    </View>
-                  </View>
-                </View>
+               
+                <RecipeCard recipe={recipe} key={recipe.id}/>
               ))}
             </View>
             <TouchableOpacity
@@ -271,88 +190,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: width * 0.05,
   },
-  statContainer: {
-    flexDirection: "row",
-    backgroundColor: "#fff",
-    width: width * 0.88, // Uniform box alignment regardless of display limits
-    marginTop: height * 0.03,
-    paddingVertical: height * 0.018,
-    borderRadius: 16,
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowOffset: { width: 0, height: 3 },
-    shadowRadius: 6,
-    alignItems: "center",
-  },
-  statBox: {
-    flex: 1,
-    alignItems: "center",
-  },
-  statNumber: {
-    fontSize: width * 0.045,
-    fontWeight: "700",
-    color: "#111",
-  },
-  statLabel: {
-    fontSize: width * 0.03,
-    color: "#777",
-    marginTop: 2,
-  },
-  divider: {
-    width: 1,
-    height: height * 0.035,
-    backgroundColor: "#eee",
-  },
-  btnContainer: {
-    flexDirection: "row",
-    width: width * 0.88,
-    marginTop: height * 0.025,
-    gap: width * 0.025,
-    alignItems: "center",
-  },
-  editButton: {
-    backgroundColor: "#FF7A00",
-    flexDirection: "row",
-    height: height * 0.055, // Heights tied strictly to screen runtime heights
-    borderRadius: 12,
-    flex: 2, // Takes up twice the space of the share block
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 4,
-  },
-  logoutBtn: {
-    backgroundColor: "#FEE2E2",
-    borderWidth: 1,
-    borderColor: "#FCA5A5",
-    flexDirection: "row",
-    height: height * 0.055,
-    borderRadius: 12,
-    flex: 2,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 4,
-  },
-  btnText: {
-    color: "#fff",
-    fontWeight: "700",
-    fontSize: width * 0.036,
-  },
-  logoutBtnText: {
-    color: "#EF4444",
-    fontWeight: "700",
-    fontSize: width * 0.036,
-  },
-  shareBtn: {
-    width: height * 0.055, // Keeps it perfectly square with line heights
-    height: height * 0.055,
-    backgroundColor: "#FFF0E0",
-    borderWidth: 1,
-    borderColor: "#FF7A00",
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
-  },
+  
+  
   yourRecipeContainer: {
     marginTop: height * 0.02,
     width: width * 0.88,
@@ -365,22 +204,7 @@ const styles = StyleSheet.create({
     textAlign: "left",
   },
 
-  profileRecipeCard: {
-    width: "48%",
-    backgroundColor: "#fff",
-    borderRadius: 15,
-    marginBottom: 15,
-    overflow: "hidden",
-
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowRadius: 4,
-  },
+  
   profileRecipeContainer: {
     width: "90%",
     flexDirection: "row",
@@ -388,49 +212,12 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginTop: 15,
   },
-  recipeImage: {
-    width: "100%",
-    height: width * 0.25,
-    borderTopLeftRadius: 15,
-    borderTopRightRadius: 15,
-  },
-  recipeContent: {
-    padding: 12,
-  },
-  recipeTitle: {
-    fontSize: 15,
+  btnText: {
+    color: "#fff",
     fontWeight: "700",
-    color: "#222",
+    fontSize: width * 0.036,
   },
-  recipeCuisine: {
-    marginTop: 4,
-    fontSize: 12,
-    color: "#888",
-    textTransform: "uppercase",
-  },
-  badge: {
-    alignSelf: "flex-start",
-    backgroundColor: "#FFF0E0",
-    color: "#FF7A00",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
-    fontSize: 11,
-    fontWeight: "600",
-    marginTop: 6,
-  },
-  vegBadge: {
-    backgroundColor: "#DCFCE7",
-    color: "#15803D",
-  },
-
-  nonVegBadge: {
-    backgroundColor: "#FFEDD5",
-    color: "#EA580C",
-  },
-  fullWidthButton: {
-    width: "90%",
-  },
+  
 });
 
 export default ProfileScreen;

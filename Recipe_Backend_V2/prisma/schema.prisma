@@ -35,7 +35,6 @@ model Recipe {
   dietaryType DietaryType
   mealType    MealType
   course      CourseType
-
   authorId    String
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
