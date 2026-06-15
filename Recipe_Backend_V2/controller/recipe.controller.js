@@ -14,12 +14,28 @@ const createRecipe = async (req, res, next) => {
 
     let ingredients, steps;
     try {
-      ingredients = JSON.parse(req.body.ingredients);
-      steps = JSON.parse(req.body.steps);
+      const parseField = (field) => {
+        if (!field) return [];
+        if (typeof field !== "string") return field;
+        try {
+          const parsed = JSON.parse(field);
+          return Array.isArray(parsed) ? parsed : [field];
+        } catch (e) {
+          // Fallback: split by comma if JSON parse fails
+          return field.split(",").map(item => item.trim()).filter(item => item);
+        }
+      };
+
+      ingredients = parseField(req.body.ingredients);
+      steps = parseField(req.body.steps);
+
+      if (!Array.isArray(ingredients) || !Array.isArray(steps)) {
+        throw new Error("Fields must resolve to arrays");
+      }
     } catch (parseError) {
       return res
         .status(400)
-        .json({ message: "Invalid format for ingredients or steps arrays" });
+        .json({ message: "Invalid format for ingredients or steps arrays. Provide a JSON array or comma-separated string." });
     }
     const file = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
 
@@ -37,9 +53,9 @@ const createRecipe = async (req, res, next) => {
         ingredients,
         steps,
         cuisine,
-        dietaryType,
-        mealType,
-        course,
+        dietaryType: dietaryType?.toUpperCase(),
+        mealType: mealType?.toUpperCase(),
+        course: course?.toUpperCase(),
         authorId,
       },
     });

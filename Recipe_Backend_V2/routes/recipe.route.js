@@ -25,10 +25,10 @@ const upload = require('../middleware/upload')
  *                 type: string
  *               ingredients:
  *                 type: string
- *                 example: "[\"Tomato\", \"Cheese\"]"
+ *                 example: "Tomato, Cheese"
  *               steps:
  *                 type: string
- *                 example: "[\"Bake\", \"Eat\"]"
+ *                 example: "Bake, Eat"
  *               cuisine:
  *                 type: string
  *                 example: "Italian"
@@ -188,10 +188,10 @@ router.get('/:id', checkAuth, getSingleRecipe)
  *                 example: "Spicy and delicious"
  *               ingredients:
  *                 type: string
- *                 example: "[\"Chicken\", \"Spices\"]"
+ *                 example: "Chicken, Spices"
  *               steps:
  *                 type: string
- *                 example: "[\"Marinate\", \"Grill\"]"
+ *                 example: "Marinate, Grill"
  *               cuisine:
  *                 type: string
  *                 example: "Indian"
