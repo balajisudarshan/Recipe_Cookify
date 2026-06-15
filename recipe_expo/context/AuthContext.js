@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getMe } from "../api/apiRoute";
+import { useNavigation } from "@react-navigation/native";
 
 const AuthContext = createContext();
 
@@ -22,15 +23,15 @@ export const AuthProvider = ({ children }) => {
         if (savedUser) {
           setUser(JSON.parse(savedUser));
         }
-        if(savedToken){
-          const response = await getMe()
+        if (savedToken) {
+          const response = await getMe();
 
-          if(response && response.data && response.data.user){
-            const freshUser = response.data.user
+          if (response && response.data && response.data.user) {
+            const freshUser = response.data.user;
 
-            setUser(freshUser)
+            setUser(freshUser);
 
-            await AsyncStorage.setItem("user",JSON.stringify(freshUser))
+            await AsyncStorage.setItem("user", JSON.stringify(freshUser));
           }
         }
         // setUser(response.data.user)
@@ -41,9 +42,13 @@ export const AuthProvider = ({ children }) => {
         // )
       } catch (error) {
         console.log("Auth initialization token verification failed:", error);
-        
+
         // Optional: If token is expired or invalid (401 error), clear storage
-        if (error?.response?.status === 401) {
+        if (
+          error?.response?.status === 401 ||
+          error?.response?.data?.message === "jwt expired" ||
+          error?.response?.data?.error === "jwt expired"
+        ) {
           await AsyncStorage.removeItem("token");
           await AsyncStorage.removeItem("user");
           setToken(null);
@@ -54,16 +59,15 @@ export const AuthProvider = ({ children }) => {
       }
     };
 
-
     loadAuth();
   }, []);
 
-  const handleLogout = async()=>{
+  const handleLogout = async () => {
     await AsyncStorage.removeItem("token");
-          await AsyncStorage.removeItem("user");
-          setToken(null);
-          setUser(null);
-  }
+    await AsyncStorage.removeItem("user");
+    setToken(null);
+    setUser(null);
+  };
 
   return (
     <AuthContext.Provider

@@ -48,7 +48,7 @@ const HomeScreen = ({ navigation }) => {
   const [category, setCategory] = useState("Veg");
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       {/* Top Banner View */}
       <View
         style={[
@@ -58,8 +58,8 @@ const HomeScreen = ({ navigation }) => {
               category === "Veg"
                 ? "#FF7A00"
                 : category === "Non Veg"
-                ? "#e9281a"
-                : "#3ca7ff",
+                  ? "#e9281a"
+                  : "#3ca7ff",
           },
         ]}
       >
@@ -69,8 +69,8 @@ const HomeScreen = ({ navigation }) => {
               {category === "Veg"
                 ? "Veg Delights"
                 : category === "Non Veg"
-                ? "Non-Veg"
-                : "Dessert Delights"}
+                  ? "Non-Veg"
+                  : "Dessert Delights"}
             </Text>
             <Text style={styles.subtitle}>Discover delicious recipes</Text>
           </View>
@@ -81,8 +81,8 @@ const HomeScreen = ({ navigation }) => {
             category === "Veg"
               ? vegDelight
               : category === "Non Veg"
-              ? nonVegDelight
-              : dessertDelight
+                ? nonVegDelight
+                : dessertDelight
           }
           style={{
             width: logoSize,
@@ -115,7 +115,9 @@ const HomeScreen = ({ navigation }) => {
           onPress={() => setCategory("Non Veg")}
         />
       </View>
-      <RecipeOfTheDayCard/>
+      <View style={{marginVertical:10}}>
+        <RecipeOfTheDayCard />
+      </View>
 
       {/* Horizontal Dynamic Cards Track */}
       <View style={styles.cardsContainerTrack}>
@@ -136,16 +138,14 @@ const HomeScreen = ({ navigation }) => {
           ))}
         </ScrollView>
       </View>
-
-
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: "#FFF8F2" 
+  container: {
+    flex: 1,
+    backgroundColor: "#FFF8F2",
   },
   curveView: {
     paddingTop: height * 0.065,
@@ -161,19 +161,19 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-  textContainer: { 
-    flex: 1, 
-    paddingRight: width * 0.3 
+  textContainer: {
+    flex: 1,
+    paddingRight: width * 0.3,
   },
-  title: { 
-    color: "#FFFFFF", 
-    fontSize: width * 0.075, 
-    fontWeight: "800" 
+  title: {
+    color: "#FFFFFF",
+    fontSize: width * 0.075,
+    fontWeight: "800",
   },
-  subtitle: { 
-    color: "#FFE5D0", 
-    fontSize: width * 0.038, 
-    marginTop: 6 
+  subtitle: {
+    color: "#FFE5D0",
+    fontSize: width * 0.038,
+    marginTop: 6,
   },
   searchContainer: {
     marginTop: height * 0.015,
@@ -184,10 +184,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: width * 0.05,
     gap: width * 0.03,
     justifyContent: "space-evenly",
-    alignItems: "center"
+    alignItems: "center",
   },
   cardsContainerTrack: {
-    height: 115, 
+    height: 115,
     marginTop: height * 0.015,
     justifyContent: "center",
   },
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
   },
   popularSectionContainer: {
     paddingBottom: 20,
-  }
+  },
 });
 
 export default HomeScreen;
