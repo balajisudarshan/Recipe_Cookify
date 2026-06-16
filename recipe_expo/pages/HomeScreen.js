@@ -104,22 +104,38 @@ const HomeScreen = ({ navigation }) => {
       {/* Primary Toggle Chips */}
       <View style={styles.chipsContainer}>
         <CategoryChip
-          title={"Veg"}
-          icon={"leaf"}
+          title="All"
+          active={category === "All"}
+          onPress={() => setCategory("All")}
+        />
+        <CategoryChip
+          title="Veg"
           active={category === "Veg"}
           onPress={() => setCategory("Veg")}
         />
+
         <CategoryChip
-          title={"Non Veg"}
-          icon={"food-drumstick-outline"}
+          title="Vegan"
+          active={category === "Vegan"}
+          onPress={() => setCategory("Vegan")}
+        />
+
+        <CategoryChip
+          title="Eggetarian"
+          active={category === "Eggetarian"}
+          onPress={() => setCategory("Eggetarian")}
+        />
+
+        <CategoryChip
+          title="Non Veg"
           active={category === "Non Veg"}
           onPress={() => setCategory("Non Veg")}
         />
       </View>
-      <View style={{marginVertical:10}}>
+      <View style={{ marginVertical: 10 }}>
         <RecipeOfTheDayCard />
       </View>
-      <RecentRecipes/>
+      <RecentRecipes />
 
       {/* Horizontal Dynamic Cards Track */}
       <View style={styles.cardsContainerTrack}>

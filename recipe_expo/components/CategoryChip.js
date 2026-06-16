@@ -1,73 +1,104 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import React from "react";
+import { TouchableOpacity, Text, StyleSheet } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-const CategoryChip = ({ title, icon, active, onPress }) => {
-  // Define our base color themes for each category
-  let themeColor;
 
-  if (title === "Veg") {
-    themeColor = "#22C55E"; // Fresh Green
-  } else if (title === "Non Veg") {
-    themeColor = "#FF7A00"; // Cookify Orange
-  } else if (title === "Desserts") {
-    themeColor = "#EAB308"; // Golden Yellow
-  } else {
-    themeColor = "#3B82F6"; // Action Blue (for + Add Recipe)
+const categoryThemes = {
+  Veg: {
+    color: "#22C55E",
+    icon: "leaf",
+  },
+  Vegan: {
+    color: "#10B981",
+    icon: "sprout",
+  },
+  Eggetarian: {
+    color: "#F59E0B",
+    icon: "egg-outline",
+  },
+  "Non Veg": {
+    color: "#EF4444",
+    icon: "food-drumstick-outline",
+  },
+  All:{
+    color: "#6366F1",
+    icon: "silverware-fork-knife",
   }
+};
+
+const CategoryChip = ({ title, active, onPress }) => {
+  const theme = categoryThemes[title] || {
+    color: "#3B82F6",
+    icon: "silverware-fork-knife",
+  };
 
   const chipStyle = [
-    styles.chipBase,
+    styles.chip,
     {
-      backgroundColor: active ? themeColor : `${themeColor}15`,
-      borderColor: active ? themeColor : `${themeColor}40`,
-      borderWidth: active ? 0 : 1,
+      backgroundColor: active ? theme.color : `${theme.color}12`,
+      borderColor: active ? theme.color : `${theme.color}40`,
     },
     active && styles.activeShadow,
   ];
 
-  const textStyle = [
-    styles.textBase,
-    {
-      color: active ? "#FFFFFF" : themeColor,
-      fontWeight: active ? "700" : "600",
-    },
-  ];
-
   return (
-    <TouchableOpacity activeOpacity={0.7} onPress={onPress} style={chipStyle}>
+    <TouchableOpacity
+      activeOpacity={0.8}
+      style={chipStyle}
+      onPress={onPress}
+    >
       <MaterialCommunityIcons
-        name={icon}
+        name={theme.icon}
         size={20}
-        color={active ? "#FFFFFF" : themeColor}
+        color={active ? "#FFF" : theme.color}
       />
-
-      <Text style={textStyle}>{title}</Text>
+{active && (
+      <Text
+        style={[
+          styles.text,
+          {
+            color: active ? "#FFF" : theme.color,
+            fontWeight: active ? "700" : "600",
+          },
+        ]}
+      >
+        {title}
+      </Text>
+)}
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  chipBase: {
+  chip: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+
+    borderRadius: 999,
+
+    borderWidth: 1,
+
     gap: 8,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 25,
   },
-  textBase: {
+
+  text: {
     fontSize: 15,
     letterSpacing: 0.3,
   },
+
   activeShadow: {
-    // Android Shadow
-    elevation: 6,
-    // iOS Shadow
+    elevation: 5,
+
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.15,
-    shadowRadius: 5,
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
   },
 });
 
