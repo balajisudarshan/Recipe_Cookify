@@ -17,6 +17,7 @@ import AllFoodIcon from "../icons/AllFoodIcon";
 import CategoryCard from "../components/cards/CategoryCard";
 import CATEGORIES from "../const/CATEGORIES";
 import RecipeOfTheDayCard from "../components/cards/RecipeOfTheDayCard";
+import RecentRecipes from "../components/RecentRecipes";
 const { width, height } = Dimensions.get("window");
 
 // const CATEGORIES = [
@@ -118,6 +119,7 @@ const HomeScreen = ({ navigation }) => {
       <View style={{marginVertical:10}}>
         <RecipeOfTheDayCard />
       </View>
+      <RecentRecipes/>
 
       {/* Horizontal Dynamic Cards Track */}
       <View style={styles.cardsContainerTrack}>

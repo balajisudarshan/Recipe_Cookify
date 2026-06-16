@@ -1,0 +1,233 @@
+import {
+  View,
+  Text,
+  ActivityIndicator,
+  TouchableOpacity,
+  Image,
+} from "react-native";
+import React, { useEffect, useState } from "react";
+import { ScrollView } from "react-native-gesture-handler";
+import { getRecentRecipes } from "../api/apiRoute";
+import { StyleSheet } from "react-native";
+import { COLORS } from "../const/COLORS";
+
+const RecentRecipes = () => {
+  const [recentRecipe, setRecentRecipe] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const getRecentRecipe = async () => {
+      try {
+        setLoading(true);
+        const recipes = await getRecentRecipes();
+        setRecentRecipe(recipes.data);
+      } catch (error) {
+        console.log("Recent Error", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    getRecentRecipe();
+  }, []);
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.headerContainer}>
+        <Text style={styles.mainHeading}>
+          Recent<Text style={{ color: COLORS.primary }}> Recipes</Text>
+        </Text>
+        <TouchableOpacity activeOpacity={0.7}>
+          <Text style={styles.viewAllText}>View All</Text>
+        </TouchableOpacity>
+      </View>
+
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+          <Text style={styles.loadingText}>Discovering fresh recipes...</Text>
+        </View>
+      ) : (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContainer}
+        >
+          {recentRecipe.map((recipe) => (
+            <TouchableOpacity
+              key={recipe.id}
+              style={styles.card}
+              activeOpacity={0.9}
+            >
+              <Image source={{ uri: recipe.image }} style={styles.image} />
+
+              <View style={styles.content}>
+                <View>
+                  <Text style={styles.meta}>{recipe.cuisine}</Text>
+                  <Text numberOfLines={1} style={styles.title}>
+                    {recipe.title}
+                  </Text>
+                </View>
+
+                <View style={styles.badges}>
+                  <View
+                    style={[
+                      styles.badge,
+                      recipe.dietaryType === "VEGETARIAN"
+                        ? styles.vegBadge
+                        : recipe.dietaryType === "VEGAN"
+                          ? styles.veganBadge
+                          : styles.nonVegBadge,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.badgeText,
+                        recipe.dietaryType === "VEGETARIAN"
+                          ? styles.vegText
+                          : recipe.dietaryType === "VEGAN"
+                            ? styles.veganText
+                            : styles.nonVegText,
+                      ]}
+                    >
+                      {recipe.dietaryType?.toLowerCase()}
+                    </Text>
+                  </View>
+
+                  <View style={[styles.badge, styles.courseBadge]}>
+                    <Text style={[styles.badgeText, styles.courseText]}>
+                      {recipe.course?.toLowerCase()}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      )}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    marginVertical: 15,
+  },
+  headerContainer: {
+    flexDirection: "row", 
+    alignItems: "center", 
+    justifyContent: "space-between",
+    marginBottom: 15, 
+    paddingRight: 16,
+  },
+  viewAllText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: COLORS.primary || "#FF6B6B", 
+  },
+  mainHeading: {
+    color: COLORS.text,
+    fontSize: 22,
+    fontWeight: "800",
+    marginLeft: 20,
+    // marginBottom: 15,
+    letterSpacing: -0.5,
+  },
+  scrollContainer: {
+    paddingLeft: 20,
+    paddingRight: 5,
+    paddingBottom: 15, // Leaves space for the shadow drops
+  },
+  loadingContainer: {
+    height: 120,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    marginTop: 8,
+    fontSize: 14,
+    color: COLORS.textSecondary || "#666",
+  },
+  card: {
+    flexDirection: "row",
+    width: 290,
+    height: 120,
+    backgroundColor: COLORS.surface || "#FFF",
+    borderRadius: 24,
+    padding: 12,
+    marginRight: 16,
+
+    // Modern Soft Shadows
+    elevation: 5,
+    shadowColor: "#171717",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+  },
+  image: {
+    width: 96,
+    height: 96,
+    borderRadius: 18,
+    backgroundColor: "#F0F0F0",
+  },
+  content: {
+    flex: 1,
+    marginLeft: 14,
+    justifyContent: "space-between",
+    paddingVertical: 2,
+  },
+  meta: {
+    color: COLORS.primary || "#FF6B6B",
+    fontSize: 11,
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    marginBottom: 2,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: COLORS.text || "#1A1A1A",
+    lineHeight: 20,
+  },
+  badges: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  badge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginRight: 6,
+  },
+  vegBadge: {
+    backgroundColor: "#E8F5E9",
+  },
+  vegText: {
+    color: "#2E7D32",
+  },
+  veganBadge: {
+    backgroundColor: "#E0F2F1",
+  },
+  veganText: {
+    color: "#00695C",
+  },
+  nonVegBadge: {
+    backgroundColor: "#FFEBEE",
+  },
+  nonVegText: {
+    color: "#C62828",
+  },
+  courseBadge: {
+    backgroundColor: "#FFF3E0",
+  },
+  courseText: {
+    color: "#EF6C00",
+  },
+  badgeText: {
+    fontSize: 11,
+    fontWeight: "700",
+    textTransform: "capitalize",
+  },
+});
+
+export default RecentRecipes;
