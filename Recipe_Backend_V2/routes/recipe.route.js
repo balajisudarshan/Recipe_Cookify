@@ -1,5 +1,5 @@
 const router = require('express').Router()
-const { createRecipe, getAllRecipes, getSingleRecipe, getMyRecipes, getUserRecipes, updateRecipe, deleteRecipe, likeRecipe, saveRecipe, getLikedRecipes, getSavedRecipes } = require('../controller/recipe.controller')
+const { createRecipe, getAllRecipes, getSingleRecipe, getMyRecipes, getUserRecipes, updateRecipe, deleteRecipe, likeRecipe, saveRecipe, getLikedRecipes, getSavedRecipes,getRecentRecipes } = require('../controller/recipe.controller')
 const checkAuth = require('../middleware/checkAuth')
 const upload = require('../middleware/upload')
 
@@ -122,6 +122,25 @@ router.get('/saved', checkAuth, getSavedRecipes)
 
 /**
  * @swagger
+ * /api/recipe/recent:
+ *   get:
+ *     summary: Get recent recipes
+ *     tags:
+ *       - Recipe
+ *     parameters:
+ *       - in: query
+ *         name: dietaryType
+ *         schema:
+ *           type: string
+ *         description: Filter by dietary type (e.g. VEGETARIAN, NON_VEG)
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved recent recipes
+ */
+router.get('/recent',checkAuth,getRecentRecipes);
+
+/**
+ * @swagger
  * /api/recipe/user/{id}:
  *   get:
  *     summary: Get recipes by a specific user
@@ -159,6 +178,7 @@ router.get('/user/:id', checkAuth, getUserRecipes)
  *         description: Successfully retrieved recipe
  */
 router.get('/:id', checkAuth, getSingleRecipe)
+
 
 /**
  * @swagger

@@ -162,6 +162,7 @@ const getSingleRecipe = async (req, res, next) => {
   }
 };
 
+
 const getMyRecipes = async (req, res, next) => {
   try {
     const userId = req.user.id
@@ -243,6 +244,23 @@ const getUserRecipes = async (req, res, next) => {
       count: formattedRecipes.length,
       recipes: formattedRecipes
     })
+  } catch (error) {
+    next(error)
+  }
+}
+
+const getRecentRecipes = async(req,res,next)=>{
+  const {dietaryType} = req.query
+  try {
+    const recipes = await prisma.recipe.findMany({
+      where:dietaryType?{dietaryType}:undefined,
+      orderBy:{
+        createdAt:"desc"
+      },
+      take:10
+    })
+
+    res.json(recipes)
   } catch (error) {
     next(error)
   }
@@ -487,4 +505,4 @@ const getSavedRecipes = async (req, res, next) => {
   }
 };
 
-module.exports = { createRecipe, getAllRecipes, getSingleRecipe, getMyRecipes, getUserRecipes, updateRecipe, deleteRecipe, likeRecipe, saveRecipe, getLikedRecipes, getSavedRecipes };
+module.exports = { createRecipe, getAllRecipes, getSingleRecipe, getMyRecipes, getUserRecipes, updateRecipe, deleteRecipe, likeRecipe, saveRecipe, getLikedRecipes, getSavedRecipes, getRecentRecipes};
