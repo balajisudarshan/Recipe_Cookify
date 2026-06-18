@@ -27,6 +27,7 @@ export const loginUser = (data) => api.post("/auth/login", data)
 
 export const getAllRecipes = ()=>api.get('/recipe')
 export const getMyRecipes = () => api.get('/recipe/my')
+export const getRecipe = (id)=>api.get(`/recipe/${id}`)
 export const getRecentRecipes = ()=>api.get('/recipe/recent')
 export const createRecipe = (formData) => api.post("/recipe/create", formData, {
   headers: {

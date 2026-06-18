@@ -14,6 +14,7 @@ import LoginScreen from "./pages/LoginScreen";
 import RegisterScreen from "./pages/RegisterScreen";
 import EditProfileScreen from "./pages/EditProfileScreen";
 import AddRecipePage from "./pages/AddRecipePage"; // <-- Don't forget to import this!
+import ViewRecipe from "./pages/ViewRecipe";
 
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import Toast from "react-native-toast-message";
@@ -28,6 +29,7 @@ function HomeStackNavigator() {
     <HomeStack.Navigator screenOptions={{ headerShown: false }}>
       <HomeStack.Screen name="HomeMain" component={HomeScreen} />
       <HomeStack.Screen name="AddRecipe" component={AddRecipePage} />
+      <HomeStack.Screen name="ViewRecipe" component={ViewRecipe}/>
     </HomeStack.Navigator>
   );
 }

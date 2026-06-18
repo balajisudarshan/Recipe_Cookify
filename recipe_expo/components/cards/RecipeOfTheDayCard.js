@@ -11,10 +11,13 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Seperator from "../Seperator";
+import { useNavigation } from "@react-navigation/native";
 
 const RecipeOfTheDayCard = () => {
   const [recipe, setRecipe] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const navigation = useNavigation()
 
   const getRecipes = async () => {
     try {
@@ -112,7 +115,11 @@ const RecipeOfTheDayCard = () => {
                 </View>
               </View>
 
-              <TouchableOpacity style={styles.button}>
+              <TouchableOpacity style={styles.button} onPress={()=>
+                navigation.navigate("ViewRecipe",{
+                  recipeId:recipe.id
+                })
+              }>
                 <Text style={styles.buttonText}>View Recipe</Text>
               </TouchableOpacity>
             </View>
