@@ -1,6 +1,13 @@
 import React from "react";
-import { View, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+
+const { width, height } = Dimensions.get("window");
 
 const RecipeTopActions = ({
   onBack,
@@ -15,7 +22,7 @@ const RecipeTopActions = ({
       >
         <Ionicons
           name="arrow-back"
-          size={24}
+          size={width * 0.06}
           color="#FF7A00"
         />
       </TouchableOpacity>
@@ -27,7 +34,7 @@ const RecipeTopActions = ({
         >
           <Ionicons
             name="share-social-outline"
-            size={22}
+            size={width * 0.055}
             color="#FF7A00"
           />
         </TouchableOpacity>
@@ -38,7 +45,7 @@ const RecipeTopActions = ({
         >
           <Ionicons
             name="ellipsis-horizontal"
-            size={22}
+            size={width * 0.055}
             color="#FF7A00"
           />
         </TouchableOpacity>
@@ -52,9 +59,9 @@ export default RecipeTopActions;
 const styles = StyleSheet.create({
   container: {
     position: "absolute",
-    top: 40,
-    left: 16,
-    right: 16,
+    top: height * 0.05,
+    left: width * 0.04,
+    right: width * 0.04,
 
     flexDirection: "row",
     justifyContent: "space-between",
@@ -65,15 +72,15 @@ const styles = StyleSheet.create({
 
   rightActions: {
     flexDirection: "row",
-    gap: 12,
+    gap: width * 0.03,
   },
 
   circleBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 24,
+    width: width * 0.11,
+    height: width * 0.11,
+    borderRadius: width * 0.055,
 
-    backgroundColor: "rgba(255, 255, 255, 0.88)",
+    backgroundColor: "rgba(255,255,255,0.9)",
 
     justifyContent: "center",
     alignItems: "center",
