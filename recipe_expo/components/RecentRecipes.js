@@ -10,11 +10,11 @@ import { ScrollView } from "react-native-gesture-handler";
 import { getRecentRecipes } from "../api/apiRoute";
 import { StyleSheet } from "react-native";
 import { COLORS } from "../const/COLORS";
-
+import { useNavigation } from "@react-navigation/native";
 const RecentRecipes = () => {
   const [recentRecipe, setRecentRecipe] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const navigation = useNavigation()
   useEffect(() => {
     const getRecentRecipe = async () => {
       try {
@@ -57,6 +57,11 @@ const RecentRecipes = () => {
               key={recipe.id}
               style={styles.card}
               activeOpacity={0.9}
+              onPress={()=>
+                navigation.navigate("ViewRecipe",{
+                  recipeId:recipe.id
+                })
+              }
             >
               <Image source={{ uri: recipe.image }} style={styles.image} />
 

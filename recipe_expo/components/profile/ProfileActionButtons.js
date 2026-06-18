@@ -3,11 +3,13 @@ import React from 'react'
 import { StyleSheet } from 'react-native'
 import { Feather } from "@expo/vector-icons";
 import { useAuth } from '../../context/AuthContext';
+import { useNavigation } from "@react-navigation/native";
 
 const { width, height } = Dimensions.get("window");
 
 const ProfileActionButtons = () => {
     const {  handleLogout } = useAuth();
+    const navigation = useNavigation()
   return (
     <View style={styles.btnContainer}>
           <TouchableOpacity
