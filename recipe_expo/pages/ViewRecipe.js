@@ -15,6 +15,9 @@ import { Ionicons } from "@expo/vector-icons";
 import CardActionContainer from "../components/cards/CardActionContainer";
 import RecipeRatings from "../components/RecipeRatings";
 import InfoChip from "../components/chips/InfoChip";
+import { Dimensions } from "react-native";
+
+const { width, height } = Dimensions.get("window");
 
 const ViewRecipe = () => {
   const route = useRoute();
@@ -101,16 +104,18 @@ const ViewRecipe = () => {
         </View>
 
         {/* <Text style={styles.description}>{recipe.description}</Text> */}
-        <View style={{
-          flexDirection:"row",
-          flexWrap:"wrap",
-          gap:8,
-          marginTop:10
-        }}>
-          <InfoChip type='dietary' label={recipe.dietaryType} />
-          <InfoChip type='course' label={recipe.course}/>
-          <InfoChip type='meal' label={recipe.mealType}/>
-          <InfoChip type='cuisine' label={recipe.cuisine}/>
+        <View
+          style={{
+            flexDirection: "row",
+            flexWrap: "wrap",
+            gap: 8,
+            marginTop: 10,
+          }}
+        >
+          <InfoChip type="dietary" label={recipe.dietaryType} />
+          <InfoChip type="course" label={recipe.course} />
+          <InfoChip type="meal" label={recipe.mealType} />
+          <InfoChip type="cuisine" label={recipe.cuisine} />
         </View>
       </View>
     </View>
@@ -131,50 +136,51 @@ const styles = StyleSheet.create({
   },
   image: {
     width: "100%",
-    height: 300,
+    height: height * 0.32,
   },
   content: {
-    padding: 16,
-    borderTopRightRadius: 30,
-    borderTopLeftRadius: 30,
+    padding: width * 0.03,
+    borderTopRightRadius: width * 0.08,
+    borderTopLeftRadius: width * 0.08,
     backgroundColor: "#fff",
-    marginTop: -20,
+    marginTop: -width * 0.05,
   },
   title: {
-    fontSize: 24,
+    fontSize: width * 0.065,
     fontWeight: "700",
-    marginBottom: 8,
+    marginBottom: width * 0.02,
   },
   author: {
-    fontSize: 16,
+    fontSize: width * 0.04,
     color: "#666",
-    marginBottom: 12,
+    marginBottom: width * 0.03,
   },
   description: {
-    fontSize: 15,
-    lineHeight: 24,
+    fontSize: width * 0.038,
+    lineHeight: width * 0.06,
     color: "#444",
   },
   avatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 30,
+     width: width * 0.13,
+  height: width * 0.13,
+  borderRadius: width * 0.065,
   },
   userHolder: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 10,
+    marginTop: width * 0.03,
   },
   authorContent: {
-    marginLeft: 20,
+    marginLeft: width * 0.04,
   },
   primaryTxt: {
-    fontWeight: "bold",
-    fontSize: 15,
+    fontWeight: "700",
+    fontSize: width * 0.04,
     textTransform: "capitalize",
   },
   secondaryTxt: {
     color: "grey",
     fontWeight: "400",
+    fontSize: width * 0.032,
   },
 });
