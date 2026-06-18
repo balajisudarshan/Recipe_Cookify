@@ -16,6 +16,7 @@ import CardActionContainer from "../components/cards/CardActionContainer";
 import RecipeRatings from "../components/RecipeRatings";
 import InfoChip from "../components/chips/InfoChip";
 import { Dimensions } from "react-native";
+import RecipeStats from "../components/cards/RecipeStats";
 
 const { width, height } = Dimensions.get("window");
 
@@ -117,6 +118,11 @@ const ViewRecipe = () => {
           <InfoChip type="meal" label={recipe.mealType} />
           <InfoChip type="cuisine" label={recipe.cuisine} />
         </View>
+        <RecipeStats
+          likes={recipe._count.likes}
+          comments={recipe._count.comments}
+          saves={recipe._count.saves}
+        />
       </View>
     </View>
   );
@@ -161,9 +167,9 @@ const styles = StyleSheet.create({
     color: "#444",
   },
   avatar: {
-     width: width * 0.13,
-  height: width * 0.13,
-  borderRadius: width * 0.065,
+    width: width * 0.13,
+    height: width * 0.13,
+    borderRadius: width * 0.065,
   },
   userHolder: {
     flexDirection: "row",
