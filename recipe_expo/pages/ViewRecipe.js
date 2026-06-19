@@ -27,6 +27,8 @@ const ViewRecipe = () => {
   const [recipe, setRecipe] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const [selectedTab, setSelectedTab] = useState("ingredients");
+
   useEffect(() => {
     const fetchRecipe = async () => {
       try {
@@ -123,6 +125,54 @@ const ViewRecipe = () => {
           comments={recipe._count.comments}
           saves={recipe._count.saves}
         />
+
+        <View style={styles.aboutRecipeContainer}>
+          <Text style={styles.headingTxt}>About this Recipe</Text>
+          <Text style={styles.secondaryTxt}>{recipe.description}</Text>
+        </View>
+
+        <View style={styles.tabContainer}>
+          <TouchableOpacity
+            style={[
+              styles.tab,
+              selectedTab === "ingredients" && styles.activeTab,
+            ]}
+            onPress={() => setSelectedTab("ingredients")}
+          >
+            <Ionicons
+              name="list-outline"
+              size={16}
+              color={selectedTab === "ingredients" ? "#fff" : "#666"}
+            />
+            <Text
+              style={[
+                styles.tabText,
+                selectedTab === "ingredients" && styles.activeTabText,
+              ]}
+            >
+              Ingredients
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.tab, selectedTab === "steps" && styles.activeTab]}
+            onPress={() => setSelectedTab("steps")}
+          >
+            <Ionicons
+              name="restaurant-outline"
+              size={16}
+              color={selectedTab === "steps" ? "#fff" : "#666"}
+            />
+            <Text
+              style={[
+                styles.tabText,
+                selectedTab === "steps" && styles.activeTabText,
+              ]}
+            >
+              Steps
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -131,6 +181,11 @@ const ViewRecipe = () => {
 export default ViewRecipe;
 
 const styles = StyleSheet.create({
+  headingTxt: {
+    fontWeight: "800",
+    fontSize: width * 0.06,
+    color: "#4b4b4b",
+  },
   container: {
     flex: 1,
     backgroundColor: "#fff",
@@ -145,7 +200,7 @@ const styles = StyleSheet.create({
     height: height * 0.32,
   },
   content: {
-    padding: width * 0.03,
+    padding: width * 0.06,
     borderTopRightRadius: width * 0.08,
     borderTopLeftRadius: width * 0.08,
     backgroundColor: "#fff",
@@ -188,5 +243,38 @@ const styles = StyleSheet.create({
     color: "grey",
     fontWeight: "400",
     fontSize: width * 0.032,
+  },
+  aboutRecipeContainer: {
+    marginTop: height * 0.03,
+    gap: 3,
+  },
+  tabContainer: {
+    flexDirection: "row",
+    backgroundColor: "#f3f4f6",
+    borderRadius: 30,
+    padding: 4,
+    marginVertical: 20,
+  },
+  tab: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 6,
+    paddingVertical: 10,
+    borderRadius: 25,
+  },
+  activeTab: {
+    backgroundColor: "#ff7a00",
+  },
+  tabText: {
+    color: "#666",
+    fontWeight: "500",
+    fontSize: 14,
+  },
+
+  activeTabText: {
+    color: "#fff",
+    fontWeight: "700",
   },
 });

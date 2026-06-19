@@ -41,18 +41,12 @@ export const AuthProvider = ({ children }) => {
         //   JSON.stringify(response.data.user)
         // )
       } catch (error) {
-        console.log("Auth initialization token verification failed:", error);
-
-        // Optional: If token is expired or invalid (401 error), clear storage
-        if (
-          error?.response?.status === 401 ||
-          error?.response?.data?.message === "jwt expired" ||
-          error?.response?.data?.error === "jwt expired"
-        ) {
-          await AsyncStorage.removeItem("token");
-          await AsyncStorage.removeItem("user");
-          setToken(null);
-          setUser(null);
+        console.log("STATUS:", error?.response?.status);
+        console.log("DATA:", error?.response?.data);
+        console.log("MESSAGE:", error?.response?.data?.message);
+        if(error?.response.status === 404 ||error?.response?.data?.message === "User not found" ){
+          setToken(null)
+          setUser(null)
         }
       } finally {
         setLoading(false);
