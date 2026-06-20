@@ -5,6 +5,7 @@ import {
   ActivityIndicator,
   StyleSheet,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useRoute } from "@react-navigation/native";
@@ -17,6 +18,8 @@ import RecipeRatings from "../components/RecipeRatings";
 import InfoChip from "../components/chips/InfoChip";
 import { Dimensions } from "react-native";
 import RecipeStats from "../components/cards/RecipeStats";
+import IngredientContainer from "../components/IngredientContainer";
+import StepContainer from "../components/StepContainer";
 
 const { width, height } = Dimensions.get("window");
 
@@ -76,105 +79,136 @@ const ViewRecipe = () => {
   }
 
   return (
-    <View style={styles.container}>
-      <View>
-        <RecipeTopActions />
-        <Image
-          source={{ uri: recipe.image }}
-          style={styles.image}
-          resizeMode="cover"
-        />
-      </View>
-      <View style={styles.content}>
-        <CardActionContainer />
-        <Text style={styles.title}>{recipe.title}</Text>
-        <RecipeRatings />
-
-        {/* <Text style={styles.author}>By {recipe.author?.username}</Text> */}
-        <View style={styles.userHolder}>
+    <ScrollView>
+      <View style={styles.container}>
+        <View>
+          <RecipeTopActions />
           <Image
-            source={{
-              uri:
-                recipe.author.avatar ||
-                `https://ui-avatars.com/api/?name=${recipe.author.username}`,
-            }}
-            style={styles.avatar}
+            source={{ uri: recipe.image }}
+            style={styles.image}
+            resizeMode="cover"
           />
-          <View style={styles.authorContent}>
-            <Text style={styles.primaryTxt}>{recipe.author.username}</Text>
-            <Text style={styles.secondaryTxt}>12 Recipes Shared</Text>
+        </View>
+        <View style={styles.content}>
+          <CardActionContainer />
+          <Text style={styles.title}>{recipe.title}</Text>
+          <RecipeRatings />
+
+          {/* <Text style={styles.author}>By {recipe.author?.username}</Text> */}
+          <View style={styles.userHolder}>
+            <Image
+              source={{
+                uri:
+                  recipe.author.avatar ||
+                  `https://ui-avatars.com/api/?name=${recipe.author.username}`,
+              }}
+              style={styles.avatar}
+            />
+            <View style={styles.authorContent}>
+              <Text style={styles.primaryTxt}>{recipe.author.username}</Text>
+              <Text style={styles.secondaryTxt}>12 Recipes Shared</Text>
+            </View>
           </View>
-        </View>
 
-        {/* <Text style={styles.description}>{recipe.description}</Text> */}
-        <View
-          style={{
-            flexDirection: "row",
-            flexWrap: "wrap",
-            gap: 8,
-            marginTop: 10,
-          }}
-        >
-          <InfoChip type="dietary" label={recipe.dietaryType} />
-          <InfoChip type="course" label={recipe.course} />
-          <InfoChip type="meal" label={recipe.mealType} />
-          <InfoChip type="cuisine" label={recipe.cuisine} />
-        </View>
-        <RecipeStats
-          likes={recipe._count.likes}
-          comments={recipe._count.comments}
-          saves={recipe._count.saves}
-        />
-
-        <View style={styles.aboutRecipeContainer}>
-          <Text style={styles.headingTxt}>About this Recipe</Text>
-          <Text style={styles.secondaryTxt}>{recipe.description}</Text>
-        </View>
-
-        <View style={styles.tabContainer}>
-          <TouchableOpacity
-            style={[
-              styles.tab,
-              selectedTab === "ingredients" && styles.activeTab,
-            ]}
-            onPress={() => setSelectedTab("ingredients")}
+          {/* <Text style={styles.description}>{recipe.description}</Text> */}
+          <View
+            style={{
+              flexDirection: "row",
+              flexWrap: "wrap",
+              gap: 8,
+              marginTop: 10,
+            }}
           >
-            <Ionicons
-              name="list-outline"
-              size={16}
-              color={selectedTab === "ingredients" ? "#fff" : "#666"}
-            />
-            <Text
-              style={[
-                styles.tabText,
-                selectedTab === "ingredients" && styles.activeTabText,
-              ]}
-            >
-              Ingredients
-            </Text>
-          </TouchableOpacity>
+            <InfoChip type="dietary" label={recipe.dietaryType} />
+            <InfoChip type="course" label={recipe.course} />
+            <InfoChip type="meal" label={recipe.mealType} />
+            <InfoChip type="cuisine" label={recipe.cuisine} />
+          </View>
+          <RecipeStats
+            likes={recipe._count.likes}
+            comments={recipe._count.comments}
+            saves={recipe._count.saves}
+          />
 
-          <TouchableOpacity
-            style={[styles.tab, selectedTab === "steps" && styles.activeTab]}
-            onPress={() => setSelectedTab("steps")}
-          >
-            <Ionicons
-              name="restaurant-outline"
-              size={16}
-              color={selectedTab === "steps" ? "#fff" : "#666"}
-            />
-            <Text
+          <View style={styles.aboutRecipeContainer}>
+            <Text style={styles.headingTxt}>About this Recipe</Text>
+            <Text style={styles.secondaryTxt}>{recipe.description}</Text>
+          </View>
+
+          <View style={styles.tabContainer}>
+            <TouchableOpacity
               style={[
-                styles.tabText,
-                selectedTab === "steps" && styles.activeTabText,
+                styles.tab,
+                selectedTab === "ingredients" && styles.activeTab,
               ]}
+              onPress={() => setSelectedTab("ingredients")}
             >
-              Steps
-            </Text>
-          </TouchableOpacity>
+              <Ionicons
+                name="list-outline"
+                size={16}
+                color={selectedTab === "ingredients" ? "#fff" : "#666"}
+              />
+              <Text
+                style={[
+                  styles.tabText,
+                  selectedTab === "ingredients" && styles.activeTabText,
+                ]}
+              >
+                Ingredients
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.tab, selectedTab === "steps" && styles.activeTab]}
+              onPress={() => setSelectedTab("steps")}
+            >
+              <Ionicons
+                name="restaurant-outline"
+                size={16}
+                color={selectedTab === "steps" ? "#fff" : "#666"}
+              />
+              <Text
+                style={[
+                  styles.tabText,
+                  selectedTab === "steps" && styles.activeTabText,
+                ]}
+              >
+                Steps
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* <View style={styles.ingredientsContainer}>
+            {recipe.ingredients.map((ingr, index) => (
+              <View key={index}>
+                <View style={styles.ingredientRow}>
+                  <View style={styles.leftSection}>
+                    <Ionicons
+                      name="checkmark-circle"
+                      size={22}
+                      color="#22C55E"
+                    />
+
+                    <Text style={styles.ingredientName}>{ingr.name}</Text>
+                  </View>
+
+                  <Text style={styles.quantity}>{ingr.quantity}</Text>
+                </View>
+
+                {index !== recipe.ingredients.length - 1 && (
+                  <View style={styles.separator} />
+                )}
+              </View>
+            ))}
+          </View> */}
+          {selectedTab === "ingredients" ? (
+            <IngredientContainer recipe={recipe} />
+          ) : (
+            <StepContainer recipe={recipe}/>
+          )}
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -277,4 +311,41 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "700",
   },
+  // ingredientsContainer: {
+  //   backgroundColor: "#fff",
+  //   borderRadius: 20,
+  //   // marginTop: 1,
+  //   // padding: 11,
+  // },
+
+  // ingredientRow: {
+  //   flexDirection: "row",
+  //   justifyContent: "space-between",
+  //   alignItems: "center",
+  //   paddingVertical: 12,
+  // },
+
+  // leftSection: {
+  //   flexDirection: "row",
+  //   alignItems: "center",
+  //   flex: 1,
+  // },
+
+  // ingredientName: {
+  //   marginLeft: 10,
+  //   fontSize: 16,
+  //   fontWeight: "500",
+  //   color: "#222",
+  // },
+
+  // quantity: {
+  //   fontSize: 15,
+  //   color: "#666",
+  //   fontWeight: "600",
+  // },
+
+  // separator: {
+  //   height: 1,
+  //   backgroundColor: "#F1F1F1",
+  // },
 });
