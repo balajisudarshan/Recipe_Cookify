@@ -1,6 +1,17 @@
 import React from "react";
-import { TouchableOpacity, Text, StyleSheet } from "react-native";
+import {
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  View,
+  Dimensions,
+} from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { COLORS } from "../const/COLORS";
+
+const { width } = Dimensions.get("window");
+
+const CHIP_WIDTH = Math.min(65, width * 0.18);
 
 const categoryThemes = {
   Veg: {
@@ -12,94 +23,120 @@ const categoryThemes = {
     icon: "sprout",
   },
   Eggetarian: {
-    color: "#F59E0B",
+    color: COLORS.primary,
     icon: "egg-outline",
   },
   "Non Veg": {
     color: "#EF4444",
     icon: "food-drumstick-outline",
   },
-  All:{
+  All: {
     color: "#6366F1",
     icon: "silverware-fork-knife",
-  }
+  },
 };
 
-const CategoryChip = ({ title, active, onPress }) => {
+export default function CategoryChip({
+  title,
+  active,
+  onPress,
+}) {
   const theme = categoryThemes[title] || {
     color: "#3B82F6",
     icon: "silverware-fork-knife",
   };
 
-  const chipStyle = [
-    styles.chip,
-    {
-      backgroundColor: active ? theme.color : `${theme.color}12`,
-      borderColor: active ? theme.color : `${theme.color}40`,
-    },
-    active && styles.activeShadow,
-  ];
-
   return (
     <TouchableOpacity
-      activeOpacity={0.8}
-      style={chipStyle}
+      activeOpacity={0.85}
       onPress={onPress}
+      style={styles.container}
     >
-      <MaterialCommunityIcons
-        name={theme.icon}
-        size={20}
-        color={active ? "#FFF" : theme.color}
-      />
-{active && (
+      <View
+        style={[
+          styles.chip,
+          active && styles.activeChip,
+        ]}
+      >
+        <MaterialCommunityIcons
+          name={theme.icon}
+          size={24}
+          color={active ? "#FFF" : theme.color}
+        />
+      </View>
+
       <Text
+        numberOfLines={1}
         style={[
           styles.text,
-          {
-            color: active ? "#FFF" : theme.color,
-            fontWeight: active ? "700" : "600",
-          },
+          active && styles.activeText,
         ]}
       >
         {title}
       </Text>
-)}
     </TouchableOpacity>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  chip: {
-    flexDirection: "row",
+  container: {
     alignItems: "center",
+    width: CHIP_WIDTH,
+  },
+
+  chip: {
+    width: CHIP_WIDTH,
+    height: 44,
+
     justifyContent: "center",
+    alignItems: "center",
 
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    backgroundColor: COLORS.surface,
 
-    borderRadius: 999,
+    borderRadius: 20,
 
     borderWidth: 1,
-
-    gap: 8,
-  },
-
-  text: {
-    fontSize: 15,
-    letterSpacing: 0.3,
-  },
-
-  activeShadow: {
-    elevation: 5,
+    borderColor: "#EEF2F7",
 
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
-      height: 3,
+      height: 2,
     },
-    shadowOpacity: 0.12,
-    shadowRadius: 6,
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+
+    elevation: 2,
+  },
+
+  activeChip: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+
+    shadowColor: COLORS.primary,
+    shadowOffset: {
+      width: 0,
+      height: 6,
+    },
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
+
+    elevation: 6,
+  },
+
+  text: {
+    marginTop: 6,
+
+    fontSize: 13,
+    fontWeight: "600",
+
+    textAlign: "center",
+
+    color: COLORS.textSecondary,
+  },
+
+  activeText: {
+    color: COLORS.primary,
+    fontWeight: "700",
   },
 });
-
-export default CategoryChip;

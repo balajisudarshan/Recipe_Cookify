@@ -15,7 +15,7 @@ import RegisterScreen from "./pages/RegisterScreen";
 import EditProfileScreen from "./pages/EditProfileScreen";
 import AddRecipePage from "./pages/AddRecipePage"; // <-- Don't forget to import this!
 import ViewRecipe from "./pages/ViewRecipe";
-
+import { useFonts, Poppins_400Regular, Poppins_700Bold } from "@expo-google-fonts/poppins";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import Toast from "react-native-toast-message";
 
@@ -111,6 +111,15 @@ function RootNavigator() {
 }
 
 export default function App() {
+ 
+  const [fontsLoaded] = useFonts({
+    Poppins_400Regular,
+    Poppins_700Bold,
+  });
+
+  if (!fontsLoaded) {
+    return null;
+  }
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>

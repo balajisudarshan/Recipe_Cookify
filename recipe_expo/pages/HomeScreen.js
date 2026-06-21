@@ -17,7 +17,11 @@ import AllFoodIcon from "../icons/AllFoodIcon";
 import CategoryCard from "../components/cards/CategoryCard";
 import CATEGORIES from "../const/CATEGORIES";
 import RecipeOfTheDayCard from "../components/cards/RecipeOfTheDayCard";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import RecentRecipes from "../components/RecentRecipes";
+import { COLORS } from "../const/COLORS";
+// import { ScrollView } from "react-native";
+
 const { width, height } = Dimensions.get("window");
 
 // const CATEGORIES = [
@@ -51,7 +55,7 @@ const HomeScreen = ({ navigation }) => {
   return (
     <ScrollView style={styles.container}>
       {/* Top Banner View */}
-      <View
+      {/* <View
         style={[
           styles.curveView,
           {
@@ -94,20 +98,59 @@ const HomeScreen = ({ navigation }) => {
             resizeMode: "contain",
           }}
         />
+      </View> */}
+      <View
+        style={{
+          marginTop: height * 0.05,
+          paddingHorizontal: width * 0.05,
+          flexDirection: "row",
+          justifyContent: "space-between",
+        }}
+      >
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 5,
+          }}
+        >
+          <MaterialCommunityIcons
+            name="chef-hat"
+            size={24}
+            color={COLORS.accent}
+            style={{
+              fontSize: width * 0.07,
+            }}
+          />
+          <Text
+            style={{
+              fontSize: width * 0.06,
+              fontWeight: "bold",
+              color: "#f06c00",
+              fontFamily: "Poppins_700Bold",
+            }}
+          >
+            Cookify
+          </Text>
+        </View>
+        <MaterialCommunityIcons name="bell-outline" size={24} color="#000000" />
       </View>
-
       {/* Search Bar section */}
       <View style={styles.searchContainer}>
         <SearchBar placeholder="Search Recipes" />
       </View>
-
       {/* Primary Toggle Chips */}
-      <View style={styles.chipsContainer}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.chipsContainer}
+      >
         <CategoryChip
           title="All"
           active={category === "All"}
           onPress={() => setCategory("All")}
         />
+
         <CategoryChip
           title="Veg"
           active={category === "Veg"}
@@ -131,12 +174,11 @@ const HomeScreen = ({ navigation }) => {
           active={category === "Non Veg"}
           onPress={() => setCategory("Non Veg")}
         />
-      </View>
+      </ScrollView>
       <View style={{ marginVertical: 10 }}>
         <RecipeOfTheDayCard />
       </View>
       <RecentRecipes />
-
       {/* Horizontal Dynamic Cards Track */}
       <View style={styles.cardsContainerTrack}>
         <ScrollView

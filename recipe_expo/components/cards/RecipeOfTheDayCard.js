@@ -12,12 +12,17 @@ import { StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Seperator from "../Seperator";
 import { useNavigation } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
+import { Dimensions } from "react-native";
 
 const RecipeOfTheDayCard = () => {
   const [recipe, setRecipe] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { width } = Dimensions.get("window");
 
-  const navigation = useNavigation()
+  const CARD_WIDTH = width * 0.95;
+  const CARD_HEIGHT = width * 0.6;
+  const navigation = useNavigation();
 
   const getRecipes = async () => {
     try {
@@ -36,15 +41,14 @@ const RecipeOfTheDayCard = () => {
       const response = await getAllRecipes();
       const recipes = response.data.recipes;
 
-      const randomRecipe =
-        recipes[Math.floor(Math.random() * recipes.length)];
+      const randomRecipe = recipes[Math.floor(Math.random() * recipes.length)];
 
       setRecipe(randomRecipe);
 
       await AsyncStorage.setItem("recipe_date", today);
       await AsyncStorage.setItem(
         "recipe_of_the_day",
-        JSON.stringify(randomRecipe)
+        JSON.stringify(randomRecipe),
       );
     } catch (error) {
       console.log(error);
@@ -59,25 +63,7 @@ const RecipeOfTheDayCard = () => {
 
   return (
     <View style={styles.card}>
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <MaterialCommunityIcons
-            name="star-four-points"
-            size={18}
-            color="#F97316"
-          />
-          <Text style={styles.headerText}>RECIPE OF THE DAY</Text>
-        </View>
-
-        <View style={styles.badge}>
-          <MaterialCommunityIcons
-            name="fire"
-            size={14}
-            color="#FFFFFF"
-          />
-          <Text style={styles.badgeText}>Featured</Text>
-        </View>
-      </View>
+     
 
       {isLoading ? (
         <View style={styles.loaderContainer}>
@@ -85,42 +71,45 @@ const RecipeOfTheDayCard = () => {
         </View>
       ) : recipe ? (
         <>
-          <Image source={{ uri: recipe.image }} style={styles.image} />
+          <View style={styles.heroCard}>
+            <Image source={{ uri: recipe.image }} style={styles.heroImage} />
 
-          <View style={styles.content}>
-            <Text style={styles.title} numberOfLines={2}>
-              {recipe.title}
-            </Text>
+            <LinearGradient
+              colors={[
+                "rgba(0,0,0,0.95)",
+                "rgba(0,0,0,0.8)",
+                "rgba(0,0,0,0.4)",
+                "rgba(0,0,0,0)",
+              ]}
+              start={{ x: 0, y: 0.5 }}
+              end={{ x: 1, y: 0.5 }}
+              style={styles.overlay}
+            />
 
-            <View style={styles.tagsContainer}>
-              <View style={styles.tag}>
-                <Text style={styles.tagText}>{recipe.cuisine}</Text>
+            <View style={styles.heroContent}>
+              <Text style={styles.recipeLabel}>✦ RECIPE OF THE DAY</Text>
+
+              <Text style={styles.heroTitle} numberOfLines={2}>
+                {recipe.title}
+              </Text>
+
+              <View style={styles.heroMeta}>
+                <Text style={styles.heroMetaText}>⏱ 20 min</Text>
+
+                <Text style={styles.heroMetaText}>• Easy</Text>
               </View>
 
-              <View style={styles.tag}>
-                <Text style={styles.tagText}>{recipe.course}</Text>
-              </View>
-            </View>
+              
 
-            <Seperator/>
-
-            <View style={styles.bottomRow}>
-              <View style={styles.stats}>
-                <View style={styles.statItem}>
-                  <Text style={styles.statText}>❤️ 120</Text>
-                </View>
-
-                <View style={styles.statItem}>
-                  <Text style={styles.statText}>⏱ 20 min</Text>
-                </View>
-              </View>
-
-              <TouchableOpacity style={styles.button} onPress={()=>
-                navigation.navigate("ViewRecipe",{
-                  recipeId:recipe.id
-                })
-              }>
-                <Text style={styles.buttonText}>View Recipe</Text>
+              <TouchableOpacity
+                style={styles.heroButton}
+                onPress={() =>
+                  navigation.navigate("ViewRecipe", {
+                    recipeId: recipe.id,
+                  })
+                }
+              >
+                <Text style={styles.heroButtonText}>View Recipe</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -136,145 +125,120 @@ const styles = StyleSheet.create({
   card: {
     width: "95%",
     alignSelf: "center",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 24,
+    marginVertical: 12,
+  },
+
+  heroCard: {
+    width: "100%",
+    height: 240,
+
+    borderRadius: 28,
     overflow: "hidden",
-    elevation: 8,
+
+    backgroundColor: "#000",
+
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
-      height: 5,
+      height: 8,
     },
     shadowOpacity: 0.15,
-    shadowRadius: 10,
-    marginVertical: 10,
+    shadowRadius: 15,
+
+    elevation: 8,
   },
 
-  header: {
-    backgroundColor: "#FFF6F1",
-    borderBottomWidth: 1,
-    borderBottomColor: "#FFE4D1",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-  },
-
-  headerLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-
-  headerText: {
-    marginLeft: 8,
-    color: "#F97316",
-    fontSize: 14,
-    fontWeight: "800",
-    letterSpacing: 0.8,
-  },
-
-  badge: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#FF8A00",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 999,
-  },
-
-  badgeText: {
-    color: "#FFFFFF",
-    fontSize: 12,
-    fontWeight: "700",
-    marginLeft: 4,
-  },
-
-  image: {
+  heroImage: {
     width: "100%",
-    height: 190,
+    height: "100%",
+    resizeMode: "cover",
   },
 
-  content: {
-    padding: 10,
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
   },
 
-  title: {
+  heroContent: {
+    position: "absolute",
+
+    top: 24,
+    left: 20,
+
+    width: "55%",
+  },
+
+  recipeLabel: {
+    color: "#FF7A00",
+
+    fontSize: 12,
+    fontWeight: "800",
+
+    letterSpacing: 1.2,
+
+    textTransform: "uppercase",
+  },
+
+  heroTitle: {
+    color: "#FFFFFF",
+
     fontSize: 24,
     fontWeight: "800",
-    color: "#1F2937",
+
     lineHeight: 30,
+
+    marginTop: 10,
   },
 
-  tagsContainer: {
+  heroMeta: {
     flexDirection: "row",
-    marginTop: 8,
-  },
-
-  tag: {
-    backgroundColor: "#FFF4EE",
-    borderWidth: 1,
-    borderColor: "#FFD8C2",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    marginRight: 8,
-  },
-
-  tagText: {
-    color: "#F97316",
-    fontSize: 12,
-    fontWeight: "700",
-  },
-
-  bottomRow: {
-    // marginTop: 5,
-    flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
+
+    marginTop: 12,
   },
 
-  stats: {
-    flexDirection: "row",
-  },
+  heroMetaText: {
+    color: "#FFFFFF",
 
-  statItem: {
-    backgroundColor: "#F9FAFB",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 12,
-    marginRight: 8,
-  },
-
-  statText: {
-    color: "#4B5563",
     fontSize: 13,
     fontWeight: "600",
+
+    marginRight: 12,
   },
 
-  button: {
-    backgroundColor: "#FF8A00",
+  heroButton: {
+    marginTop: 18,
+
+    backgroundColor: "#FF7A00",
+
     paddingHorizontal: 18,
     paddingVertical: 12,
-    borderRadius: 16,
+
+    borderRadius: 14,
+
+    alignSelf: "flex-start",
   },
 
-  buttonText: {
+  heroButtonText: {
     color: "#FFFFFF",
-    fontWeight: "700",
+
     fontSize: 14,
+    fontWeight: "700",
   },
 
   loaderContainer: {
-    paddingVertical: 50,
+    height: 240,
+
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   errorText: {
     textAlign: "center",
-    padding: 20,
+
     color: "#6B7280",
+
+    paddingVertical: 30,
   },
-  
 });
 
 export default RecipeOfTheDayCard;
