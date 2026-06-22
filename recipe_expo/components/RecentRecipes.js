@@ -13,6 +13,7 @@ import { COLORS } from "../const/COLORS";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { Dimensions } from "react-native";
+import SectionHeader from "./header/SectionHeader";
 
 const { width } = Dimensions.get("window");
 
@@ -38,14 +39,16 @@ const RecentRecipes = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.headerContainer}>
+      {/* <View style={styles.headerContainer}>
         <Text style={styles.mainHeading}>
           Recent<Text style={{ color: COLORS.primary }}> Recipes</Text>
         </Text>
         <TouchableOpacity activeOpacity={0.7}>
           <Text style={styles.viewAllText}>View All</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
+
+      <SectionHeader mainTxt={"Recent"} HighlightedText={"Recipes"}  />
 
       {loading ? (
         <View style={styles.loadingContainer}>
@@ -60,7 +63,7 @@ const RecentRecipes = () => {
         >
           {recentRecipe.map((recipe) => (
             <TouchableOpacity
-              style={styles.card}
+              style={styles.card}   
               onPress={() =>
                 navigation.navigate("ViewRecipe", {
                   recipeId: recipe.id,
@@ -93,26 +96,7 @@ const styles = StyleSheet.create({
   container: {
     marginVertical: 15,
   },
-  headerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 15,
-    paddingRight: 16,
-  },
-  viewAllText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: COLORS.primary || "#FF6B6B",
-  },
-  mainHeading: {
-    color: COLORS.text,
-    fontSize: 22,
-    fontWeight: "800",
-    marginLeft: 20,
-    // marginBottom: 15,
-    letterSpacing: -0.5,
-  },
+  
   scrollContainer: {
     paddingLeft: 20,
     paddingRight: 5,
@@ -130,7 +114,7 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary || "#666",
   },
   card: {
-    width: width * 0.42,
+    width: width * 0.47,
     backgroundColor: "#fff",
     borderRadius: 22,
     padding: 8,

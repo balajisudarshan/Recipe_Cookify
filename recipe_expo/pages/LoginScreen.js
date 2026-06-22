@@ -21,7 +21,7 @@ const LoginScreen = () => {
   const navigation = useNavigation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { setUser, setToken } = useAuth();
+  const { setUser, setToken, token: authToken, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
   const handleLogin = async () => {
     try {
@@ -55,16 +55,12 @@ const LoginScreen = () => {
       setLoading(false);
     }
   };
+
   useEffect(() => {
-    const checkAuth = async () => {
-      const token = await AsyncStorage.getItem("token");
-      if (token) {
-        navigation.replace("MainTabs");
-      }
-      console.log(token);
-    };
-    checkAuth();
-  }, []);
+    if (!authLoading && authToken) {
+      navigation.replace("MainTabs");
+    }
+  }, [authLoading, authToken]);
 
   return (
     <ScreenWrapper>
