@@ -11,16 +11,22 @@ import { getRecentRecipes } from "../api/apiRoute";
 import { StyleSheet } from "react-native";
 import { COLORS } from "../const/COLORS";
 import { useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
+import { Dimensions } from "react-native";
+
+const { width } = Dimensions.get("window");
+
 const RecentRecipes = () => {
   const [recentRecipe, setRecentRecipe] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigation = useNavigation()
+  const navigation = useNavigation();
   useEffect(() => {
     const getRecentRecipe = async () => {
       try {
         setLoading(true);
         const recipes = await getRecentRecipes();
         setRecentRecipe(recipes.data);
+        console.log("Recennt Recipes", recipes.data);
       } catch (error) {
         console.log("Recent Error", error);
       } finally {
@@ -54,55 +60,25 @@ const RecentRecipes = () => {
         >
           {recentRecipe.map((recipe) => (
             <TouchableOpacity
-              key={recipe.id}
               style={styles.card}
-              activeOpacity={0.9}
-              onPress={()=>
-                navigation.navigate("ViewRecipe",{
-                  recipeId:recipe.id
+              onPress={() =>
+                navigation.navigate("ViewRecipe", {
+                  recipeId: recipe.id,
                 })
               }
             >
               <Image source={{ uri: recipe.image }} style={styles.image} />
-
+              <TouchableOpacity style={styles.favoriteBtn}>
+                <Ionicons name="heart-outline" size={22} color="#ff0303" />
+              </TouchableOpacity>
               <View style={styles.content}>
-                <View>
-                  <Text style={styles.meta}>{recipe.cuisine}</Text>
-                  <Text numberOfLines={1} style={styles.title}>
-                    {recipe.title}
-                  </Text>
+                <View style={styles.cuisineBadge}>
+                  <Text style={styles.cuisineText}>{recipe.cuisine}</Text>
                 </View>
-
-                <View style={styles.badges}>
-                  <View
-                    style={[
-                      styles.badge,
-                      recipe.dietaryType === "VEGETARIAN"
-                        ? styles.vegBadge
-                        : recipe.dietaryType === "VEGAN"
-                          ? styles.veganBadge
-                          : styles.nonVegBadge,
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.badgeText,
-                        recipe.dietaryType === "VEGETARIAN"
-                          ? styles.vegText
-                          : recipe.dietaryType === "VEGAN"
-                            ? styles.veganText
-                            : styles.nonVegText,
-                      ]}
-                    >
-                      {recipe.dietaryType?.toLowerCase()}
-                    </Text>
-                  </View>
-
-                  <View style={[styles.badge, styles.courseBadge]}>
-                    <Text style={[styles.badgeText, styles.courseText]}>
-                      {recipe.course?.toLowerCase()}
-                    </Text>
-                  </View>
+                <Text style={styles.title}>{recipe.title}</Text>
+                <View style={styles.timeRow}>
+                  <Ionicons name="time-outline" size={18} color="#666" />
+                  <Text style={styles.time}>20 min</Text>
                 </View>
               </View>
             </TouchableOpacity>
@@ -118,16 +94,16 @@ const styles = StyleSheet.create({
     marginVertical: 15,
   },
   headerContainer: {
-    flexDirection: "row", 
-    alignItems: "center", 
+    flexDirection: "row",
+    alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 15, 
+    marginBottom: 15,
     paddingRight: 16,
   },
   viewAllText: {
     fontSize: 14,
     fontWeight: "600",
-    color: COLORS.primary || "#FF6B6B", 
+    color: COLORS.primary || "#FF6B6B",
   },
   mainHeading: {
     color: COLORS.text,
@@ -141,6 +117,7 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     paddingRight: 5,
     paddingBottom: 15, // Leaves space for the shadow drops
+    gap: 20,
   },
   loadingContainer: {
     height: 120,
@@ -153,32 +130,72 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary || "#666",
   },
   card: {
-    flexDirection: "row",
-    width: 290,
-    height: 120,
-    backgroundColor: COLORS.surface || "#FFF",
-    borderRadius: 24,
-    padding: 12,
-    marginRight: 16,
+    width: width * 0.42,
+    backgroundColor: "#fff",
+    borderRadius: 22,
+    padding: 8,
 
-    // Modern Soft Shadows
-    elevation: 5,
-    shadowColor: "#171717",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
   image: {
-    width: 96,
-    height: 96,
+    width: "100%",
+    height: width * 0.32,
     borderRadius: 18,
-    backgroundColor: "#F0F0F0",
   },
+  favoriteBtn: {
+    position: "absolute",
+    top: 16,
+    right: 16,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 4,
+  },
+
   content: {
-    flex: 1,
-    marginLeft: 14,
-    justifyContent: "space-between",
-    paddingVertical: 2,
+    paddingHorizontal: 6,
+    paddingTop: 8,
+    paddingBottom: 6,
+  },
+  cuisineBadge: {
+    alignSelf: "flex-start",
+    backgroundColor: "#FFE8D1",
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  cuisineText: {
+    color: COLORS.primary,
+    fontSize: 11,
+    fontWeight: "700",
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#525252",
+    marginTop: 4,
+  },
+
+  timeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 12,
+  },
+
+  time: {
+    marginLeft: 4,
+    fontSize: 13,
+    color: "#666",
   },
   meta: {
     color: COLORS.primary || "#FF6B6B",
@@ -188,12 +205,12 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     marginBottom: 2,
   },
-  title: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: COLORS.text || "#1A1A1A",
-    lineHeight: 20,
-  },
+  // title: {
+  //   fontSize: 16,
+  //   fontWeight: "700",
+  //   color: COLORS.text || "#1A1A1A",
+  //   lineHeight: 20,
+  // },
   badges: {
     flexDirection: "row",
     alignItems: "center",
