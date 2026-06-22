@@ -4,27 +4,29 @@ import ScreenHeader from "../components/ScreenHeader";
 import SearchBar from "../components/SearchBar";
 import { getUsers } from "../api/apiRoute";
 import UserCard from "../components/cards/UserCard";
+import useUsers from "../hooks/useUsers";
 
 // import { getAllUsers } from '../../Recipe_Backend_V2/controller/profile.controller'
 
 const SearchScreen = () => {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setLoading(true);
-        const response = await getUsers();
-        console.log(response.data);
-        setUsers(response.data.users);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUsers();
-  }, []);
+  // const [users, setUsers] = useState([]);
+  // const [loading, setLoading] = useState(true);
+  // useEffect(() => {
+  //   const fetchUsers = async () => {
+  //     try {
+  //       setLoading(true);
+  //       const response = await getUsers();
+  //       console.log(response.data);
+  //       setUsers(response.data.users);
+  //     } catch (error) {
+  //       console.log(error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+  //   fetchUsers();
+  // }, []);
+  const {users,loading,refetch} = useUsers( )
   return (
     <View style={styles.container}>
       <ScreenHeader title="Search" subtitle="Find Chefs" />

@@ -20,6 +20,7 @@ import RecipeOfTheDayCard from "../components/cards/RecipeOfTheDayCard";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import RecentRecipes from "../components/RecentRecipes";
 import { COLORS } from "../const/COLORS";
+import TopChefs from "../components/TopChefs";
 // import { ScrollView } from "react-native";
 
 const { width, height } = Dimensions.get("window");
@@ -179,6 +180,7 @@ const HomeScreen = ({ navigation }) => {
         <RecipeOfTheDayCard />
       </View>
       <RecentRecipes />
+      <TopChefs/>
       {/* Horizontal Dynamic Cards Track */}
       <View style={styles.cardsContainerTrack}>
         <ScrollView
