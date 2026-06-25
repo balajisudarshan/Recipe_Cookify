@@ -15,6 +15,7 @@ import { loginUser } from "../api/apiRoute";
 import { useAuth } from "../context/AuthContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Toast from "react-native-toast-message";
+import LoginLoader from "../components/Loaders/LoginLoader";
 
 const LoginScreen = () => {
   const { width, height } = useWindowDimensions();
@@ -61,6 +62,10 @@ const LoginScreen = () => {
       navigation.replace("MainTabs");
     }
   }, [authLoading, authToken]);
+
+  if(loading){
+    return <LoginLoader/>
+  }
 
   return (
     <ScreenWrapper>

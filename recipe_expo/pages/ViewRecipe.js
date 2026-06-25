@@ -20,6 +20,7 @@ import { Dimensions } from "react-native";
 import RecipeStats from "../components/cards/RecipeStats";
 import IngredientContainer from "../components/IngredientContainer";
 import StepContainer from "../components/StepContainer";
+import ViewRecipLoader from "../components/Loaders/ViewRecipeLoader";
 
 const { width, height } = Dimensions.get("window");
 
@@ -64,9 +65,7 @@ const ViewRecipe = () => {
 
   if (isLoading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" />
-      </View>
+      <ViewRecipLoader/>
     );
   }
 
