@@ -6,7 +6,7 @@ const IngredientContainer = ({recipe}) => {
     // console.log("Recipe"+recipe)
   return (
     <View style={styles.ingredientsContainer}>
-      {recipe.ingredients.map((ingr, index) => (
+      {recipe.ingredients?.map((ingr, index) => (
         
         <View key={index}>
           <View style={styles.ingredientRow}>

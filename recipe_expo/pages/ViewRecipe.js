@@ -21,8 +21,10 @@ import RecipeStats from "../components/cards/RecipeStats";
 import IngredientContainer from "../components/IngredientContainer";
 import StepContainer from "../components/StepContainer";
 import ViewRecipLoader from "../components/Loaders/ViewRecipeLoader";
+import RecipeActionBar from "../components/buttons/RecipeActionBar";
 
 const { width, height } = Dimensions.get("window");
+const IMAGE_HEIGHT = height * 0.42;
 
 const ViewRecipe = () => {
   const route = useRoute();
@@ -64,9 +66,7 @@ const ViewRecipe = () => {
   }, [recipeId]);
 
   if (isLoading) {
-    return (
-      <ViewRecipLoader/>
-    );
+    return <ViewRecipLoader />;
   }
 
   if (!recipe) {
@@ -78,18 +78,25 @@ const ViewRecipe = () => {
   }
 
   return (
-    <ScrollView>
-      <View style={styles.container}>
-        <View>
-          <RecipeTopActions />
-          <Image
-            source={{ uri: recipe.image }}
-            style={styles.image}
-            resizeMode="cover"
-          />
-        </View>
+    <View style={styles.container}>
+      <Image
+        source={{ uri: recipe.image }}
+        style={styles.image}
+        resizeMode="cover"
+      />
+
+      <RecipeTopActions />
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{
+          paddingTop: IMAGE_HEIGHT - 30,
+          paddingBottom: 40,
+        }}
+      >
         <View style={styles.content}>
-          <CardActionContainer />
+          <View style={styles.handle} />
+          {/* <CardActionContainer /> */}
           <Text style={styles.title}>{recipe.title}</Text>
           <RecipeRatings />
 
@@ -128,7 +135,7 @@ const ViewRecipe = () => {
             comments={recipe._count.comments}
             saves={recipe._count.saves}
           />
-
+          <RecipeActionBar/>
           <View style={styles.aboutRecipeContainer}>
             <Text style={styles.headingTxt}>About this Recipe</Text>
             <Text style={styles.secondaryTxt}>{recipe.description}</Text>
@@ -203,17 +210,25 @@ const ViewRecipe = () => {
           {selectedTab === "ingredients" ? (
             <IngredientContainer recipe={recipe} />
           ) : (
-            <StepContainer recipe={recipe}/>
+            <StepContainer recipe={recipe} />
           )}
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 };
 
 export default ViewRecipe;
 
 const styles = StyleSheet.create({
+  handle: {
+    width: 45,
+    height: 5,
+    borderRadius: 10,
+    backgroundColor: "#D9D9D9",
+    alignSelf: "center",
+    marginBottom: 20,
+  },
   headingTxt: {
     fontWeight: "800",
     fontSize: width * 0.06,
@@ -229,15 +244,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   image: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
     width: "100%",
-    height: height * 0.32,
+    height: IMAGE_HEIGHT,
   },
   content: {
-    padding: width * 0.06,
-    borderTopRightRadius: width * 0.08,
-    borderTopLeftRadius: width * 0.08,
     backgroundColor: "#fff",
-    marginTop: -width * 0.05,
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    paddingHorizontal: width * 0.06,
+    paddingTop: 20,
+    paddingBottom: 40,
+    minHeight: height,
   },
   title: {
     fontSize: width * 0.065,

@@ -4,6 +4,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
+  Text
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -26,6 +27,15 @@ const CardActionContainer = () => {
           size={width * 0.065}
           color="#ff3300"
         />
+      </TouchableOpacity>
+
+       <TouchableOpacity style={[styles.actionButton,styles.cookModeBtn]}>
+        <Ionicons
+          name="restaurant"
+          size={width * 0.05}
+          color="#ff3300"
+        />
+        <Text>Cook Mode</Text>
       </TouchableOpacity>
     </View>
   );
@@ -62,6 +72,10 @@ const styles = StyleSheet.create({
 
     elevation: 8,
   },
+  cookModeBtn:{
+    width:width*0.3
+  }
+  
 });
 
 export default CardActionContainer;
