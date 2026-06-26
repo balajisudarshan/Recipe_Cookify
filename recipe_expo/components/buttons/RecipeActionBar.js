@@ -70,18 +70,19 @@ const styles = StyleSheet.create({
   btn: {
     backgroundColor: "#fff",
     flex: 1,
-  backgroundColor: "#fff",
-  borderRadius: 20,
-  paddingVertical: 18,
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    flexDirection: "row",
 
-  justifyContent: "center",
-  alignItems: "center",
-
-  borderWidth: 1,
-  borderColor: "#ECECEC",
+    alignItems: "center",
+    paddingVertical:10,
+    justifyContent:"center",
+    gap:10,
+    borderWidth: 1,
+    borderColor: "#ECECEC",
   },
   txt: {
-    marginTop: 8,
+    // marginTop: 8,
     fontSize: 15,
     fontWeight: "600",
     color: COLORS.text,
