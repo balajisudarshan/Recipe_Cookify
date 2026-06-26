@@ -29,6 +29,7 @@ export const getAllRecipes = ()=>api.get('/recipe')
 export const getMyRecipes = () => api.get('/recipe/my')
 export const getRecipe = (id)=>api.get(`/recipe/${id}`)
 export const getRecentRecipes = ()=>api.get('/recipe/recent')
+export const getFavourites = ()=>api.get('/recipe/liked')
 export const createRecipe = (formData) => api.post("/recipe/create", formData, {
   headers: {
     'Content-Type': 'multipart/form-data'

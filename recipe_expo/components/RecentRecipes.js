@@ -75,13 +75,14 @@ const RecentRecipes = () => {
                 <Ionicons name="heart-outline" size={22} color="#ff0303" />
               </TouchableOpacity>
               <View style={styles.content}>
-                <View style={styles.cuisineBadge}>
-                  <Text style={styles.cuisineText}>{recipe.cuisine}</Text>
-                </View>
+                
                 <Text style={styles.title}>{recipe.title}</Text>
                 <View style={styles.timeRow}>
                   <Ionicons name="time-outline" size={18} color="#666" />
                   <Text style={styles.time}>20 min</Text>
+                </View>
+                <View style={styles.cuisineBadge}>
+                  <Text style={styles.cuisineText}>{recipe.cuisine}</Text>
                 </View>
               </View>
             </TouchableOpacity>
@@ -157,6 +158,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingHorizontal: 10,
     paddingVertical: 4,
+    marginTop:10
   },
   cuisineText: {
     color: COLORS.primary,
