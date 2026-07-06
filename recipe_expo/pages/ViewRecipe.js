@@ -135,7 +135,7 @@ const ViewRecipe = () => {
             comments={recipe._count.comments}
             saves={recipe._count.saves}
           />
-          <RecipeActionBar/>
+          <RecipeActionBar recipeId={recipe.id} recipe={recipe} setRecipe={setRecipe} />
           <View style={styles.aboutRecipeContainer}>
             <Text style={styles.headingTxt}>About this Recipe</Text>
             <Text style={styles.secondaryTxt}>{recipe.description}</Text>

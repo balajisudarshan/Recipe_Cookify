@@ -13,9 +13,10 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const loadAuth = async () => {
       try {
+        console.log("1");
         const savedToken = await AsyncStorage.getItem("token");
         const savedUser = await AsyncStorage.getItem("user");
-
+        console.log("2", savedToken);
         if (savedToken) {
           setToken(savedToken);
         }
@@ -24,7 +25,10 @@ export const AuthProvider = ({ children }) => {
           setUser(JSON.parse(savedUser));
         }
         if (savedToken) {
+          console.log("3 Before getMe");
           const response = await getMe();
+          console.log("4 After getMe");
+
 
           if (response && response.data && response.data.user) {
             const freshUser = response.data.user;
@@ -34,6 +38,7 @@ export const AuthProvider = ({ children }) => {
             await AsyncStorage.setItem("user", JSON.stringify(freshUser));
           }
         }
+        console.log("5");
         // setUser(response.data.user)
 
         // await AsyncStorage.setItem(

@@ -18,6 +18,7 @@ import ViewRecipe from "./pages/ViewRecipe";
 import { useFonts, Poppins_400Regular, Poppins_700Bold } from "@expo-google-fonts/poppins";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import Toast from "react-native-toast-message";
+import { Text } from "react-native";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -83,7 +84,7 @@ function RootNavigator() {
   const { token, loading } = useAuth();
 
   if (loading) {
-    return null;
+     return <Text>Loading Auth...</Text>;
   }
 
   return (

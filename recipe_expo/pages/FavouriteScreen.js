@@ -7,6 +7,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { COLORS } from "../const/COLORS";
 import { getRecentRecipes } from "../api/apiRoute";
 import { getFavourites } from "../api/apiRoute";
+import NoFavouriteFound from "../components/Loaders/NoFavouriteFoundLoader";
+import NoFavouriteFoundLoader from "../components/Loaders/NoFavouriteFoundLoader";
 const { width, height } = Dimensions.get("window");
 const FavouriteScreen = () => {
   const [favourites,setFavourites] = useState([])
@@ -25,7 +27,7 @@ const FavouriteScreen = () => {
     getFavouriteRecipes()
   },[])
   if(favourites.length <=0){
-    return <Text>No favourite found</Text>
+    return <NoFavouriteFoundLoader/>
   }
   return (
     <View style={styles.container}>
@@ -49,7 +51,7 @@ const FavouriteScreen = () => {
 
 
         <View>
-
+          
         </View>
       </View>
     </View>

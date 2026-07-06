@@ -14,10 +14,11 @@ import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { Dimensions } from "react-native";
 import SectionHeader from "./header/SectionHeader";
-
+import { useLikeRecipe } from "../hooks/useLikeRecipe";
 const { width } = Dimensions.get("window");
 
 const RecentRecipes = () => {
+  const {handleLike} = useLikeRecipe();
   const [recentRecipe, setRecentRecipe] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
@@ -71,8 +72,18 @@ const RecentRecipes = () => {
               }
             >
               <Image source={{ uri: recipe.image }} style={styles.image} />
-              <TouchableOpacity style={styles.favoriteBtn}>
-                <Ionicons name="heart-outline" size={22} color="#ff0303" />
+              <TouchableOpacity
+                style={[
+                  styles.favoriteBtn,
+                  recipe.isLiked && styles.favoriteBtnActive,
+                ]}
+                onPress={() => handleLike(recipe.id, setRecentRecipe)}
+              >
+                <Ionicons
+                  name={recipe.isLiked ? "heart" : "heart-outline"}
+                  size={18}
+                  color={recipe.isLiked ? "#ff4d4f" : "#ff4d4f"}
+                />
               </TouchableOpacity>
               <View style={styles.content}>
                 
@@ -136,15 +147,26 @@ const styles = StyleSheet.create({
   },
   favoriteBtn: {
     position: "absolute",
-    top: 16,
-    right: 16,
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: "#fff",
+    top: 14,
+    right: 14,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: "rgba(255,255,255,0.95)",
     justifyContent: "center",
     alignItems: "center",
-    elevation: 4,
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.18,
+    shadowRadius: 5,
+    borderWidth: 1,
+    borderColor: "rgba(255, 77, 79, 0.18)",
+  },
+  favoriteBtnActive: {
+    backgroundColor: "rgba(255, 237, 238, 0.98)",
+    borderColor: "rgba(255, 77, 79, 0.25)",
+    transform: [{ scale: 1.04 }],
   },
 
   content: {

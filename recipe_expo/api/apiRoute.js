@@ -1,7 +1,7 @@
 import axios from "axios"
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const BASE_URL = "http://172.27.160.110:5000/api/"
+const BASE_URL = "http://10.16.8.110:5000/api/"
 
 export const api = axios.create({
   baseURL: BASE_URL,
@@ -36,6 +36,7 @@ export const createRecipe = (formData) => api.post("/recipe/create", formData, {
   }
 })
 
+export const likeOrUnlineRecipe = (id)=>api.put(`/recipe/like/${id}`)
 export const getMe = () => api.get("/profile/me")
 export const getUsers = () => api.get('/profile/all-users')
 

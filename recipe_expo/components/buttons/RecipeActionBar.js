@@ -3,8 +3,12 @@ import React from "react";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { COLORS } from "../../const/COLORS";
 import { StyleSheet } from "react-native";
+import { useLikeRecipe } from "../../hooks/useLikeRecipe";
 
-const RecipeActionBar = () => {
+const RecipeActionBar = ({ recipeId, recipe, setRecipe }) => {
+  const { handleLike } = useLikeRecipe();
+  const isLiked = Boolean(recipe?.isLiked);
+
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.cookingModeBtn}>
@@ -18,10 +22,14 @@ const RecipeActionBar = () => {
       </TouchableOpacity>
 
       <View style={styles.actionBtnHolder}>
-        <TouchableOpacity style={styles.btn}>
-          <Ionicons name="heart-outline" size={22} color={COLORS.primary} />
+        <TouchableOpacity style={styles.btn} onPress={() => handleLike(recipeId, setRecipe)}>
+          <Ionicons
+            name={isLiked ? "heart" : "heart-outline"}
+            size={22}
+            color={isLiked ? "#ff4d4d" : COLORS.primary}
+          />
 
-          <Text style={styles.txt}>Like</Text>
+          <Text style={styles.txt}>{isLiked ? "Liked" : "Like"}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.btn}>
