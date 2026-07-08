@@ -13,46 +13,34 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const loadAuth = async () => {
       try {
-        console.log("1");
         const savedToken = await AsyncStorage.getItem("token");
         const savedUser = await AsyncStorage.getItem("user");
-        console.log("2", savedToken);
-        if (savedToken) {
+        
+        if (savedToken && savedUser) {
           setToken(savedToken);
-        }
-        // const response = await getMe()
-        if (savedUser) {
           setUser(JSON.parse(savedUser));
-        }
-        if (savedToken) {
-          console.log("3 Before getMe");
-          const response = await getMe();
-          console.log("4 After getMe");
-
-
-          if (response && response.data && response.data.user) {
-            const freshUser = response.data.user;
-
-            setUser(freshUser);
-
-            await AsyncStorage.setItem("user", JSON.stringify(freshUser));
+          
+          // Validate token with server
+          try {
+            const response = await getMe();
+            if (response && response.data && response.data.user) {
+              const freshUser = response.data.user;
+              setUser(freshUser);
+              await AsyncStorage.setItem("user", JSON.stringify(freshUser));
+            }
+          } catch (validationError) {
+            // Token is invalid/expired (401, 403, etc.) - clear auth
+            console.log("Token validation failed:", validationError?.response?.status);
+            setToken(null);
+            setUser(null);
+            await AsyncStorage.removeItem("token");
+            await AsyncStorage.removeItem("user");
           }
         }
-        console.log("5");
-        // setUser(response.data.user)
-
-        // await AsyncStorage.setItem(
-        //   "user",
-        //   JSON.stringify(response.data.user)
-        // )
       } catch (error) {
-        console.log("STATUS:", error?.response?.status);
-        console.log("DATA:", error?.response?.data);
-        console.log("MESSAGE:", error?.response?.data?.message);
-        if(error?.response.status === 404 ||error?.response?.data?.message === "User not found" ){
-          setToken(null)
-          setUser(null)
-        }
+        console.log("Auth loading error:", error?.message);
+        setToken(null);
+        setUser(null);
       } finally {
         setLoading(false);
       }

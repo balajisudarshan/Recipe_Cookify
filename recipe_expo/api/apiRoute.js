@@ -20,6 +20,17 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    // If token is invalid/expired (401), clear auth
+    if (error?.response?.status === 401) {
+      await AsyncStorage.removeItem("token");
+      await AsyncStorage.removeItem("user");
+    }
+    return Promise.reject(error);
+  }
+);
 
 export const registerUser = (data) => api.post("/auth/register", data)
 export const loginUser = (data) => api.post("/auth/login", data)
@@ -36,7 +47,7 @@ export const createRecipe = (formData) => api.post("/recipe/create", formData, {
   }
 })
 
-export const likeOrUnlineRecipe = (id)=>api.put(`/recipe/like/${id}`)
+export const likeOrUnlikeRecipe = (id)=>api.put(`/recipe/like/${id}`)
 export const getMe = () => api.get("/profile/me")
 export const getUsers = () => api.get('/profile/all-users')
 

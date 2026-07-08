@@ -72,7 +72,7 @@ const RecentRecipes = () => {
               }
             >
               <Image source={{ uri: recipe.image }} style={styles.image} />
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 style={[
                   styles.favoriteBtn,
                   recipe.isLiked && styles.favoriteBtnActive,
@@ -84,7 +84,7 @@ const RecentRecipes = () => {
                   size={18}
                   color={recipe.isLiked ? "#ff4d4f" : "#ff4d4f"}
                 />
-              </TouchableOpacity>
+              </TouchableOpacity> */}
               <View style={styles.content}>
                 
                 <Text style={styles.title}>{recipe.title}</Text>

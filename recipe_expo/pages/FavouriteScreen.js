@@ -3,56 +3,53 @@ import React, { useEffect, useState } from "react";
 import ScreenHeader from "../components/ScreenHeader";
 import { StyleSheet } from "react-native";
 import { Dimensions } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { COLORS } from "../const/COLORS";
 import { getRecentRecipes } from "../api/apiRoute";
 import { getFavourites } from "../api/apiRoute";
 import NoFavouriteFound from "../components/Loaders/NoFavouriteFoundLoader";
 import NoFavouriteFoundLoader from "../components/Loaders/NoFavouriteFoundLoader";
+import Loading from "../components/Loaders/Loading";
+import FavouriteContainer from "../components/Favourite/FavouriteContainer";
 const { width, height } = Dimensions.get("window");
+
 const FavouriteScreen = () => {
-  const [favourites,setFavourites] = useState([])
-  const getFavouriteRecipes =async ()=>{
+  const [favourites, setFavourites] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const getFavouriteRecipes = async () => {
     try {
+      setLoading(true);
       const res = await getFavourites();
-
-      console.log("Recent Recipe",res?.data)
-      setFavourites(res.data?.recipes)
+      setFavourites(res.data?.recipes);
     } catch (error) {
-      console.log(error)
+      console.log(error);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    getFavouriteRecipes();
+  }, []);
+
+  if (loading) {
+    return <Loading />;
+  }
+  if (favourites.length <= 0) {
+    return <NoFavouriteFoundLoader />;
   }
 
-  useEffect(()=>{
-    getFavouriteRecipes()
-  },[])
-  if(favourites.length <=0){
-    return <NoFavouriteFoundLoader/>
-  }
   return (
     <View style={styles.container}>
-      {/* <ScreenHeader title="Favourites"/> */}
       <View style={styles.pageContainer}>
         <View style={styles.header}>
-          <View style={styles.headerContainer}>
-            <Text style={styles.headerTxt}>Favourites </Text>
-            <Ionicons
-              name="heart-outline"
-              size={width * 0.07}
-              color={COLORS.primary}
-            />
-          </View>
+          <Text style={styles.headerTxt}>Favourites</Text>
           <Text style={styles.headerPara}>
-            Your favourite recipes, all in one place
+            {favourites.length} saved recipe{favourites.length !== 1 ? "s" : ""}
           </Text>
         </View>
 
-        {/* <View>4</View> --- neead to add  th efilter later */}
-
-
-        <View>
-          
-        </View>
+        <FavouriteContainer recipes={favourites} />
       </View>
     </View>
   );
@@ -64,21 +61,23 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   pageContainer: {
+    flex: 1,
     marginTop: height * 0.07,
-    marginHorizontal: width * 0.07,
+    marginHorizontal: width * 0.05,
   },
-  headerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+  header: {
+    marginBottom: 18,
   },
   headerTxt: {
-    fontSize: width * 0.07,
-    fontWeight: "bold",
-    color: COLORS.text,
+    fontSize: width * 0.065,
+    fontWeight: "600",
+    color: "#222",
   },
   headerPara: {
-    color: COLORS.textSecondary,
-    fontSize: width * 0.034,
+    color: "#999",
+    fontSize: width * 0.032,
+    marginTop: 2,
   },
 });
+
 export default FavouriteScreen;
