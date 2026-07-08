@@ -22,12 +22,9 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   (response) => response,
-  async (error) => {
-    // If token is invalid/expired (401), clear auth
-    if (error?.response?.status === 401) {
-      await AsyncStorage.removeItem("token");
-      await AsyncStorage.removeItem("user");
-    }
+  (error) => {
+    // Let the caller handle the error
+    // AuthContext will clear auth if needed
     return Promise.reject(error);
   }
 );

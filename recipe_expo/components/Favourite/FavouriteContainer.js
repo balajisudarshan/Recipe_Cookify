@@ -7,19 +7,25 @@ import {
   TouchableOpacity,
 } from "react-native";
 import React from "react";
+import { useNavigation } from "@react-navigation/native";
 
 const { width } = Dimensions.get("window");
 
 const FavouriteContainer = ({ recipes }) => {
+  const navigation = useNavigation();
   return (
     <View style={styles.container}>
       {recipes.map((recipe) => (
         <TouchableOpacity
-          onClick={() =>
-            navigation.navigate("ViewRecipe", {
-              recipeId: recipes.id,
-            })
-          }
+          onPress={() => {
+            navigation.navigate("Home", {
+              screen: "ViewRecipe",
+              params: {
+                recipeId: recipe.id,
+              },
+            });
+            // console.log(recipes.id)
+          }}
         >
           <View key={recipe.id} style={styles.card}>
             <Image source={{ uri: recipe.image }} style={styles.image} />
