@@ -1,7 +1,6 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getMe } from "../api/apiRoute";
-import { useNavigation } from "@react-navigation/native";
 
 const AuthContext = createContext();
 
@@ -9,6 +8,23 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const handleLogout = useCallback(async () => {
+    await AsyncStorage.removeItem("token");
+    await AsyncStorage.removeItem("user");
+    setToken(null);
+    setUser(null);
+  }, []);
+
+  useEffect(() => {
+    globalThis.__authLogoutHandler = handleLogout;
+
+    return () => {
+      if (globalThis.__authLogoutHandler === handleLogout) {
+        globalThis.__authLogoutHandler = null;
+      }
+    };
+  }, [handleLogout]);
 
   useEffect(() => {
     const loadAuth = async () => {
@@ -59,13 +75,6 @@ export const AuthProvider = ({ children }) => {
 
     loadAuth();
   }, []);
-
-  const handleLogout = async () => {
-    await AsyncStorage.removeItem("token");
-    await AsyncStorage.removeItem("user");
-    setToken(null);
-    setUser(null);
-  };
 
   return (
     <AuthContext.Provider

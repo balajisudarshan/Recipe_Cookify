@@ -1,12 +1,9 @@
 import { View, Text } from "react-native";
-import React, { useEffect, useState } from "react";
-import ScreenHeader from "../components/ScreenHeader";
+import React, { useCallback, useState } from "react";
 import { StyleSheet } from "react-native";
 import { Dimensions } from "react-native";
-import { COLORS } from "../const/COLORS";
-import { getRecentRecipes } from "../api/apiRoute";
+import { useFocusEffect } from "@react-navigation/native";
 import { getFavourites } from "../api/apiRoute";
-import NoFavouriteFound from "../components/Loaders/NoFavouriteFoundLoader";
 import NoFavouriteFoundLoader from "../components/Loaders/NoFavouriteFoundLoader";
 import Loading from "../components/Loaders/Loading";
 import FavouriteContainer from "../components/Favourite/FavouriteContainer";
@@ -20,7 +17,7 @@ const FavouriteScreen = () => {
     try {
       setLoading(true);
       const res = await getFavourites();
-      setFavourites(res.data?.recipes);
+      setFavourites(res.data?.recipes || []);
     } catch (error) {
       console.log(error);
     } finally {
@@ -28,9 +25,11 @@ const FavouriteScreen = () => {
     }
   };
 
-  useEffect(() => {
-    getFavouriteRecipes();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      getFavouriteRecipes();
+    }, [])
+  );
 
   if (loading) {
     return <Loading />;

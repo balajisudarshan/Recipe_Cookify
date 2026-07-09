@@ -20,11 +20,41 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+const isAuthExpiredError = (error) => {
+  const status = error?.response?.status;
+  const message = error?.response?.data?.message || error?.response?.data?.error || error?.message || "";
+  const normalizedMessage = typeof message === "string" ? message.toLowerCase() : "";
+
+  return (
+    status === 401 ||
+    status === 403 ||
+    normalizedMessage.includes("jwt") ||
+    normalizedMessage.includes("expired") ||
+    normalizedMessage.includes("token") ||
+    normalizedMessage.includes("unauthorized")
+  );
+};
+
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    // Let the caller handle the error
-    // AuthContext will clear auth if needed
+  async (error) => {
+    if (isAuthExpiredError(error)) {
+      try {
+        await AsyncStorage.removeItem("token");
+        await AsyncStorage.removeItem("user");
+      } catch (storageError) {
+        console.log("Auth cleanup error:", storageError?.message);
+      }
+
+      if (typeof globalThis !== "undefined" && globalThis.__authLogoutHandler) {
+        try {
+          await globalThis.__authLogoutHandler();
+        } catch (handlerError) {
+          console.log("Auth logout handler error:", handlerError?.message);
+        }
+      }
+    }
+
     return Promise.reject(error);
   }
 );
