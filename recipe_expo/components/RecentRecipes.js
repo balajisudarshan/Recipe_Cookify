@@ -17,7 +17,7 @@ import SectionHeader from "./header/SectionHeader";
 import { useLikeRecipe } from "../hooks/useLikeRecipe";
 const { width } = Dimensions.get("window");
 
-const RecentRecipes = () => {
+const RecentRecipes = ({ dietaryType = null, category = "All" }) => {
   const {handleLike} = useLikeRecipe();
   const [recentRecipe, setRecentRecipe] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -26,7 +26,7 @@ const RecentRecipes = () => {
     const getRecentRecipe = async () => {
       try {
         setLoading(true);
-        const recipes = await getRecentRecipes();
+        const recipes = await getRecentRecipes(dietaryType);
         setRecentRecipe(recipes.data);
         console.log("Recennt Recipes", recipes.data);
       } catch (error) {
@@ -36,7 +36,7 @@ const RecentRecipes = () => {
       }
     };
     getRecentRecipe();
-  }, []);
+  }, [dietaryType]);
 
   return (
     <View style={styles.container}>

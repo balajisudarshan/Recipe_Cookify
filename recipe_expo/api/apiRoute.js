@@ -1,7 +1,7 @@
 import axios from "axios"
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const BASE_URL = "http://10.16.8.110:5000/api/"
+const BASE_URL = "http://10.239.37.110:5000/api/"
 
 export const api = axios.create({
   baseURL: BASE_URL,
@@ -63,10 +63,20 @@ export const registerUser = (data) => api.post("/auth/register", data)
 export const loginUser = (data) => api.post("/auth/login", data)
 
 
-export const getAllRecipes = ()=>api.get('/recipe')
+export const getAllRecipes = (dietaryType = null)=> {
+  if (dietaryType) {
+    return api.get('/recipe', { params: { dietaryType } });
+  }
+  return api.get('/recipe');
+}
 export const getMyRecipes = () => api.get('/recipe/my')
 export const getRecipe = (id)=>api.get(`/recipe/${id}`)
-export const getRecentRecipes = ()=>api.get('/recipe/recent')
+export const getRecentRecipes = (dietaryType = null)=> {
+  if (dietaryType) {
+    return api.get('/recipe/recent', { params: { dietaryType } });
+  }
+  return api.get('/recipe/recent');
+}
 export const getFavourites = ()=>api.get('/recipe/liked')
 export const createRecipe = (formData) => api.post("/recipe/create", formData, {
   headers: {

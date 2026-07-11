@@ -4,35 +4,40 @@ import { StyleSheet } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 const { width, height } = Dimensions.get("window");
 import { Feather } from "@expo/vector-icons";
+import { ENUM_TO_LABEL } from "../../const/DIETARY_TYPES";
 
 
 const RecipeCard = ({ recipe }) => {
+  // Defensive rendering for dietary type
+  const getDietaryIcon = (dietaryType) => {
+    switch(dietaryType) {
+      case "VEGAN":
+        return { icon: "sprout", color: "#16A34A" };
+      case "VEGETARIAN":
+        return { icon: "leaf", color: "#22C55E" };
+      case "EGGETARIAN":
+        return { icon: "egg", color: "#F59E0B" };
+      case "NON_VEG":
+        return { icon: "food-drumstick", color: "#EF4444" };
+      default:
+        return { icon: "help-circle", color: "#999999" };
+    }
+  };
+
+  const dietaryIconData = getDietaryIcon(recipe.dietaryType);
+
   return (
     <View key={recipe.id} style={styles.profileRecipeCard}>
       <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
-      <View style={styles.dietaryBadge}>
-        <MaterialCommunityIcons
-          name={
-            recipe.dietaryType === "VEGAN"
-              ? "sprout"
-              : recipe.dietaryType === "VEGETARIAN"
-                ? "leaf"
-                : recipe.dietaryType === "EGGETARIAN"
-                  ? "egg"
-                  : "food-drumstick"
-          }
-          size={width * 0.045}
-          color={
-            recipe.dietaryType === "VEGAN"
-              ? "#16A34A"
-              : recipe.dietaryType === "VEGETARIAN"
-                ? "#22C55E"
-                : recipe.dietaryType === "EGGETARIAN"
-                  ? "#F59E0B"
-                  : "#EF4444"
-          }
-        />
-      </View>
+      {recipe.dietaryType && (
+        <View style={styles.dietaryBadge}>
+          <MaterialCommunityIcons
+            name={dietaryIconData.icon}
+            size={width * 0.045}
+            color={dietaryIconData.color}
+          />
+        </View>
+      )}
       <View
         style={{
           flexDirection: "row",

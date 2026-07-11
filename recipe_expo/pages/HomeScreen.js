@@ -21,6 +21,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import RecentRecipes from "../components/RecentRecipes";
 import { COLORS } from "../const/COLORS";
 import TopChefs from "../components/TopChefs";
+import { DIETARY_TYPE_MAP } from "../const/DIETARY_TYPES";
 // import { ScrollView } from "react-native";
 
 const { width, height } = Dimensions.get("window");
@@ -179,7 +180,7 @@ const HomeScreen = ({ navigation }) => {
       <View style={{ marginVertical: 10 }}>
         <RecipeOfTheDayCard />
       </View>
-      <RecentRecipes />
+      <RecentRecipes dietaryType={DIETARY_TYPE_MAP[category]} category={category} />
       <TopChefs/>
       {/* Horizontal Dynamic Cards Track */}
       <View style={styles.cardsContainerTrack}>

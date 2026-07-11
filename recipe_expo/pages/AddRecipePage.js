@@ -16,6 +16,7 @@ import { Picker } from "@react-native-picker/picker";
 import RadioGroup from "../components/RadioGroup";
 import * as ImagePicker from "expo-image-picker";
 import { createRecipe } from "../api/apiRoute";
+import { DIETARY_OPTIONS, MEAL_TYPE_OPTIONS, COURSE_TYPE_OPTIONS } from "../const/DIETARY_TYPES";
 const { width } = Dimensions.get("window");
 
 const AddRecipePage = () => {
@@ -24,7 +25,7 @@ const AddRecipePage = () => {
   const [description, setDescription] = useState("");
   const [selectedCourse, setSelectedCourse] = useState("");
   const [selectedCuisine, setSelectedCuisine] = useState("");
-  const [selectedDiet, setSelectedDiet] = useState("Veg");
+  const [selectedDiet, setSelectedDiet] = useState("VEGETARIAN");
   const [selectedMealType,setSelectedMealType] = useState("")
 
   // Arrays handle their own lengths now—no extra row counts needed!
@@ -64,12 +65,6 @@ const AddRecipePage = () => {
     { label: "Spanish", value: "SPANISH" },
     { label: "French", value: "FRENCH" },
   ];
-
-  const dietaryType = ["VEGAN", "VEGETARIAN", "EGGETARIAN", "NON_VEG"];
-  //   VEGAN
-  // VEGETARIAN
-  // EGGETARIAN
-  // NON_VEG
 
   const pickImage = async () => {
     const permissionResult =
@@ -120,6 +115,7 @@ const AddRecipePage = () => {
       !selectedCourse ||
       !selectedCuisine ||
       !selectedMealType||
+      !selectedDiet ||
       !image
     ) {
       alert("Please fill out all fields and upload an image!");
@@ -144,7 +140,7 @@ const AddRecipePage = () => {
       formData.append("course", selectedCourse);
       formData.append("cuisine", selectedCuisine);
       formData.append("mealType",selectedMealType)
-      formData.append("dietaryType", selectedDiet.toUpperCase());
+      formData.append("dietaryType", selectedDiet);
 
       formData.append(
         "ingredients",
@@ -414,7 +410,7 @@ const AddRecipePage = () => {
           <View style={{ marginTop: 5, flexWrap: "wrap" }}>
             <RadioGroup
               label="Dietary Type"
-              options={dietaryType}
+              options={DIETARY_OPTIONS.map(opt => ({ label: opt.label, value: opt.value }))}
               selectedValue={selectedDiet}
               onSelect={setSelectedDiet}
             />
