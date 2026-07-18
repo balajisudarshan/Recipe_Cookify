@@ -1,4 +1,4 @@
-# Cookify Recipe App — Incompletion Report
+ # Cookify Recipe App — Incompletion Report
 
 ## Overview
 This document records the main implementation gaps in the project related to recipe dietary categories, recipe submission, and front-end filtering.
@@ -58,7 +58,9 @@ This document records the main implementation gaps in the project related to rec
 ## 5. Additional Notes
 - `recipe_expo/components/RecentRecipes.js` and `recipe_expo/components/cards/RecipeOfTheDayCard.js` load recipes, but the app lacks a consistent recipe listing or search page that uses filters.
 - `recipe_expo/components/PopularRecipe.js` appears to reference a hard-coded external endpoint and is not matching the rest of the app’s API style.
-- There is no root `README.md` or project documentation in the workspace.
+- `recipe_expo/pages/SearchScreen.js` is currently a placeholder: the search bar is rendered but no search logic is implemented, and the code that would fetch users is commented out.
+- `recipe_expo/hooks/useUsers.js` accepts optional `limit` and `sortBy` parameters but `apiRoute.getUsers()` ignores them, so the user list hook cannot currently request filtered or sorted results.
+- The workspace has a root `README.md`, but the app still lacks a dedicated implementation status or feature-gap document for current search and recipe filtering behavior.
 
 ## 6. Suggested Fixes
 1. Normalize dietary category values in the front end:

@@ -18,7 +18,7 @@ import { useLikeRecipe } from "../hooks/useLikeRecipe";
 const { width } = Dimensions.get("window");
 
 const RecentRecipes = ({ dietaryType = null, category = "All" }) => {
-  const {handleLike} = useLikeRecipe();
+  const { handleLike } = useLikeRecipe();
   const [recentRecipe, setRecentRecipe] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
@@ -49,7 +49,7 @@ const RecentRecipes = ({ dietaryType = null, category = "All" }) => {
         </TouchableOpacity>
       </View> */}
 
-      <SectionHeader mainTxt={"Recent"} HighlightedText={"Recipes"}  />
+      <SectionHeader mainTxt={"Recent"} HighlightedText={"Recipes"} />
 
       {loading ? (
         <View style={styles.loadingContainer}>
@@ -64,7 +64,7 @@ const RecentRecipes = ({ dietaryType = null, category = "All" }) => {
         >
           {recentRecipe.map((recipe) => (
             <TouchableOpacity
-              style={styles.card}   
+              style={styles.card}
               onPress={() =>
                 navigation.navigate("ViewRecipe", {
                   recipeId: recipe.id,
@@ -86,14 +86,22 @@ const RecentRecipes = ({ dietaryType = null, category = "All" }) => {
                 />
               </TouchableOpacity> */}
               <View style={styles.content}>
-                
                 <Text style={styles.title}>{recipe.title}</Text>
                 <View style={styles.timeRow}>
                   <Ionicons name="time-outline" size={18} color="#666" />
                   <Text style={styles.time}>20 min</Text>
                 </View>
-                <View style={styles.cuisineBadge}>
-                  <Text style={styles.cuisineText}>{recipe.cuisine}</Text>
+                <View style={styles.badges}>
+                  <View style={styles.cuisineBadge}>
+                    <Text style={styles.cuisineText}>{recipe.cuisine}</Text>
+                  </View>
+                  {recipe.dietaryType ? (
+                    <View style={[styles.dietaryBadge, styles[`${recipe.dietaryType.toLowerCase()}Badge`]]}>
+                      <Text style={[styles.dietaryText, styles[`${recipe.dietaryType.toLowerCase()}Text`]]}>
+                        {recipe.dietaryType}
+                      </Text>
+                    </View>
+                  ) : null}
                 </View>
               </View>
             </TouchableOpacity>
@@ -108,7 +116,7 @@ const styles = StyleSheet.create({
   container: {
     marginVertical: 15,
   },
-  
+
   scrollContainer: {
     paddingLeft: 20,
     paddingRight: 5,
@@ -180,12 +188,51 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingHorizontal: 10,
     paddingVertical: 4,
-    marginTop:10
+    marginTop: 10,
   },
   cuisineText: {
     color: COLORS.primary,
     fontSize: 11,
     fontWeight: "700",
+  },
+  dietaryBadge: {
+    alignSelf: "flex-start",
+    marginLeft: 8,
+    backgroundColor: "#F2F2F2",
+    borderRadius: 14,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    marginTop: 10,
+  },
+  dietaryText: {
+    fontSize: 11,
+    fontWeight: "700",
+    textTransform: "capitalize",
+    color: "#4F4F4F",
+  },
+  vegBadge: {
+    backgroundColor: "#E8F5E9",
+  },
+  vegText: {
+    color: "#2E7D32",
+  },
+  veganBadge: {
+    backgroundColor: "#E0F2F1",
+  },
+  veganText: {
+    color: "#00796B",
+  },
+  nonvegBadge: {
+    backgroundColor: "#FFEBEE",
+  },
+  nonvegText: {
+    color: "#C62828",
+  },
+  pescatarianBadge: {
+    backgroundColor: "#E3F2FD",
+  },
+  pescatarianText: {
+    color: "#1565C0",
   },
   title: {
     fontSize: 20,
@@ -253,6 +300,11 @@ const styles = StyleSheet.create({
   courseText: {
     color: "#EF6C00",
   },
+  badges:{
+    flexDirection:"row",
+    alignItems:"center",
+
+  },  
   badgeText: {
     fontSize: 11,
     fontWeight: "700",
