@@ -13,6 +13,7 @@ import FavouriteScreen from "./pages/FavouriteScreen";
 import LoginScreen from "./pages/LoginScreen";
 import RegisterScreen from "./pages/RegisterScreen";
 import EditProfileScreen from "./pages/EditProfileScreen";
+import ViewAllRecipesScreen from "./pages/ViewAllRecipesScreen";
 import AddRecipePage from "./pages/AddRecipePage"; // <-- Don't forget to import this!
 import ViewRecipe from "./pages/ViewRecipe";
 import { useFonts, Poppins_400Regular, Poppins_700Bold } from "@expo-google-fonts/poppins";
@@ -31,6 +32,7 @@ function HomeStackNavigator() {
       <HomeStack.Screen name="HomeMain" component={HomeScreen} />
       <HomeStack.Screen name="AddRecipe" component={AddRecipePage} />
       <HomeStack.Screen name="ViewRecipe" component={ViewRecipe}/>
+      <HomeStack.Screen name="ViewAllRecipes" component={ViewAllRecipesScreen}/>
     </HomeStack.Navigator>
   );
 }

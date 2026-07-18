@@ -49,7 +49,7 @@ const RecentRecipes = ({ dietaryType = null, category = "All" }) => {
         </TouchableOpacity>
       </View> */}
 
-      <SectionHeader mainTxt={"Recent"} HighlightedText={"Recipes"} />
+      <SectionHeader mainTxt={"Recent"} HighlightedText={"Recipes"}  category={category}/>
 
       {loading ? (
         <View style={styles.loadingContainer}>
