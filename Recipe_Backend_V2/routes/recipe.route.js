@@ -71,6 +71,11 @@ router.post('/create', checkAuth, upload.single("image"), createRecipe);
  *           type: string
  *         description: Filter by course type (e.g. APPETIZER, MAIN_COURSE)
  *       - in: query
+ *         name: cuisine
+ *         schema:
+ *           type: string
+ *         description: Filter by cusine type (e.g. INDIAN, ITALIAN)
+ *       - in: query
  *         name: query
  *         schema:
  *           type: string

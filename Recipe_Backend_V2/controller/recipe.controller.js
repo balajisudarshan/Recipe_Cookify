@@ -75,12 +75,13 @@ const getAllRecipes = async (req, res, next) => {
   const page = Number(req.query.page) || 1
   const limit = 10
   try {
-    const { dietaryType, mealType, course, query } = req.query
+    const { dietaryType, mealType, course, query,cuisine } = req.query
 
     const whereClause = {
       ...(dietaryType && { dietaryType: dietaryType.toUpperCase() }),
       ...(mealType && { mealType: mealType.toUpperCase() }),
       ...(course && { course: course.toUpperCase() }),
+      ...(cuisine && {cuisine:cuisine.toUpperCase()}),
       ...(query && {
         OR: [
           { title: { contains: query, mode: "insensitive" } },

@@ -16,16 +16,22 @@ import SearchBar from "../components/SearchBar";
 const { width, height } = Dimensions.get("window");
 const HEADER_HEIGHT = height * 0.22;
 const CONTENT_TOP_PADDING = Math.max(height * 0.14, 110);
-const cuisines = [
-  "All",
-  "Indian",
-  "Italian",
-  "Chinese",
-  "Mexican",
-  "Thai",
-  "Japanese",
-  "Mediterranean",
-  "French",
+const cuisineOptions = [
+  { label: "All", value: "ALL" },
+  { label: "Indian", value: "INDIAN" },
+  { label: "South Indian", value: "SOUTH_INDIAN" },
+  { label: "North Indian", value: "NORTH_INDIAN" },
+  { label: "Italian", value: "ITALIAN" },
+  { label: "Chinese", value: "CHINESE" },
+  { label: "Mexican", value: "MEXICAN" },
+  { label: "Continental", value: "CONTINENTAL" },
+  { label: "Thai", value: "THAI" },
+  { label: "American", value: "AMERICAN" },
+  { label: "Japanese", value: "JAPANESE" },
+  { label: "Mediterranean", value: "MEDITERRANEAN" },
+  { label: "Middle Eastern", value: "MIDDLE_EASTERN" },
+  { label: "Spanish", value: "SPANISH" },
+  { label: "French", value: "FRENCH" },
 ];
 
 const ViewAllRecipesScreen = () => {
@@ -56,7 +62,10 @@ const ViewAllRecipesScreen = () => {
 
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={[styles.content, { paddingTop: CONTENT_TOP_PADDING }]}
+        contentContainerStyle={[
+          styles.content,
+          { paddingTop: CONTENT_TOP_PADDING },
+        ]}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.sheet}>
@@ -69,18 +78,23 @@ const ViewAllRecipesScreen = () => {
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.badgeRow}
             >
-              {cuisines.map((cuisine) => {
-                const isActive = selectedCuisine === cuisine;
+              {cuisineOptions.map((item) => {
+                const isActive = selectedCuisine === item.value;
 
                 return (
                   <TouchableOpacity
-                    key={cuisine}
+                    key={item.value}
                     activeOpacity={0.85}
                     style={[styles.badge, isActive && styles.activeBadge]}
-                    onPress={() => setSelectedCuisine(cuisine)}
+                    onPress={() => setSelectedCuisine(item.value)}
                   >
-                    <Text style={[styles.badgeText, isActive && styles.activeBadgeText]}>
-                      {cuisine}
+                    <Text
+                      style={[
+                        styles.badgeText,
+                        isActive && styles.activeBadgeText,
+                      ]}
+                    >
+                      {item.label}
                     </Text>
                   </TouchableOpacity>
                 );

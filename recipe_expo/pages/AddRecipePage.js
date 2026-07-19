@@ -49,7 +49,7 @@ const AddRecipePage = () => {
     {label:"Dinner",value:"DINNER"}, 
     {label:"Snack",value:"SNACK"},
   ];
-  const Cuisine = [
+  const cuisineOptions = [
     { label: "Indian", value: "INDIAN" },
     { label: "South Indian", value: "SOUTH_INDIAN" },
     { label: "North Indian", value: "NORTH_INDIAN" },
@@ -371,7 +371,7 @@ const AddRecipePage = () => {
                   style={styles.pickerStyle}
                 >
                   <Picker.Item label="Cuisine..." value="" color="#A0AEC0" />
-                  {Cuisine.map((option) => (
+                  {cuisineOptions.map((option) => (
                     <Picker.Item
                       key={option.value}
                       label={option.label}
