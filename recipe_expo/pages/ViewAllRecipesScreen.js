@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -16,8 +16,21 @@ import SearchBar from "../components/SearchBar";
 const { width, height } = Dimensions.get("window");
 const HEADER_HEIGHT = height * 0.22;
 const CONTENT_TOP_PADDING = Math.max(height * 0.14, 110);
+const cuisines = [
+  "All",
+  "Indian",
+  "Italian",
+  "Chinese",
+  "Mexican",
+  "Thai",
+  "Japanese",
+  "Mediterranean",
+  "French",
+];
 
 const ViewAllRecipesScreen = () => {
+  const [selectedCuisine, setSelectedCuisine] = useState("All");
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar hidden />
@@ -47,13 +60,33 @@ const ViewAllRecipesScreen = () => {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.sheet}>
-          {/* {Array.from({ length: 25 }).map((_, i) => (
-            <View key={i} style={styles.card}>
-              <Text>Recipe {i + 1}</Text>
-            </View>
-          ))} */}
-          <SearchBar placeholder="Search Recipes"/>
-          
+          <SearchBar placeholder="Search Recipes" />
+
+          <View style={styles.badgeSection}>
+            <Text style={styles.badgeTitle}>Cuisines</Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.badgeRow}
+            >
+              {cuisines.map((cuisine) => {
+                const isActive = selectedCuisine === cuisine;
+
+                return (
+                  <TouchableOpacity
+                    key={cuisine}
+                    activeOpacity={0.85}
+                    style={[styles.badge, isActive && styles.activeBadge]}
+                    onPress={() => setSelectedCuisine(cuisine)}
+                  >
+                    <Text style={[styles.badgeText, isActive && styles.activeBadgeText]}>
+                      {cuisine}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -115,6 +148,48 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 30,
     minHeight: 900,
     padding: 20,
+  },
+
+  badgeSection: {
+    marginTop: 16,
+    marginBottom: 8,
+  },
+
+  badgeTitle: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#4B5563",
+    marginBottom: 8,
+  },
+
+  badgeRow: {
+    paddingRight: 4,
+    gap: 8,
+  },
+
+  badge: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "#F3C49B",
+    backgroundColor: "#FFF7ED",
+    marginRight: 8,
+  },
+
+  activeBadge: {
+    backgroundColor: "#F97316",
+    borderColor: "#F97316",
+  },
+
+  badgeText: {
+    color: "#C2410C",
+    fontSize: 13,
+    fontWeight: "600",
+  },
+
+  activeBadgeText: {
+    color: "#FFF",
   },
 
   card: {
