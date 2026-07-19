@@ -1,29 +1,43 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 
-const RadioGroup = ({ label, options, selectedValue, onSelect }) => {
+const RadioGroup = ({ label, options = [], selectedValue, onSelect }) => {
+  const normalizedOptions = options.map((option) => {
+    if (typeof option === "string") {
+      return { label: option, value: option };
+    }
+
+    return option;
+  });
+
   return (
     <View style={styles.col}>
       {label && <Text style={styles.inputTxt}>{label}</Text>}
-      
+
       <View style={styles.radioRow}>
-        {options.map((option) => {
-          const isSelected = selectedValue === option;
+        {normalizedOptions.map((option, index) => {
+          const optionValue = option.value ?? option;
+          const optionLabel = option.label ?? optionValue;
+          const isSelected = selectedValue === optionValue;
+
           return (
             <TouchableOpacity
-              key={option}
+              key={`${optionValue}-${index}`}
               style={styles.radioContainer}
-              onPress={() => onSelect(option)}
+              onPress={() => onSelect(optionValue)}
               activeOpacity={0.7}
             >
-              {/* Outer circle layout frame */}
-              <View style={[styles.radioOuterCircle, isSelected && styles.radioOuterCircleSelected]}>
-                {/* Inner selection accent indicator core dot */}
+              <View
+                style={[
+                  styles.radioOuterCircle,
+                  isSelected && styles.radioOuterCircleSelected,
+                ]}
+              >
                 {isSelected && <View style={styles.radioInnerCircle} />}
               </View>
-              
+
               <Text style={[styles.radioLabel, isSelected && styles.radioLabelSelected]}>
-                {option}
+                {optionLabel}
               </Text>
             </TouchableOpacity>
           );

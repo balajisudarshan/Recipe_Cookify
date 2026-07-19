@@ -1,40 +1,128 @@
-import { View, Text, StyleSheet } from 'react-native'
-import React from 'react'
-import { useRoute } from '@react-navigation/native'
+import React from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  StatusBar,
+  SafeAreaView,
+  Dimensions,
+  Platform,
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { Ionicons } from "@expo/vector-icons";
+import SearchBar from "../components/SearchBar";
+const { width, height } = Dimensions.get("window");
+const HEADER_HEIGHT = height * 0.22;
+const CONTENT_TOP_PADDING = Math.max(height * 0.14, 110);
 
 const ViewAllRecipesScreen = () => {
-  const route = useRoute()
-  const { category } = route.params || {}
-
   return (
-    <View style={styles.container}>
-      <Text style={styles.heading}>View {category || 'All'} Recipes</Text>
-      <Text style={styles.subtitle}>
-        Browse every recipe in the {category ? `${category.toLowerCase()} category` : 'collection'} and discover something delicious.
-      </Text>
-    </View>
-  )
-}
+    <SafeAreaView style={styles.container}>
+      <StatusBar hidden />
+
+      <LinearGradient
+        colors={["#F97316", "#FB923C"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[styles.header, { height: HEADER_HEIGHT }]}
+      >
+        <View style={styles.headerRow}>
+          <TouchableOpacity style={styles.iconBtn}>
+            <Ionicons name="arrow-back" size={22} color="#fff" />
+          </TouchableOpacity>
+
+          <Text style={styles.title}>All Recipes</Text>
+
+          <TouchableOpacity style={styles.iconBtn}>
+            <Ionicons name="options-outline" size={22} color="#fff" />
+          </TouchableOpacity>
+        </View>
+      </LinearGradient>
+
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={[styles.content, { paddingTop: CONTENT_TOP_PADDING }]}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.sheet}>
+          {/* {Array.from({ length: 25 }).map((_, i) => (
+            <View key={i} style={styles.card}>
+              <Text>Recipe {i + 1}</Text>
+            </View>
+          ))} */}
+          <SearchBar placeholder="Search Recipes"/>
+          
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+export default ViewAllRecipesScreen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 24,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
+    backgroundColor: "#F97316",
   },
-  heading: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: '#222',
-    marginBottom: 10,
-  },
-  subtitle: {
-    fontSize: 16,
-    lineHeight: 24,
-    color: '#666',
-    maxWidth: '90%',
-  },
-})
 
-export default ViewAllRecipesScreen
+  header: {
+    paddingTop: Platform.OS === "ios" ? 38 : 44,
+    paddingHorizontal: 18,
+  },
+
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+
+  iconBtn: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  title: {
+    color: "#fff",
+    fontSize: width < 380 ? 22 : 26,
+    fontWeight: "700",
+  },
+
+  scroll: {
+    flex: 1,
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1,
+  },
+
+  content: {
+    paddingBottom: 30,
+    // paddingHorizontal: 6,
+  },
+
+  sheet: {
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    minHeight: 900,
+    padding: 20,
+  },
+
+  card: {
+    height: 100,
+    borderRadius: 15,
+    backgroundColor: "#f5f5f5",
+    marginBottom: 15,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});
