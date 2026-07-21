@@ -19,7 +19,7 @@ import ViewRecipe from "./pages/ViewRecipe";
 import { useFonts, Poppins_400Regular, Poppins_700Bold } from "@expo-google-fonts/poppins";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import Toast from "react-native-toast-message";
-import { Text } from "react-native";
+import { View, Text, ActivityIndicator, StyleSheet } from "react-native";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -86,7 +86,15 @@ function RootNavigator() {
   const { token, loading } = useAuth();
 
   if (loading) {
-     return <Text>Loading Auth...</Text>;
+    return (
+      <View style={styles.authLoadingContainer}>
+        <View style={styles.authLoadingCard}>
+          <Text style={styles.authLoadingTitle}>Cookify</Text>
+          <Text style={styles.authLoadingSubtitle}>Preparing your kitchen...</Text>
+          <ActivityIndicator size="small" color="#FF6B00" />
+        </View>
+      </View>
+    );
   }
 
   return (
@@ -112,6 +120,39 @@ function RootNavigator() {
     </NavigationContainer>
   );
 }
+
+const styles = StyleSheet.create({
+  authLoadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#FFF8F2",
+    paddingHorizontal: 24,
+  },
+  authLoadingCard: {
+    alignItems: "center",
+    paddingVertical: 24,
+    paddingHorizontal: 28,
+    borderRadius: 20,
+    backgroundColor: "#FFFFFF",
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
+  },
+  authLoadingTitle: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#FF6B00",
+    marginBottom: 6,
+  },
+  authLoadingSubtitle: {
+    fontSize: 14,
+    color: "#6B7280",
+    marginBottom: 12,
+  },
+});
 
 export default function App() {
  
