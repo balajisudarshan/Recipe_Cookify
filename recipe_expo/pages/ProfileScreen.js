@@ -8,12 +8,13 @@ import {
   StyleSheet,
   Dimensions,
   FlatList,
+  Alert,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import ScreenHeader from "../components/ScreenHeader";
 import { Feather } from "@expo/vector-icons";
-import { getMyRecipes } from "../api/apiRoute";
+import { deleteRecipe, getMyRecipes } from "../api/apiRoute";
 import { useNavigation } from "@react-navigation/native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import ProfileStat from "../components/profile/ProfileStat";
@@ -38,12 +39,35 @@ const ProfileScreen = () => {
         setUserRecipes(response.data.recipes);
         setUserRecipeCount(response.data.count);
       }
-      console.log(response.data.recipes);
     } catch (error) {
       console.log("Error loading recipes:", error);
     } finally {
       setLoadingRecipes(false);
     }
+  };
+
+  const handleDeleteRecipe = (recipeId) => {
+    Alert.alert(
+      "Delete recipe",
+      "Are you sure you want to delete this recipe?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteRecipe(recipeId);
+              setUserRecipes((prev) => prev.filter((recipe) => recipe.id !== recipeId));
+              setUserRecipeCount((prev) => Math.max(prev - 1, 0));
+            } catch (error) {
+              console.log("Error deleting recipe:", error);
+              Alert.alert("Delete failed", "Unable to delete this recipe right now.");
+            }
+          },
+        },
+      ]
+    );
   };
 
   useEffect(() => {
@@ -110,8 +134,12 @@ const ProfileScreen = () => {
 
             <View style={styles.profileRecipeContainer}>
               {userRecipes.slice(0, 5).map((recipe) => (
-               
-                <RecipeCard recipe={recipe} key={recipe.id}/>
+                <RecipeCard
+                  recipe={recipe}
+                  key={recipe.id}
+                  showDeleteButton={true}
+                  onDelete={handleDeleteRecipe}
+                />
               ))}
             </View>
             <TouchableOpacity

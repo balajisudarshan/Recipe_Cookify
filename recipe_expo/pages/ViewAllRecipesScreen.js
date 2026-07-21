@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -9,11 +9,15 @@ import {
   SafeAreaView,
   Dimensions,
   Platform,
+  ActivityIndicator,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import SearchBar from "../components/SearchBar";
+import RecipeCard from "../components/cards/RecipeCard";
+import { getAllRecipes } from "../api/apiRoute";
 const { width, height } = Dimensions.get("window");
+
 const HEADER_HEIGHT = height * 0.22;
 const CONTENT_TOP_PADDING = Math.max(height * 0.14, 110);
 const cuisineOptions = [
@@ -34,8 +38,54 @@ const cuisineOptions = [
   { label: "French", value: "FRENCH" },
 ];
 
+const mealTypeOptions = [
+  { label: "Breakfast", value: "BREAKFAST" },
+  { label: "Lunch", value: "LUNCH" },
+  { label: "Dinner", value: "DINNER" },
+  { label: "Snack", value: "SNACK" },
+];
+
 const ViewAllRecipesScreen = () => {
-  const [selectedCuisine, setSelectedCuisine] = useState("All");
+  const [selectedCuisine, setSelectedCuisine] = useState("ALL");
+  const [recipes, setRecipes] = useState({
+    BREAKFAST: [],
+    LUNCH: [],
+    DINNER: [],
+    SNACK: [],
+  });
+  const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchRecipes = async (showLoader = true) => {
+    if (showLoader) {
+      setLoading(true);
+    }
+
+    try {
+      const cuisineParam = selectedCuisine === "ALL" ? null : selectedCuisine;
+      const responses = await Promise.all(
+        mealTypeOptions.map(({ value }) =>
+          getAllRecipes(null, cuisineParam, value, 1, 6)
+        )
+      );
+
+      const groupedRecipes = {};
+      mealTypeOptions.forEach(({ value }, index) => {
+        groupedRecipes[value] = responses[index]?.data?.recipes || [];
+      });
+
+      setRecipes(groupedRecipes);
+    } catch (error) {
+      console.log("Failed to fetch recipes:", error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRecipes();
+  }, [selectedCuisine]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -67,6 +117,11 @@ const ViewAllRecipesScreen = () => {
           { paddingTop: CONTENT_TOP_PADDING },
         ]}
         showsVerticalScrollIndicator={false}
+        refreshing={refreshing}
+        onRefresh={() => {
+          setRefreshing(true);
+          fetchRecipes(false);
+        }}
       >
         <View style={styles.sheet}>
           <SearchBar placeholder="Search Recipes" />
@@ -100,6 +155,32 @@ const ViewAllRecipesScreen = () => {
                 );
               })}
             </ScrollView>
+          </View>
+
+          <View style={styles.contentContainer}>
+            {loading ? (
+              <View style={styles.loader}>
+                <ActivityIndicator size="large" color="#F97316" />
+              </View>
+            ) : (
+              mealTypeOptions.map(({ label, value }) => (
+                <View key={value} style={styles.recipeContainer}>
+                  <Text style={styles.heading}>{label}</Text>
+
+                  {recipes[value]?.length > 0 ? (
+                    <View style={styles.recipeGrid}>
+                      {recipes[value].map((recipe) => (
+                        <RecipeCard key={recipe.id} recipe={recipe} />
+                      ))}
+                    </View>
+                  ) : (
+                    <Text style={styles.emptyText}>
+                      No {label.toLowerCase()} recipes found.
+                    </Text>
+                  )}
+                </View>
+              ))
+            )}
           </View>
         </View>
       </ScrollView>
@@ -213,5 +294,31 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     justifyContent: "center",
     alignItems: "center",
+  },
+
+  heading: {
+    color: "#2D3748",
+    fontWeight: "bold",
+    marginTop: 20,
+    fontSize: 15,
+  },
+
+  recipeGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    marginTop: 12,
+  },
+
+  emptyText: {
+    marginTop: 10,
+    color: "#64748B",
+    fontSize: 13,
+  },
+
+  loader: {
+    marginTop: 20,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

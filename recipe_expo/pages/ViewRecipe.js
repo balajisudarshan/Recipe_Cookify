@@ -8,8 +8,8 @@ import {
   ScrollView,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import { useRoute } from "@react-navigation/native";
-import { getRecipe } from "../api/apiRoute";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { deleteRecipe, getRecipe } from "../api/apiRoute";
 import Toast from "react-native-toast-message";
 import RecipeTopActions from "../components/buttons/TopButtons";
 import { Ionicons } from "@expo/vector-icons";
@@ -22,18 +22,34 @@ import IngredientContainer from "../components/IngredientContainer";
 import StepContainer from "../components/StepContainer";
 import ViewRecipLoader from "../components/Loaders/ViewRecipeLoader";
 import RecipeActionBar from "../components/buttons/RecipeActionBar";
+import { useAuth } from "../context/AuthContext";
 
 const { width, height } = Dimensions.get("window");
 const IMAGE_HEIGHT = height * 0.42;
 
 const ViewRecipe = () => {
   const route = useRoute();
+  const navigation = useNavigation();
+  const { user } = useAuth();
   const { recipeId } = route.params;
 
   const [recipe, setRecipe] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const [selectedTab, setSelectedTab] = useState("ingredients");
+
+  const handleDeleteRecipe = async () => {
+    if (!recipe?.id) return;
+
+    try {
+      await deleteRecipe(recipe.id);
+      Toast.show({ type: "success", text1: "Recipe deleted" });
+      navigation.goBack();
+    } catch (error) {
+      console.log("Error deleting recipe:", error);
+      Toast.show({ type: "error", text1: "Failed to delete recipe" });
+    }
+  };
 
   useEffect(() => {
     const fetchRecipe = async () => {
@@ -97,7 +113,14 @@ const ViewRecipe = () => {
         <View style={styles.content}>
           <View style={styles.handle} />
           {/* <CardActionContainer /> */}
-          <Text style={styles.title}>{recipe.title}</Text>
+          <View style={styles.titleRow}>
+            <Text style={styles.title}>{recipe.title}</Text>
+            {user?.id && recipe.author?.id === user.id && (
+              <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteRecipe}>
+                <Ionicons name="trash-outline" size={18} color="#fff" />
+              </TouchableOpacity>
+            )}
+          </View>
           <RecipeRatings />
 
           {/* <Text style={styles.author}>By {recipe.author?.username}</Text> */}
@@ -260,10 +283,23 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
     minHeight: height,
   },
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 10,
+    marginBottom: width * 0.02,
+  },
   title: {
     fontSize: width * 0.065,
     fontWeight: "700",
-    marginBottom: width * 0.02,
+    flex: 1,
+  },
+  deleteButton: {
+    backgroundColor: "#EF4444",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 999,
   },
   author: {
     fontSize: width * 0.04,

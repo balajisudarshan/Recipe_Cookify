@@ -63,12 +63,14 @@ export const registerUser = (data) => api.post("/auth/register", data)
 export const loginUser = (data) => api.post("/auth/login", data)
 
 
-export const getAllRecipes = (dietaryType = null)=> {
-  if (dietaryType) {
-    return api.get('/recipe', { params: { dietaryType } });
-  }
-  return api.get('/recipe');
-}
+export const getAllRecipes = (dietaryType = null, cuisine = null,mealType = null,page=1,limit=10) => {
+  const params = {page,limit};
+
+  if (dietaryType) params.dietaryType = dietaryType;
+  if (cuisine) params.cuisine = cuisine;
+  if(mealType) params.mealType = mealType
+  return api.get("/recipe", { params });
+};
 export const getMyRecipes = () => api.get('/recipe/my')
 export const getRecipe = (id)=>api.get(`/recipe/${id}`)
 export const getRecentRecipes = (dietaryType = null)=> {
@@ -85,6 +87,7 @@ export const createRecipe = (formData) => api.post("/recipe/create", formData, {
 })
 
 export const likeOrUnlikeRecipe = (id)=>api.put(`/recipe/like/${id}`)
+export const deleteRecipe = (id) => api.delete(`/recipe/${id}`)
 export const getMe = () => api.get("/profile/me")
 export const getUsers = () => api.get('/profile/all-users')
 

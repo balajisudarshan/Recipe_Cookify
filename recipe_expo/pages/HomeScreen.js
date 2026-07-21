@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -6,6 +6,7 @@ import {
   Image,
   Dimensions,
   ScrollView,
+  RefreshControl,
 } from "react-native";
 import SearchBar from "../components/SearchBar";
 import CategoryChip from "../components/CategoryChip";
@@ -22,6 +23,7 @@ import RecentRecipes from "../components/RecentRecipes";
 import { COLORS } from "../const/COLORS";
 import TopChefs from "../components/TopChefs";
 import { DIETARY_TYPE_MAP } from "../const/DIETARY_TYPES";
+// import { RefreshControl } from "react-native";
 // import { ScrollView } from "react-native";
 
 const { width, height } = Dimensions.get("window");
@@ -53,9 +55,22 @@ const { width, height } = Dimensions.get("window");
 const HomeScreen = ({ navigation }) => {
   const logoSize = width * 0.42;
   const [category, setCategory] = useState("Veg");
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    setRefreshKey((prev) => prev + 1);
+    setTimeout(() => setRefreshing(false), 600);
+  }, []);
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} tintColor={COLORS.primary} />
+      }
+    >
       {/* Top Banner View */}
       {/* <View
         style={[
@@ -180,7 +195,7 @@ const HomeScreen = ({ navigation }) => {
       <View style={{ marginVertical: 10 }}>
         <RecipeOfTheDayCard />
       </View>
-      <RecentRecipes dietaryType={DIETARY_TYPE_MAP[category]} category={category} />
+      <RecentRecipes key={refreshKey} dietaryType={DIETARY_TYPE_MAP[category]} category={category} />
       <TopChefs/>
       {/* Horizontal Dynamic Cards Track */}
       <View style={styles.cardsContainerTrack}>

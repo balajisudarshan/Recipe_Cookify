@@ -4,6 +4,7 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   Image,
+  RefreshControl,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { ScrollView } from "react-native-gesture-handler";
@@ -17,26 +18,36 @@ import SectionHeader from "./header/SectionHeader";
 import { useLikeRecipe } from "../hooks/useLikeRecipe";
 const { width } = Dimensions.get("window");
 
-const RecentRecipes = ({ dietaryType = null, category = "All" }) => {
+const RecentRecipes = ({ dietaryType = null, category = "All", refreshKey = 0 }) => {
   const { handleLike } = useLikeRecipe();
   const [recentRecipe, setRecentRecipe] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const navigation = useNavigation();
-  useEffect(() => {
-    const getRecentRecipe = async () => {
-      try {
+
+  const getRecentRecipe = async (showLoader = true) => {
+    try {
+      if (showLoader) {
         setLoading(true);
-        const recipes = await getRecentRecipes(dietaryType);
-        setRecentRecipe(recipes.data);
-        console.log("Recennt Recipes", recipes.data);
-      } catch (error) {
-        console.log("Recent Error", error);
-      } finally {
-        setLoading(false);
       }
-    };
+      const recipes = await getRecentRecipes(dietaryType);
+      setRecentRecipe(recipes.data || []);
+    } catch (error) {
+      console.log("Recent Error", error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
     getRecentRecipe();
-  }, [dietaryType]);
+  }, [dietaryType, refreshKey]);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    getRecentRecipe(false);
+  };
 
   return (
     <View style={styles.container}>
@@ -61,6 +72,9 @@ const RecentRecipes = ({ dietaryType = null, category = "All" }) => {
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.scrollContainer}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} tintColor={COLORS.primary} />
+          }
         >
           {recentRecipe.map((recipe) => (
             <TouchableOpacity

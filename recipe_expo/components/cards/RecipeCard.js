@@ -1,4 +1,4 @@
-import { View, Text, Image,Dimensions } from "react-native";
+import { View, Text, Image, Dimensions, TouchableOpacity } from "react-native";
 import React from "react";
 import { StyleSheet } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -7,7 +7,7 @@ import { Feather } from "@expo/vector-icons";
 import { ENUM_TO_LABEL } from "../../const/DIETARY_TYPES";
 
 
-const RecipeCard = ({ recipe }) => {
+const RecipeCard = ({ recipe, showDeleteButton = false, onDelete }) => {
   // Defensive rendering for dietary type
   const getDietaryIcon = (dietaryType) => {
     switch(dietaryType) {
@@ -29,6 +29,15 @@ const RecipeCard = ({ recipe }) => {
   return (
     <View key={recipe.id} style={styles.profileRecipeCard}>
       <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
+      {showDeleteButton && (
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={() => onDelete?.(recipe.id)}
+          activeOpacity={0.8}
+        >
+          <Feather name="trash-2" size={14} color="#fff" />
+        </TouchableOpacity>
+      )}
       {recipe.dietaryType && (
         <View style={styles.dietaryBadge}>
           <MaterialCommunityIcons
@@ -154,6 +163,18 @@ const styles = StyleSheet.create({
       height: 2,
     },
     shadowRadius: 4,
+  },
+  deleteButton: {
+    position: "absolute",
+    top: width * 0.02,
+    left: width * 0.02,
+    width: width * 0.08,
+    height: width * 0.08,
+    borderRadius: width * 0.04,
+    backgroundColor: "rgba(239, 68, 68, 0.92)",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 2,
   },
 })
 
