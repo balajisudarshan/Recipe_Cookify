@@ -16,6 +16,7 @@ const PORT = process.env.PORT || 5000
 
 app.use(cors())
 app.use(express.json())
+app.get("/",(req,res)=>res.send("Working"))
 app.use("/api/auth", authRoutes)
 app.use("/api/upload", uploadRoute)
 app.use("/api/profile", profileRoute)
