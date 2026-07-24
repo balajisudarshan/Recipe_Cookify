@@ -1,9 +1,15 @@
 import { View, Text,Image } from "react-native";
 import React from "react";
 import { StyleSheet } from "react-native";
+import { TouchableOpacity } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 const UserCard = ({ item }) => {
+  const navigation = useNavigation()
   return (
-    <View style={styles.userCard}>
+    <TouchableOpacity style={styles.userCard} onPress={()=>navigation.navigate("UserProfile",{
+      userId:item.id,
+      userName:item.username
+    })}>
       <View style={styles.avatarContainer}>
         <Image
           source={{
@@ -20,7 +26,7 @@ const UserCard = ({ item }) => {
           {item.bio || "No bio added yet"}
         </Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 

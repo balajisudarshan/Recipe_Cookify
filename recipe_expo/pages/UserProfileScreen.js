@@ -21,11 +21,14 @@ import ProfileStat from "../components/profile/ProfileStat";
 import ProfileActionButtons from "../components/profile/ProfileActionButtons";
 import RecipeCard from "../components/cards/RecipeCard";
 import { useRoute } from "@react-navigation/native";
+import { getUserProfile } from "../api/apiRoute";
 // 1. Establish Responsive Scale Anchors based on Device Dimensions
 const { width, height } = Dimensions.get("window");
 
-const ProfileScreen = () => {
-
+const UserProfileScreen = () => {
+  const route = useRoute()
+  const userId = route.params?.userId
+  const userName = route.params?.userName
   const navigation = useNavigation();
   const { user, loading, handleLogout } = useAuth();
 
@@ -33,7 +36,13 @@ const ProfileScreen = () => {
   const [userRecipes, setUserRecipes] = useState([]);
   const [userRecipeCount, setUserRecipeCount] = useState(0);
   const [loadingRecipes, setLoadingRecipes] = useState(true);
- 
+  useEffect(()=>{
+    const fetchUser =async ()=>{
+        const res = await getUserProfile(userId)
+        console.log("Fetched User Result :",res)
+    }
+    fetchUser()
+  },[userId])
   const fetchUserRecipes = async () => {
     try {
       setLoadingRecipes(true);
@@ -97,7 +106,7 @@ const ProfileScreen = () => {
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <ScreenHeader title="My Kitchen Profile" />
+      <ScreenHeader title="Kitchen Profile" />
 
       <View style={styles.profileHero}>
         {/* Dynamic Avatar Container Scaled proportionally */}
@@ -113,7 +122,7 @@ const ProfileScreen = () => {
         </View>
 
         <View style={styles.details}>
-          <Text style={styles.usernameText}>@{user.username}</Text>
+          <Text style={styles.usernameText}>@{userName}</Text>
           <Text style={styles.bioText}>{user.bio || "No bio added yet"}</Text>
         </View>
 
@@ -251,4 +260,4 @@ const styles = StyleSheet.create({
   
 });
 
-export default ProfileScreen;
+export default UserProfileScreen;

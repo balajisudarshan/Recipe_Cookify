@@ -20,6 +20,7 @@ import { useFonts, Poppins_400Regular, Poppins_700Bold } from "@expo-google-font
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import Toast from "react-native-toast-message";
 import { View, Text, ActivityIndicator, StyleSheet } from "react-native";
+import UserProfileScreen from "./pages/UserProfileScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -78,6 +79,7 @@ function MainTabs() {
       <Tab.Screen name="AddRecipe" component={AddRecipePage}/>
       <Tab.Screen name="Favorites" component={FavouriteScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
+      {/* <Stack.Screen name="UserP" */}
     </Tab.Navigator>
   );
 }
@@ -108,6 +110,8 @@ function RootNavigator() {
           <>
             <Stack.Screen name="MainTabs" component={MainTabs} />
             <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+            <Stack.Screen name="UserProfile" component={UserProfileScreen}/>
+            
             {/* Note: AddRecipe is NO LONGER here, it's safe inside HomeStackNavigator */}
           </>
         ) : (
