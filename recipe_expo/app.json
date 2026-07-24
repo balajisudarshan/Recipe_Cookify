@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "recipe_expo",
-    "slug": "recipe_expo",
+    "name": "reciPI",
+    "slug": "recipi",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -20,13 +20,19 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.balajisudarshan.recipi"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-font"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "50591844-50cc-4a1b-bb3d-70b23d36a5cd"
+      }
+    }
   }
 }

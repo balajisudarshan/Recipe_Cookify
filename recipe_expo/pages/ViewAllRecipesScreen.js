@@ -65,8 +65,8 @@ const ViewAllRecipesScreen = () => {
       const cuisineParam = selectedCuisine === "ALL" ? null : selectedCuisine;
       const responses = await Promise.all(
         mealTypeOptions.map(({ value }) =>
-          getAllRecipes(null, cuisineParam, value, 1, 6)
-        )
+          getAllRecipes(null, cuisineParam, value, 1, 6),
+        ),
       );
 
       const groupedRecipes = {};
@@ -170,7 +170,7 @@ const ViewAllRecipesScreen = () => {
                   {recipes[value]?.length > 0 ? (
                     <View style={styles.recipeGrid}>
                       {recipes[value].map((recipe) => (
-                        <RecipeCard key={recipe.id} recipe={recipe} />
+                          <RecipeCard key={recipe.id} recipe={recipe} />
                       ))}
                     </View>
                   ) : (
@@ -285,6 +285,10 @@ const styles = StyleSheet.create({
 
   activeBadgeText: {
     color: "#FFF",
+  },
+  cardHolder:{
+    width:width * 1
+
   },
 
   card: {

@@ -5,12 +5,13 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 const { width, height } = Dimensions.get("window");
 import { Feather } from "@expo/vector-icons";
 import { ENUM_TO_LABEL } from "../../const/DIETARY_TYPES";
-
+import { useNavigation } from "@react-navigation/native";
 
 const RecipeCard = ({ recipe, showDeleteButton = false, onDelete }) => {
+  const navigation = useNavigation();
   // Defensive rendering for dietary type
   const getDietaryIcon = (dietaryType) => {
-    switch(dietaryType) {
+    switch (dietaryType) {
       case "VEGAN":
         return { icon: "sprout", color: "#16A34A" };
       case "VEGETARIAN":
@@ -27,7 +28,13 @@ const RecipeCard = ({ recipe, showDeleteButton = false, onDelete }) => {
   const dietaryIconData = getDietaryIcon(recipe.dietaryType);
 
   return (
-    <View key={recipe.id} style={styles.profileRecipeCard}>
+    <TouchableOpacity
+      key={recipe.id}
+      style={styles.profileRecipeCard}
+      onPress={()=>navigation.navigate("ViewRecipe", {
+        recipeId: recipe.id,
+      })}
+    >
       <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
       {showDeleteButton && (
         <TouchableOpacity
@@ -68,7 +75,7 @@ const RecipeCard = ({ recipe, showDeleteButton = false, onDelete }) => {
           <Text style={{ fontWeight: "800", color: "red" }}>13</Text>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
@@ -86,7 +93,7 @@ const styles = StyleSheet.create({
     shadowOffset: {
       width: 0,
       height: 2,
-    }
+    },
   },
   recipeImage: {
     width: "100%",
@@ -176,6 +183,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     zIndex: 2,
   },
-})
+});
 
 export default RecipeCard;

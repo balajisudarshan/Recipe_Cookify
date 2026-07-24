@@ -3,6 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getMe } from "../api/apiRoute";
 
 const AuthContext = createContext();
+const AUTH_RESTORE_TIMEOUT_MS = 1500;
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -16,6 +17,32 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   }, []);
 
+  const validateStoredSession = useCallback(async (savedToken) => {
+    if (!savedToken) return;
+
+    try {
+      const response = await getMe();
+      if (response?.data?.user) {
+        const freshUser = response.data.user;
+        setUser(freshUser);
+        await AsyncStorage.setItem("user", JSON.stringify(freshUser));
+      }
+    } catch (validationError) {
+      const status = validationError?.response?.status;
+      console.log("Token validation error status:", status);
+
+      if (status === 401 || status === 403) {
+        console.log("Token invalid - clearing auth");
+        setToken(null);
+        setUser(null);
+        await AsyncStorage.removeItem("token");
+        await AsyncStorage.removeItem("user");
+      } else {
+        console.log("Network or server error, but token still valid");
+      }
+    }
+  }, []);
+
   useEffect(() => {
     globalThis.__authLogoutHandler = handleLogout;
 
@@ -27,39 +54,38 @@ export const AuthProvider = ({ children }) => {
   }, [handleLogout]);
 
   useEffect(() => {
+    let isMounted = true;
+
     const loadAuth = async () => {
       try {
-        const savedToken = await AsyncStorage.getItem("token");
-        const savedUser = await AsyncStorage.getItem("user");
-        
+        const [savedToken, savedUser] = await Promise.all([
+          AsyncStorage.getItem("token"),
+          AsyncStorage.getItem("user"),
+        ]);
+
+        if (!isMounted) return;
+
         if (savedToken && savedUser) {
-          // Restore user from local storage immediately
-          setToken(savedToken);
-          setUser(JSON.parse(savedUser));
-          
-          // Validate token with server in background
+          let parsedUser = null;
+
           try {
-            const response = await getMe();
-            if (response && response.data && response.data.user) {
-              const freshUser = response.data.user;
-              setUser(freshUser);
-              await AsyncStorage.setItem("user", JSON.stringify(freshUser));
-            }
-          } catch (validationError) {
-            // Only clear auth on 401 or 403 (unauthorized/forbidden)
-            const status = validationError?.response?.status;
-            console.log("Token validation error status:", status);
-            if (status === 401 || status === 403) {
-              console.log("Token invalid - clearing auth");
-              setToken(null);
-              setUser(null);
-              await AsyncStorage.removeItem("token");
-              await AsyncStorage.removeItem("user");
-            } else {
-              console.log("Network or server error, but token still valid");
-              // Keep the user logged in if it's just a network error
-            }
+            parsedUser = JSON.parse(savedUser);
+          } catch (parseError) {
+            console.log("Failed to parse saved user", parseError?.message);
           }
+
+          if (parsedUser) {
+            setToken(savedToken);
+            setUser(parsedUser);
+          } else {
+            setToken(null);
+            setUser(null);
+          }
+
+          await Promise.race([
+            validateStoredSession(savedToken),
+            new Promise((resolve) => setTimeout(resolve, AUTH_RESTORE_TIMEOUT_MS)),
+          ]);
         } else {
           setToken(null);
           setUser(null);
@@ -69,12 +95,18 @@ export const AuthProvider = ({ children }) => {
         setToken(null);
         setUser(null);
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     loadAuth();
-  }, []);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [validateStoredSession]);
 
   return (
     <AuthContext.Provider
