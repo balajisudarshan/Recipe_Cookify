@@ -116,7 +116,10 @@ const ViewRecipe = () => {
           <View style={styles.titleRow}>
             <Text style={styles.title}>{recipe.title}</Text>
             {user?.id && recipe.author?.id === user.id && (
-              <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteRecipe}>
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={handleDeleteRecipe}
+              >
                 <Ionicons name="trash-outline" size={18} color="#fff" />
               </TouchableOpacity>
             )}
@@ -133,10 +136,18 @@ const ViewRecipe = () => {
               }}
               style={styles.avatar}
             />
-            <View style={styles.authorContent}>
+            <TouchableOpacity
+              style={styles.authorContent}
+              onPress={() =>
+                navigation.navigate("UserProfile", {
+                  userId: recipe.author.id,
+                  userName: recipe.author.username,
+                })
+              }
+            >
               <Text style={styles.primaryTxt}>{recipe.author.username}</Text>
               <Text style={styles.secondaryTxt}>12 Recipes Shared</Text>
-            </View>
+            </TouchableOpacity>
           </View>
 
           {/* <Text style={styles.description}>{recipe.description}</Text> */}
@@ -158,7 +169,11 @@ const ViewRecipe = () => {
             comments={recipe._count.comments}
             saves={recipe._count.saves}
           />
-          <RecipeActionBar recipeId={recipe.id} recipe={recipe} setRecipe={setRecipe} />
+          <RecipeActionBar
+            recipeId={recipe.id}
+            recipe={recipe}
+            setRecipe={setRecipe}
+          />
           <View style={styles.aboutRecipeContainer}>
             <Text style={styles.headingTxt}>About this Recipe</Text>
             <Text style={styles.secondaryTxt}>{recipe.description}</Text>
