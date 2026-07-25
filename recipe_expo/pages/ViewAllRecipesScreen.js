@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import SearchBar from "../components/SearchBar";
 import RecipeCard from "../components/cards/RecipeCard";
 import { getAllRecipes } from "../api/apiRoute";
@@ -102,9 +102,11 @@ const ViewAllRecipesScreen = () => {
     }
   };
 
-  useEffect(() => {
-    fetchRecipes();
-  }, [selectedCuisine]);
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchRecipes();
+    }, [selectedCuisine])
+  );
 
   return (
     <SafeAreaView style={styles.container}>

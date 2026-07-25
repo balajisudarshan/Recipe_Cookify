@@ -27,25 +27,32 @@ import { getUserRecipes } from "../api/apiRoute";
 const { width, height } = Dimensions.get("window");
 
 const UserProfileScreen = () => {
-  const route = useRoute()
-  const userId = route.params?.userId
-  const userName = route.params?.userName
+  const route = useRoute();
+  const userId = route.params?.userId;
+  const userName = route.params?.userName;
   const navigation = useNavigation();
   const { user, loading, handleLogout } = useAuth();
 
-  const [otherUser,setOtherUser] = useState(false)
+  const [otherUser, setOtherUser] = useState(false);
   const [userRecipes, setUserRecipes] = useState([]);
   const [userRecipeCount, setUserRecipeCount] = useState(0);
   const [loadingRecipes, setLoadingRecipes] = useState(true);
-  const [currUser,setCurrUser] = useState(null)
-  useEffect(()=>{
-    const fetchUser =async ()=>{
-        const res = await getUserProfile(userId)
-        console.log("Fetched User Result :",res.data)
-        setCurrUser(res.data.user)
+  const [currUser, setCurrUser] = useState(null);
+  useEffect(() => {
+    if (userId === user.id) {
+      navigation.navigate("MainTabs", {
+        screen: "Profile",
+      });
     }
-    fetchUser()
-  },[userId])
+  });
+  useEffect(() => {
+    const fetchUser = async () => {
+      const res = await getUserProfile(userId);
+      console.log("Fetched User Result :", res.data);
+      setCurrUser(res.data.user);
+    };
+    fetchUser();
+  }, [userId]);
   const fetchUserRecipes = async () => {
     try {
       setLoadingRecipes(true);
@@ -60,8 +67,6 @@ const UserProfileScreen = () => {
       setLoadingRecipes(false);
     }
   };
-
-  
 
   useEffect(() => {
     if (user) {
@@ -104,14 +109,20 @@ const UserProfileScreen = () => {
 
         <View style={styles.details}>
           <Text style={styles.usernameText}>@{userName}</Text>
-          <Text style={styles.bioText}>{currUser?.bio || "No bio added yet"}</Text>
+          <Text style={styles.bioText}>
+            {currUser?.bio || "No bio added yet"}
+          </Text>
         </View>
 
         {/* Responsive Performance Metric Row Matrix */}
-        <ProfileStat loadingRecipes={loadingRecipes} userRecipes={userRecipes} user={currUser} />
+        <ProfileStat
+          loadingRecipes={loadingRecipes}
+          userRecipes={userRecipes}
+          user={currUser}
+        />
 
         {/* Flexible Control Actions Grid Interface */}
-        <ProfileActionButtons type="user"/>
+        <ProfileActionButtons type="user" />
 
         {loadingRecipes ? (
           <View style={{ marginTop: height * 0.02 }}>
@@ -211,8 +222,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: width * 0.05,
   },
-  
-  
+
   yourRecipeContainer: {
     marginTop: height * 0.02,
     width: width * 0.88,
@@ -225,7 +235,6 @@ const styles = StyleSheet.create({
     textAlign: "left",
   },
 
-  
   profileRecipeContainer: {
     width: "90%",
     flexDirection: "row",
@@ -238,7 +247,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontSize: width * 0.036,
   },
-  
 });
 
 export default UserProfileScreen;

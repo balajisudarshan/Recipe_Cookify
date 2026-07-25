@@ -43,6 +43,7 @@ const ViewRecipe = () => {
 
     try {
       await deleteRecipe(recipe.id);
+      setRecipe(null);
       Toast.show({ type: "success", text1: "Recipe deleted" });
       navigation.goBack();
     } catch (error) {

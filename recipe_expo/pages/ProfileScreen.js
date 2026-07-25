@@ -10,12 +10,12 @@ import {
   FlatList,
   Alert,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import ScreenHeader from "../components/ScreenHeader";
 import { Feather } from "@expo/vector-icons";
 import { deleteRecipe, getMyRecipes } from "../api/apiRoute";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import ProfileStat from "../components/profile/ProfileStat";
 import ProfileActionButtons from "../components/profile/ProfileActionButtons";
@@ -73,11 +73,13 @@ const ProfileScreen = () => {
     );
   };
 
-  useEffect(() => {
-    if (user) {
-      fetchUserRecipes();
-    }
-  }, [user]);
+  useFocusEffect(
+    useCallback(() => {
+      if (user) {
+        fetchUserRecipes();
+      }
+    }, [user])
+  );
 
   if (loading) {
     return (

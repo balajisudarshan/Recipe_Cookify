@@ -350,11 +350,37 @@ const deleteRecipe = async (req, res, next) => {
       return res.status(401).json({ message: "Unauthorized" })
     }
 
-    await prisma.recipe.delete({
-      where: {
-        id: recipeId
-      }
-    })
+    await prisma.$transaction([
+      prisma.notification.deleteMany({
+        where: {
+          OR: [
+            { recipeId: recipeId },
+            { senderId: userId }
+          ]
+        }
+      }),
+      prisma.comment.deleteMany({
+        where: {
+          recipeId: recipeId
+        }
+      }),
+      prisma.recipeLike.deleteMany({
+        where: {
+          recipeId: recipeId
+        }
+      }),
+      prisma.savedRecipe.deleteMany({
+        where: {
+          recipeId: recipeId
+        }
+      }),
+      prisma.recipe.delete({
+        where: {
+          id: recipeId
+        }
+      })
+    ])
+
     return res.status(200).json({ success: true, message: "Recipe deleted successfully" })
   } catch (error) {
     next(error);
