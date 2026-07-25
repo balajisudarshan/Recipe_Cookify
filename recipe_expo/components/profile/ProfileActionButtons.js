@@ -1,53 +1,71 @@
-import { View, Text ,TouchableOpacity,Dimensions} from 'react-native'
-import React from 'react'
-import { StyleSheet } from 'react-native'
+import { View, Text, TouchableOpacity, Dimensions } from "react-native";
+import React from "react";
+import { StyleSheet } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from "../../context/AuthContext";
 import { useNavigation } from "@react-navigation/native";
 
 const { width, height } = Dimensions.get("window");
 
-const ProfileActionButtons = () => {
-    const {  handleLogout } = useAuth();
-    const navigation = useNavigation()
+const ProfileActionButtons = ({ type }) => {
+  const { handleLogout } = useAuth();
+  const navigation = useNavigation();
   return (
     <View style={styles.btnContainer}>
-          <TouchableOpacity
-            style={styles.editButton}
-            onPress={() => navigation.navigate("EditProfile")}
-          >
-            <Feather
-              name="edit-3"
-              size={width * 0.04}
-              color="#fff"
-              style={{ marginRight: 6 }}
-            />
-            <Text style={styles.btnText} numberOfLines={1}>
-              Edit Profile
-            </Text>
-          </TouchableOpacity>
+      {!type ? (
+        <TouchableOpacity
+          style={styles.editButton}
+          onPress={() => navigation.navigate("EditProfile")}
+        >
+          <Feather
+            name="edit-3"
+            size={width * 0.04}
+            color="#fff"
+            style={{ marginRight: 6 }}
+          />
+          <Text style={styles.btnText} numberOfLines={1}>
+            Edit Profile
+          </Text>
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity
+          style={styles.editButton}
+          onPress={() => navigation.navigate("EditProfile")}
+        >
+          <Feather
+            name="user-plus"
+            size={width * 0.04}
+            color="#fff"
+            style={{ marginRight: 6 }}
+          />
+          <Text style={styles.btnText} numberOfLines={1}>
+            Follow
+          </Text>
+        </TouchableOpacity>
+      )}
 
-          <TouchableOpacity style={styles.shareBtn}>
-            <Feather name="share-2" size={width * 0.045} color="#FF7A00" />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-            <Feather
-              name="log-out"
-              size={width * 0.04}
-              color="#EF4444"
-              style={{ marginRight: 6 }}
-            />
-            <Text style={styles.logoutBtnText} numberOfLines={1}>
-              Log Out
-            </Text>
-          </TouchableOpacity>
-        </View>
-  )
+      <TouchableOpacity style={styles.shareBtn}>
+        <Feather name="share-2" size={width * 0.045} color="#FF7A00" />
+      </TouchableOpacity>
+      {!type &&
+      <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+        <Feather
+          name="log-out"
+          size={width * 0.04}
+          color="#EF4444"
+          style={{ marginRight: 6 }}
+        />
+        <Text style={styles.logoutBtnText} numberOfLines={1}>
+          Log Out
+        </Text>
+      </TouchableOpacity>
 }
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
-    btnContainer: {
+  btnContainer: {
     flexDirection: "row",
     width: width * 0.88,
     marginTop: height * 0.025,
@@ -96,6 +114,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-})
+});
 
-export default ProfileActionButtons
+export default ProfileActionButtons;

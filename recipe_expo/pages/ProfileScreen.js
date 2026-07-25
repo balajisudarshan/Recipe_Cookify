@@ -118,7 +118,7 @@ const ProfileScreen = () => {
         </View>
 
         {/* Responsive Performance Metric Row Matrix */}
-        <ProfileStat loadingRecipes={loadingRecipes} userRecipes={userRecipes}/>
+        <ProfileStat loadingRecipes={loadingRecipes} userRecipes={userRecipes}user={user}/>
 
         {/* Flexible Control Actions Grid Interface */}
         <ProfileActionButtons/>

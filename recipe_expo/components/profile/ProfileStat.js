@@ -3,7 +3,7 @@ import React from "react";
 import { StyleSheet } from "react-native";
 const { width, height } = Dimensions.get("window");
 
-const ProfileStat = ({loadingRecipes,userRecipes}) => {
+const ProfileStat = ({loadingRecipes,userRecipes,user}) => {
   return (
     <View style={styles.statContainer}>
       <View style={styles.statBox}>
@@ -15,13 +15,13 @@ const ProfileStat = ({loadingRecipes,userRecipes}) => {
       <View style={styles.divider} />
 
       <View style={styles.statBox}>
-        <Text style={styles.statNumber}>2</Text>
+        <Text style={styles.statNumber}>{user ? user?.followerCount:"--"}</Text>
         <Text style={styles.statLabel}>Followers</Text>
       </View>
       <View style={styles.divider} />
 
       <View style={styles.statBox}>
-        <Text style={styles.statNumber}>26</Text>
+        <Text style={styles.statNumber}>{user ? user?.followingCount:"--"}</Text>
         <Text style={styles.statLabel}>Following</Text>
       </View>
     </View>

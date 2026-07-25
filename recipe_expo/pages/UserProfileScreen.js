@@ -22,6 +22,7 @@ import ProfileActionButtons from "../components/profile/ProfileActionButtons";
 import RecipeCard from "../components/cards/RecipeCard";
 import { useRoute } from "@react-navigation/native";
 import { getUserProfile } from "../api/apiRoute";
+import { getUserRecipes } from "../api/apiRoute";
 // 1. Establish Responsive Scale Anchors based on Device Dimensions
 const { width, height } = Dimensions.get("window");
 
@@ -36,17 +37,19 @@ const UserProfileScreen = () => {
   const [userRecipes, setUserRecipes] = useState([]);
   const [userRecipeCount, setUserRecipeCount] = useState(0);
   const [loadingRecipes, setLoadingRecipes] = useState(true);
+  const [currUser,setCurrUser] = useState(null)
   useEffect(()=>{
     const fetchUser =async ()=>{
         const res = await getUserProfile(userId)
-        console.log("Fetched User Result :",res)
+        console.log("Fetched User Result :",res.data)
+        setCurrUser(res.data.user)
     }
     fetchUser()
   },[userId])
   const fetchUserRecipes = async () => {
     try {
       setLoadingRecipes(true);
-      const response = await getMyRecipes();
+      const response = await getUserRecipes(userId);
       if (response && response.data && response.data.recipes) {
         setUserRecipes(response.data.recipes);
         setUserRecipeCount(response.data.count);
@@ -58,29 +61,7 @@ const UserProfileScreen = () => {
     }
   };
 
-  const handleDeleteRecipe = (recipeId) => {
-    Alert.alert(
-      "Delete recipe",
-      "Are you sure you want to delete this recipe?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await deleteRecipe(recipeId);
-              setUserRecipes((prev) => prev.filter((recipe) => recipe.id !== recipeId));
-              setUserRecipeCount((prev) => Math.max(prev - 1, 0));
-            } catch (error) {
-              console.log("Error deleting recipe:", error);
-              Alert.alert("Delete failed", "Unable to delete this recipe right now.");
-            }
-          },
-        },
-      ]
-    );
-  };
+  
 
   useEffect(() => {
     if (user) {
@@ -114,8 +95,8 @@ const UserProfileScreen = () => {
           <Image
             source={{
               uri:
-                user.avatar ||
-                `https://ui-avatars.com/api/?name=${user.username}`,
+                currUser?.avatar ||
+                `https://ui-avatars.com/api/?name=${currUser?.username}`,
             }}
             style={styles.avatarImage}
           />
@@ -123,14 +104,14 @@ const UserProfileScreen = () => {
 
         <View style={styles.details}>
           <Text style={styles.usernameText}>@{userName}</Text>
-          <Text style={styles.bioText}>{user.bio || "No bio added yet"}</Text>
+          <Text style={styles.bioText}>{currUser?.bio || "No bio added yet"}</Text>
         </View>
 
         {/* Responsive Performance Metric Row Matrix */}
-        <ProfileStat loadingRecipes={loadingRecipes} userRecipes={userRecipes}/>
+        <ProfileStat loadingRecipes={loadingRecipes} userRecipes={userRecipes} user={currUser} />
 
         {/* Flexible Control Actions Grid Interface */}
-        <ProfileActionButtons/>
+        <ProfileActionButtons type="user"/>
 
         {loadingRecipes ? (
           <View style={{ marginTop: height * 0.02 }}>
@@ -140,7 +121,7 @@ const UserProfileScreen = () => {
           <>
             <View style={styles.yourRecipeContainer}>
               <Text style={styles.headingTxt}>
-                Your Recipes - {userRecipeCount}
+                @{userName} Recipes - {userRecipeCount}
               </Text>
             </View>
 
@@ -149,8 +130,8 @@ const UserProfileScreen = () => {
                 <RecipeCard
                   recipe={recipe}
                   key={recipe.id}
-                  showDeleteButton={true}
-                  onDelete={handleDeleteRecipe}
+                  showDeleteButton={false}
+                  // onDelete={handleDeleteRecipe}
                 />
               ))}
             </View>

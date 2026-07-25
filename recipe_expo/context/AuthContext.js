@@ -29,16 +29,17 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (validationError) {
       const status = validationError?.response?.status;
-      console.log("Token validation error status:", status);
+      const message = validationError?.response?.data?.message || validationError?.message || "Unknown error";
+      console.log("Token validation error status:", status, "message:", message);
 
-      if (status === 401 || status === 403) {
-        console.log("Token invalid - clearing auth");
+      if (status === 401 || status === 403 || status === 404) {
+        console.log("Token invalid or session could not be verified - clearing auth");
         setToken(null);
         setUser(null);
         await AsyncStorage.removeItem("token");
         await AsyncStorage.removeItem("user");
       } else {
-        console.log("Network or server error, but token still valid");
+        console.log("Network or server error during token validation; keeping current session until the backend is reachable");
       }
     }
   }, []);
