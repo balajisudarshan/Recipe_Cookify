@@ -1,5 +1,5 @@
 const router = require('express').Router()
-const { createRecipe, getAllRecipes, getSingleRecipe, getMyRecipes, getUserRecipes, updateRecipe, deleteRecipe, likeRecipe, saveRecipe, getLikedRecipes, getSavedRecipes,getRecentRecipes } = require('../controller/recipe.controller')
+const { createRecipe, getAllRecipes, getSingleRecipe, getMyRecipes, getUserRecipes, updateRecipe, deleteRecipe, likeRecipe, saveRecipe, getLikedRecipes, getSavedRecipes,getRecentRecipes, rateRecipe } = require('../controller/recipe.controller')
 const checkAuth = require('../middleware/checkAuth')
 const upload = require('../middleware/upload')
 
@@ -295,4 +295,74 @@ router.put("/like/:id", checkAuth, likeRecipe);
  */
 router.put("/save/:id", checkAuth, saveRecipe);
 
+/**
+ * @swagger
+ * /api/recipe/{recipeId}/rate:
+ *   post:
+ *     summary: Rate or update rating for a recipe
+ *     tags:
+ *       - Recipe
+ *     parameters:
+ *       - in: path
+ *         name: recipeId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Recipe ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - rating
+ *             properties:
+ *               rating:
+ *                 type: integer
+ *                 minimum: 1
+ *                 maximum: 5
+ *                 example: 5
+ *                 description: Rating value between 1 and 5
+ *     responses:
+ *       200:
+ *         description: Recipe rated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Recipe rated successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     averageRating:
+ *                       type: number
+ *                       format: float
+ *                       example: 4.7
+ *                     ratingsCount:
+ *                       type: integer
+ *                       example: 126
+ *                     userRating:
+ *                       type: integer
+ *                       example: 5
+ *       400:
+ *         description: Invalid rating
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Recipe not found
+ *       500:
+ *         description: Internal server error
+ */
+router.post("/:recipeId/rate", checkAuth, rateRecipe);
+
+// router.post("/:recipeId/rate",checkAuth,rateRecipe)
+
+// router.get("/:recipeId/rating",)
 module.exports = router

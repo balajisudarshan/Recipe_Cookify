@@ -22,6 +22,7 @@ model User {
   recipes       Recipe[]
   likes         RecipeLike[]
   saves         SavedRecipe[]
+  ratings       RecipeRating[]
 }
 
 model Recipe {
@@ -38,10 +39,28 @@ model Recipe {
   authorId    String
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+
+  averageRating Float       @default(0)
+  ratingsCount  Int         @default(0) 
+
   comments    Comment[]
   author      User          @relation(fields: [authorId], references: [id])
   likes       RecipeLike[]
   saves       SavedRecipe[]
+  ratings     RecipeRating[]
+}
+
+model RecipeRating{
+  id          String    @id @default(cuid())
+  rating      Int       
+  userId      String
+  recipeId    String
+  createdAt   DateTime @default(now())
+
+  user    User @relation(fields: [userId],references: [id],onDelete:Cascade)
+  recipe  Recipe @relation(fields: [recipeId],references: [id],onDelete: Cascade)
+
+  @@unique([userId,recipeId])
 }
 
 model RecipeLike {
