@@ -6,10 +6,11 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Modal,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { deleteRecipe, getRecipe } from "../api/apiRoute";
+import { deleteRecipe, getRecipe, rateRecipe } from "../api/apiRoute";
 import Toast from "react-native-toast-message";
 import RecipeTopActions from "../components/buttons/TopButtons";
 import { Ionicons } from "@expo/vector-icons";
@@ -23,6 +24,7 @@ import StepContainer from "../components/StepContainer";
 import ViewRecipLoader from "../components/Loaders/ViewRecipeLoader";
 import RecipeActionBar from "../components/buttons/RecipeActionBar";
 import { useAuth } from "../context/AuthContext";
+import { COLORS } from "../const/COLORS";
 
 const { width, height } = Dimensions.get("window");
 const IMAGE_HEIGHT = height * 0.42;
@@ -35,9 +37,9 @@ const ViewRecipe = () => {
 
   const [recipe, setRecipe] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-
+  const [showRatingModel, setShowRatingModel] = useState(false);
   const [selectedTab, setSelectedTab] = useState("ingredients");
-
+  const [selectedRating, setSelectedRating] = useState(recipe?.myRating || 0);
   const handleDeleteRecipe = async () => {
     if (!recipe?.id) return;
 
@@ -51,7 +53,28 @@ const ViewRecipe = () => {
       Toast.show({ type: "error", text1: "Failed to delete recipe" });
     }
   };
-
+  const handleSubmitRating = async () => {
+    if (!recipe?.id) return;
+    try {
+      const response = await rateRecipe(recipe.id, selectedRating);
+      setRecipe((prev) => ({
+        ...prev,
+        averageRating: response.data.data.averageRating,
+        ratingsCount: response.data.data.ratingsCount,
+        myRating: response.data.data.userRating,
+      }));
+      setShowRatingModel(false);
+      Toast.show({
+        type: "success",
+        text1: "Recipe Rated",
+        text2: "Thanks for your feedback! ⭐",
+        position: "top",
+        visibilityTime: 2000,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
   useEffect(() => {
     const fetchRecipe = async () => {
       try {
@@ -125,7 +148,10 @@ const ViewRecipe = () => {
               </TouchableOpacity>
             )}
           </View>
-          <RecipeRatings />
+          <RecipeRatings
+            rating={recipe?.averageRating}
+            totalRating={recipe?.ratingsCount}
+          />
 
           {/* <Text style={styles.author}>By {recipe.author?.username}</Text> */}
           <View style={styles.userHolder}>
@@ -174,6 +200,7 @@ const ViewRecipe = () => {
             recipeId={recipe.id}
             recipe={recipe}
             setRecipe={setRecipe}
+            openRatingModel={() => setShowRatingModel(true)}
           />
           <View style={styles.aboutRecipeContainer}>
             <Text style={styles.headingTxt}>About this Recipe</Text>
@@ -253,6 +280,62 @@ const ViewRecipe = () => {
           )}
         </View>
       </ScrollView>
+      <Modal
+        visible={showRatingModel}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowRatingModel(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <View style={styles.iconContainer}>
+              <Ionicons name="star" size={38} color="#FF8A00" />
+            </View>
+
+            <Text style={styles.modalTitle}>Rate this Recipe</Text>
+
+            <Text style={styles.modalSubtitle}>
+              How would you rate your cooking experience?
+            </Text>
+
+            <View style={styles.starRow}>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <TouchableOpacity
+                  key={star}
+                  activeOpacity={0.8}
+                  onPress={() => setSelectedRating(star)}
+                >
+                  <Ionicons
+                    name={star <= selectedRating ? "star" : "star-outline"}
+                    size={42}
+                    color="#FF8A00"
+                  />
+                </TouchableOpacity>
+              ))}
+            </View>
+            <TouchableOpacity
+              style={styles.submitBtn}
+              onPress={handleSubmitRating}
+              disabled={selectedRating === 0}
+            >
+              <Text style={styles.submitBtnText}>Submit Rating</Text>
+
+              <Ionicons
+                name="arrow-forward"
+                size={18}
+                color="#fff"
+                style={{ marginLeft: 8 }}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.cancelBtn}
+              onPress={() => setShowRatingModel(false)}
+            >
+              <Text style={styles.cancelText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -381,6 +464,84 @@ const styles = StyleSheet.create({
 
   activeTabText: {
     color: "#fff",
+    fontWeight: "700",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.45)",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 24,
+  },
+
+  modalContainer: {
+    width: "100%",
+    backgroundColor: "#FFF",
+    borderRadius: 28,
+    padding: 24,
+    alignItems: "center",
+  },
+
+  iconContainer: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: "#FFF3E6",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 18,
+  },
+
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#222",
+  },
+
+  modalSubtitle: {
+    marginTop: 8,
+    textAlign: "center",
+    fontSize: 15,
+    color: "#777",
+    lineHeight: 22,
+  },
+
+  starRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+    marginTop: 28,
+    marginBottom: 28,
+  },
+
+  cancelBtn: {
+    width: "100%",
+    paddingVertical: 14,
+    borderRadius: 16,
+    backgroundColor: "#F6F6F6",
+    alignItems: "center",
+  },
+
+  cancelText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#555",
+  },
+  submitBtn: {
+    width: "100%",
+    backgroundColor: COLORS.primary,
+    borderRadius: 18,
+    paddingVertical: 16,
+    marginTop: 12,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+
+  submitBtnText: {
+    color: "#fff",
+    fontSize: 16,
     fontWeight: "700",
   },
   // ingredientsContainer: {

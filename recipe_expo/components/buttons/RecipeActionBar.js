@@ -1,11 +1,11 @@
 import { View, Text, TouchableOpacity } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { COLORS } from "../../const/COLORS";
 import { StyleSheet } from "react-native";
 import { useLikeRecipe } from "../../hooks/useLikeRecipe";
 
-const RecipeActionBar = ({ recipeId, recipe, setRecipe }) => {
+const RecipeActionBar = ({ recipeId, recipe, setRecipe,openRatingModel }) => {
   const { handleLike } = useLikeRecipe();
   const isLiked = Boolean(recipe?.isLiked);
 
@@ -22,7 +22,10 @@ const RecipeActionBar = ({ recipeId, recipe, setRecipe }) => {
       </TouchableOpacity>
 
       <View style={styles.actionBtnHolder}>
-        <TouchableOpacity style={styles.btn} onPress={() => handleLike(recipeId, setRecipe)}>
+        <TouchableOpacity
+          style={styles.btn}
+          onPress={() => handleLike(recipeId, setRecipe)}
+        >
           <Ionicons
             name={isLiked ? "heart" : "heart-outline"}
             size={22}
@@ -38,6 +41,23 @@ const RecipeActionBar = ({ recipeId, recipe, setRecipe }) => {
           <Text style={styles.txt}>Save</Text>
         </TouchableOpacity>
       </View>
+      <TouchableOpacity style={styles.rateRecipeCard} onPress={openRatingModel}>
+        <View style={styles.rateIcon}>
+          <Ionicons name="star" size={26} color="#FF8A00" />
+        </View>
+
+        <View style={styles.rateContent}>
+          <Text numberOfLines={1} style={styles.rateTitle}>
+            Enjoying this recipe?
+          </Text>
+
+          <Text numberOfLines={2} style={styles.rateSubtitle}>
+            Rate this recipe and help other food lovers.
+          </Text>
+        </View>
+
+        <Ionicons name="chevron-forward" size={24} color={COLORS.primary} />
+      </TouchableOpacity>
     </View>
   );
 };
@@ -83,9 +103,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
 
     alignItems: "center",
-    paddingVertical:10,
-    justifyContent:"center",
-    gap:10,
+    paddingVertical: 10,
+    justifyContent: "center",
+    gap: 10,
     borderWidth: 1,
     borderColor: "#ECECEC",
   },
@@ -94,6 +114,42 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "600",
     color: COLORS.text,
+  },
+  rateRecipeCard: {
+    backgroundColor: "#FFF7F0",
+    borderRadius: 20,
+    padding: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#FFE6D2",
+  },
+
+  rateIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: "#FFE9D2",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  rateContent: {
+    flex: 1,
+    marginHorizontal: 14,
+  },
+
+  rateTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#222",
+  },
+
+  rateSubtitle: {
+    marginTop: 3,
+    fontSize: 13,
+    color: "#777",
+    lineHeight: 18,
   },
 });
 export default RecipeActionBar;

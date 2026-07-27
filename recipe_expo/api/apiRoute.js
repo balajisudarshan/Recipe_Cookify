@@ -90,6 +90,10 @@ export const createRecipe = (formData) => api.post("/recipe/create", formData, {
 
 export const likeOrUnlikeRecipe = (id)=>api.put(`/recipe/like/${id}`)
 export const deleteRecipe = (id) => api.delete(`/recipe/${id}`)
+export const rateRecipe = (id,rating)=>api.post(`/recipe/${id}/rate`,{
+  rating
+})
+
 export const getMe = () => api.get("/auth/me")
 export const getUserProfile = (id)=>api.get(`/profile/${id}`)
 export const getUserRecipes = (id)=>api.get(`/recipe/user/${id}`)
