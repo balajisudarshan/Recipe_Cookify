@@ -30,7 +30,12 @@ const RecipeCard = ({ recipe, showDeleteButton = false, onDelete }) => {
     <TouchableOpacity
       key={recipe.id}
       style={styles.profileRecipeCard}
-      onPress={() => navigation.navigate("ViewRecipe", { recipeId: recipe.id })}
+      onPress={() => navigation.navigate("Home", { 
+        screen:"ViewRecipe",
+        params:{
+          recipeId:recipe.id
+        } 
+      })}
       activeOpacity={0.9}
     >
       <Image source={{ uri: recipe.image }} style={styles.recipeImage} />

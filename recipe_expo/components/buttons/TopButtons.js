@@ -6,6 +6,7 @@ import {
   Dimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { shareRecipe } from "../../utils/HandleShare";
 
 const { width, height } = Dimensions.get("window");
 
@@ -13,6 +14,7 @@ const RecipeTopActions = ({
   onBack,
   onShare,
   onMore,
+  recipe
 }) => {
   return (
     <View style={styles.container}>
@@ -30,7 +32,7 @@ const RecipeTopActions = ({
       <View style={styles.rightActions}>
         <TouchableOpacity
           style={styles.circleBtn}
-          onPress={onShare}
+          onPress={()=>shareRecipe(recipe)}
         >
           <Ionicons
             name="share-social-outline"

@@ -125,7 +125,7 @@ const ViewRecipe = () => {
         resizeMode="cover"
       />
 
-      <RecipeTopActions />
+      <RecipeTopActions recipe={recipe} />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
