@@ -24,6 +24,7 @@ import UserProfileScreen from "./pages/UserProfileScreen";
 import { useEffect } from "react";
 import * as NotificationService from "./utils/NotificationService";
 import { getRecentRecipes } from "./api/apiRoute";
+import * as Updates from "expo-updates";
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 const HomeStack = createNativeStackNavigator(); // <-- Create the new Home stack
@@ -163,6 +164,21 @@ const styles = StyleSheet.create({
 export default function App() {
 
   useEffect(() => {
+    const checkOTAUpdates = async () => {
+      if (__DEV__) return;
+      try {
+        const update = await Updates.checkForUpdateAsync();
+        if (update.isAvailable) {
+          await Updates.fetchUpdateAsync();
+          await Updates.reloadAsync();
+        }
+      } catch (error) {
+        console.log("Update check error:", error);
+      }
+    };
+
+    checkOTAUpdates();
+
     const init = async () => {
       try {
         const granted = await NotificationService.requestPermission();
