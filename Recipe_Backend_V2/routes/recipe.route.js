@@ -1,5 +1,5 @@
 const router = require('express').Router()
-const { createRecipe, getAllRecipes, getSingleRecipe, getMyRecipes, getUserRecipes, updateRecipe, deleteRecipe, likeRecipe, saveRecipe, getLikedRecipes, getSavedRecipes,getRecentRecipes, rateRecipe } = require('../controller/recipe.controller')
+const { createRecipe, getAllRecipes, getSingleRecipe, getMyRecipes, getUserRecipes, updateRecipe, deleteRecipe, likeRecipe, saveRecipe, getLikedRecipes, getSavedRecipes, getRecentRecipes, rateRecipe } = require('../controller/recipe.controller')
 const checkAuth = require('../middleware/checkAuth')
 const upload = require('../middleware/upload')
 
@@ -47,43 +47,83 @@ const upload = require('../middleware/upload')
  */
 router.post('/create', checkAuth, upload.single("image"), createRecipe);
 
+
 /**
- * @swagger
- * /api/recipe:
- *   get:
- *     summary: Get all recipes
- *     tags:
- *       - Recipe
- *     parameters:
- *       - in: query
- *         name: dietaryType
- *         schema:
- *           type: string
- *         description: Filter by dietary type (e.g. VEGETARIAN, NON_VEG)
- *       - in: query
- *         name: mealType
- *         schema:
- *           type: string
- *         description: Filter by meal type (e.g. BREAKFAST, DINNER)
- *       - in: query
- *         name: course
- *         schema:
- *           type: string
- *         description: Filter by course type (e.g. APPETIZER, MAIN_COURSE)
- *       - in: query
- *         name: cuisine
- *         schema:
- *           type: string
- *         description: Filter by cusine type (e.g. INDIAN, ITALIAN)
- *       - in: query
- *         name: query
- *         schema:
- *           type: string
- *         description: Search by title or description
- *     responses:
- *       200:
- *         description: Successfully retrieved all recipes
- */
+* @swagger
+* /api/recipe:
+*   get:
+*     summary: Get all recipes
+*     tags:
+*       - Recipe
+*     parameters:
+*       - in: query
+*         name: page
+*         schema:
+*           type: integer
+*           default: 1
+*         description: Page number for pagination
+*       - in: query
+*         name: dietaryType
+*         schema:
+*           type: string
+*         description: Filter by dietary type (e.g. VEGETARIAN, NON_VEG)
+*       - in: query
+*         name: mealType
+*         schema:
+*           type: string
+*         description: Filter by meal type (e.g. BREAKFAST, DINNER)
+*       - in: query
+*         name: course
+*         schema:
+*           type: string
+*         description: Filter by course type (e.g. APPETIZER, MAIN_COURSE)
+*       - in: query
+*         name: cuisine
+*         schema:
+*           type: string
+*         description: Filter by cuisine type (e.g. INDIAN, ITALIAN)
+*       - in: query
+*         name: query
+*         schema:
+*           type: string
+*         description: Search by title or description
+*     responses:
+*       200:
+*         description: Successfully retrieved all recipes
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 success:
+*                   type: boolean
+*                   example: true
+*                 message:
+*                   type: string
+*                   example: Recipes fetched successfully
+*                 page:
+*                   type: integer
+*                   example: 2
+*                 limit:
+*                   type: integer
+*                   example: 10
+*                 totalRecipes:
+*                   type: integer
+*                   example: 97
+*                 totalPages:
+*                   type: integer
+*                   example: 10
+*                 hasNextPage:
+*                   type: boolean
+*                   example: true
+*                 hasPreviousPage:
+*                   type: boolean
+*                   example: true
+*                 recipes:
+*                   type: array
+*                   items:
+*                     $ref: '#/components/schemas/Recipe'
+*/
 router.get('/', checkAuth, getAllRecipes);
 
 /**
@@ -142,7 +182,7 @@ router.get('/saved', checkAuth, getSavedRecipes)
  *       200:
  *         description: Successfully retrieved recent recipes
  */
-router.get('/recent',checkAuth,getRecentRecipes);
+router.get('/recent', checkAuth, getRecentRecipes);
 
 /**
  * @swagger

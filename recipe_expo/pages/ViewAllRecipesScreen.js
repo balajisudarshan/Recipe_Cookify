@@ -9,6 +9,7 @@ import {
   SafeAreaView,
   Dimensions,
   Platform,
+  ActivityIndicator,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
@@ -16,7 +17,6 @@ import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/nativ
 import SearchBar from "../components/SearchBar";
 import RecipeCard from "../components/cards/RecipeCard";
 import { getAllRecipes } from "../api/apiRoute";
-
 const { width, height } = Dimensions.get("window");
 
 const HEADER_HEIGHT = height * 0.22;
@@ -81,8 +81,27 @@ const ViewAllRecipesScreen = () => {
     DESSERT: [],
     BEVERAGE: [],
   });
+  const [pages, setPages] = useState({
+    BREAKFAST: 1,
+    LUNCH: 1,
+    DINNER: 1,
+    SNACK: 1,
+    DESSERT: 1,
+    BEVERAGE: 1
+  })
+
+  const [hasNextPages, setHasNextPages] = useState({
+    BREAKFAST: true,
+    LUNCH: true,
+    DINNER: true,
+    SNACK: true,
+    DESSERT: true,
+    BEVERAGE: true
+  })
+
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [loadingMore, setLoadingMore] = useState({});
 
   useEffect(() => {
     if (route?.params?.initialCuisine) {
@@ -96,20 +115,61 @@ const ViewAllRecipesScreen = () => {
     try {
       const cuisineParam = selectedCuisine === "ALL" ? null : selectedCuisine;
       const responses = await Promise.all(
-        mealTypeOptions.map(({ value }) => getAllRecipes(null, cuisineParam, value, 1, 6)),
+        mealTypeOptions.map(({ value }) => getAllRecipes(null, cuisineParam, value, 1, 4)),
       );
 
       const groupedRecipes = {};
+      const nextPages = {};
       mealTypeOptions.forEach(({ value }, index) => {
         groupedRecipes[value] = responses[index]?.data?.recipes || [];
+        nextPages[value] = responses[index]?.data?.hasNextPage ?? false;
       });
 
       setRecipes(groupedRecipes);
+      setHasNextPages(nextPages);
+      setPages({
+        BREAKFAST: 1,
+        LUNCH: 1,
+        DINNER: 1,
+        SNACK: 1,
+        DESSERT: 1,
+        BEVERAGE: 1
+      });
     } catch (error) {
       console.log("Failed to fetch recipes:", error);
     } finally {
       setLoading(false);
       setRefreshing(false);
+    }
+  };
+
+  const loadMore = async (mealType) => {
+    setLoadingMore((prev) => ({ ...prev, [mealType]: true }));
+    try {
+      const nextPage = pages[mealType] + 1;
+      const cuisineParam = selectedCuisine === "ALL" ? null : selectedCuisine;
+
+      const response = await getAllRecipes(
+        null,
+        cuisineParam,
+        mealType,
+        nextPage,
+        4
+      );
+
+      setRecipes((prev) => ({
+        ...prev,
+        [mealType]: [...prev[mealType], ...response.data.recipes],
+      }));
+      setPages((prev) => ({ ...prev, [mealType]: nextPage }));
+      setHasNextPages((prev) => ({
+        ...prev,
+        [mealType]: response.data.hasNextPage ?? false,
+      }));
+    } catch (e) {
+      console.log("Load more failed:", e);
+    } finally {
+      setLoadingMore((prev) => ({ ...prev, [mealType]: false }));
     }
   };
 
@@ -219,10 +279,19 @@ const ViewAllRecipesScreen = () => {
                     </View>
 
                     {list.length > 0 ? (
-                      <View style={styles.recipeGrid}>
-                        {list.map((recipe) => (
-                          <RecipeCard key={recipe.id} recipe={recipe} />
-                        ))}
+                      <View>
+                        <View style={styles.recipeGrid}>
+                          {list.map((recipe) => (
+                            <RecipeCard key={recipe.id} recipe={recipe} />
+                          ))}
+                        </View>
+                        {hasNextPages[value] && (
+                          <LinearGradient
+                            colors={["rgba(255,255,255,0)", "rgba(255,255,255,0.92)", "#ffffff"]}
+                            style={styles.fadeOverlay}
+                            pointerEvents="none"
+                          />
+                        )}
                       </View>
                     ) : (
                       <View style={styles.emptyState}>
@@ -232,6 +301,24 @@ const ViewAllRecipesScreen = () => {
                         <Text style={styles.emptyTitle}>No {label.toLowerCase()} recipes yet</Text>
                         <Text style={styles.emptyText}>Try another cuisine or pull down to refresh.</Text>
                       </View>
+                    )}
+
+                    {hasNextPages[value] && (
+                      <TouchableOpacity
+                        style={styles.showMoreRow}
+                        onPress={() => loadMore(value)}
+                        activeOpacity={0.6}
+                        disabled={loadingMore[value]}
+                      >
+                        {loadingMore[value] ? (
+                          <ActivityIndicator size="small" color="#9CA3AF" />
+                        ) : (
+                          <>
+                            <Text style={styles.showMoreText}>Show more</Text>
+                            <Ionicons name="chevron-down" size={13} color="#9CA3AF" />
+                          </>
+                        )}
+                      </TouchableOpacity>
                     )}
                   </View>
                 );
@@ -464,5 +551,25 @@ const styles = StyleSheet.create({
     height: 10,
     borderRadius: 5,
     backgroundColor: "#F5F5F5",
+  },
+  fadeOverlay: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 90,
+  },
+  showMoreRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 3,
+    marginTop: 4,
+    paddingVertical: 6,
+  },
+  showMoreText: {
+    color: "#6B7280",
+    fontSize: 13,
+    fontWeight: "500",
   },
 }); 

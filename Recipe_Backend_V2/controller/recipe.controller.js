@@ -77,7 +77,7 @@ const createRecipe = async (req, res, next) => {
 
 const getAllRecipes = async (req, res, next) => {
   const page = Number(req.query.page) || 1;
-  const limit = 10;
+  const limit = Number(req.query.limit) || 4;
   try {
     const { dietaryType, mealType, course, query, cuisine } = req.query;
 
@@ -93,21 +93,26 @@ const getAllRecipes = async (req, res, next) => {
         ],
       }),
     };
+    const [recipes, totalRecipes] = await Promise.all([
+      prisma.recipe.findMany({
+        where: whereClause,
+        orderBy: { createdAt: "desc" },
+        skip: (page - 1) * limit,
+        take: limit,
+        include: {
 
-    const recipes = await prisma.recipe.findMany({
-      where: whereClause,
-      orderBy: { createdAt: "desc" },
-      skip: (page - 1) * limit,
-      take: limit,
-      include: {
+          author: { select: { username: true, avatar: true } },
+          likes: { where: { userId: req.user.id } },
+          saves: { where: { userId: req.user.id } },
+          _count: { select: { likes: true, saves: true, comments: true } },
+        },
+      }),
+      prisma.recipe.count({
+        where: whereClause,
+      })
 
-        author: { select: { username: true, avatar: true } },
-        likes: { where: { userId: req.user.id } },
-        saves: { where: { userId: req.user.id } },
-        _count: { select: { likes: true, saves: true, comments: true } },
-      },
-    });
-    
+    ])
+
 
     const formattedRecipes = recipes.map((recipe) => {
       const { likes, saves, ...rest } = recipe;
@@ -118,12 +123,19 @@ const getAllRecipes = async (req, res, next) => {
       };
     });
 
+
+    const totalPages = Math.ceil(totalRecipes / limit)
+    const hasNextPage = page < totalPages
+
     return res.status(200).json({
       success: true,
       message: "Recipes fetched successfully",
       count: formattedRecipes.length,
       page,
       limit,
+      totalRecipes,
+      totalPages,
+      hasNextPage,
       recipes: formattedRecipes,
     });
   } catch (error) {
@@ -266,14 +278,14 @@ const getUserRecipes = async (req, res, next) => {
 };
 
 const getRecentRecipes = async (req, res, next) => {
-  const { dietaryType } = req.query;
+  const { dietaryType, limit } = req.query;
   try {
     const recipes = await prisma.recipe.findMany({
       where: dietaryType ? { dietaryType } : undefined,
       orderBy: {
         createdAt: "desc",
       },
-      take: 10,
+      take: Number(limit) || 4,
     });
 
     res.json(recipes);
@@ -634,7 +646,7 @@ const rateRecipe = async (req, res) => {
 
     await prisma.recipe.update({
       where: {
-        id:recipeId,
+        id: recipeId,
       },
       data: {
         averageRating: Number(stats._avg.rating?.toFixed(1) || 0),

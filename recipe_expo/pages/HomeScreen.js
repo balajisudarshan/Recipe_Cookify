@@ -10,9 +10,6 @@ import {
 } from "react-native";
 import SearchBar from "../components/SearchBar";
 import CategoryChip from "../components/CategoryChip";
-import vegDelight from "../assets/vegdelights.png";
-import nonVegDelight from "../assets/nonvegdelights.png";
-import dessertDelight from "../assets/dessertdelight.png";
 import PopularRecipe from "../components/PopularRecipe";
 import AllFoodIcon from "../icons/AllFoodIcon";
 import CategoryCard from "../components/cards/CategoryCard";
