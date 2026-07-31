@@ -78,7 +78,7 @@ const SeasonalCollections = () => {
       <View style={styles.headerRow}>
         <View>
           <View style={styles.titleWithBadge}>
-            <MaterialCommunityIcons name="sparkles" size={20} color="#FF6B00" />
+            <MaterialCommunityIcons name="bookshelf" size={20} color="#FF6B00" />
             <Text style={styles.sectionTitle}>Curated Collections</Text>
           </View>
           <Text style={styles.sectionSubtitle}>Handpicked recipes for every mood & craving</Text>
@@ -109,7 +109,7 @@ const SeasonalCollections = () => {
           >
             <View style={styles.card}>
               <Image source={{ uri: item.image }} style={styles.cardImage} />
-              
+
               {/* Gradient Overlay for Text Visibility */}
               <LinearGradient
                 colors={["transparent", "rgba(15, 23, 42, 0.75)", "rgba(15, 23, 42, 0.95)"]}

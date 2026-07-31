@@ -30,11 +30,11 @@ const RecipeCard = ({ recipe, showDeleteButton = false, onDelete }) => {
     <TouchableOpacity
       key={recipe.id}
       style={styles.profileRecipeCard}
-      onPress={() => navigation.navigate("Home", { 
-        screen:"ViewRecipe",
-        params:{
-          recipeId:recipe.id
-        } 
+      onPress={() => navigation.navigate("Home", {
+        screen: "ViewRecipe",
+        params: {
+          recipeId: recipe.id
+        }
       })}
       activeOpacity={0.9}
     >
@@ -62,7 +62,7 @@ const RecipeCard = ({ recipe, showDeleteButton = false, onDelete }) => {
           <Text style={[styles.badge, styles.nonVegBadge]}>{recipe.mealType}</Text>
           <View style={styles.likesBox}>
             <Feather name="heart" size={12} color="#F43F5E" />
-            <Text style={styles.likesText}>13</Text>
+            <Text style={styles.likesText}>{recipe._count.likes}</Text>
           </View>
         </View>
       </View>

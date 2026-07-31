@@ -21,7 +21,9 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import Toast from "react-native-toast-message";
 import { View, Text, ActivityIndicator, StyleSheet } from "react-native";
 import UserProfileScreen from "./pages/UserProfileScreen";
-
+import { useEffect } from "react";
+import * as NotificationService from "./utils/NotificationService";
+import { getRecentRecipes } from "./api/apiRoute";
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 const HomeStack = createNativeStackNavigator(); // <-- Create the new Home stack
@@ -32,8 +34,8 @@ function HomeStackNavigator() {
     <HomeStack.Navigator screenOptions={{ headerShown: false }}>
       <HomeStack.Screen name="HomeMain" component={HomeScreen} />
       <HomeStack.Screen name="AddRecipe" component={AddRecipePage} />
-      <HomeStack.Screen name="ViewRecipe" component={ViewRecipe}/>
-      <HomeStack.Screen name="ViewAllRecipes" component={ViewAllRecipesScreen}/>
+      <HomeStack.Screen name="ViewRecipe" component={ViewRecipe} />
+      <HomeStack.Screen name="ViewAllRecipes" component={ViewAllRecipesScreen} />
     </HomeStack.Navigator>
   );
 }
@@ -63,10 +65,10 @@ function MainTabs() {
             iconName = "search";
           } else if (route.name === "Favorites") {
             iconName = "heart";
-          } else if(route.name === "AddRecipe"){
+          } else if (route.name === "AddRecipe") {
             iconName = "add";
-          }else{
-            iconName="person"
+          } else {
+            iconName = "person"
           }
           return <Ionicons name={iconName} size={size} color={color} />;
         },
@@ -74,9 +76,9 @@ function MainTabs() {
     >
       {/* Point the Home tab to the new Stack we created above */}
       <Tab.Screen name="Home" component={HomeStackNavigator} />
-      
+
       <Tab.Screen name="Search" component={SearchScreen} />
-      <Tab.Screen name="AddRecipe" component={AddRecipePage}/>
+      <Tab.Screen name="AddRecipe" component={AddRecipePage} />
       <Tab.Screen name="Favorites" component={FavouriteScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
       {/* <Stack.Screen name="UserP" */}
@@ -87,7 +89,7 @@ function MainTabs() {
 function RootNavigator() {
   const { token, loading } = useAuth();
 
-  if (loading) {  
+  if (loading) {
     return (
       <View style={styles.authLoadingContainer}>
         <View style={styles.authLoadingCard}>
@@ -110,8 +112,8 @@ function RootNavigator() {
           <>
             <Stack.Screen name="MainTabs" component={MainTabs} />
             <Stack.Screen name="EditProfile" component={EditProfileScreen} />
-            <Stack.Screen name="UserProfile" component={UserProfileScreen}/>
-            
+            <Stack.Screen name="UserProfile" component={UserProfileScreen} />
+
             {/* Note: AddRecipe is NO LONGER here, it's safe inside HomeStackNavigator */}
           </>
         ) : (
@@ -159,7 +161,38 @@ const styles = StyleSheet.create({
 });
 
 export default function App() {
- 
+
+  useEffect(() => {
+    const init = async () => {
+      try {
+        const granted = await NotificationService.requestPermission();
+        if (!granted) {
+          console.log("Notification permission denied");
+          return;
+        }
+
+        // Try to fetch today's recipe name for the notification
+        let recipeName = null;
+        try {
+          const res = await getRecentRecipes();
+          const recipes = res?.data;
+          if (Array.isArray(recipes) && recipes.length > 0) {
+            // Pick a random one from the most recent batch
+            const pick = recipes[Math.floor(Math.random() * recipes.length)];
+            recipeName = pick?.title || null;
+          }
+        } catch (_) {
+          // silently fall back to generic message
+        }
+
+        await NotificationService.scheduleDailyRecipeNotification(recipeName);
+      } catch (err) {
+        console.log("Notification init error:", err);
+      }
+    };
+    init();
+  }, []);
+
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
     Poppins_700Bold,

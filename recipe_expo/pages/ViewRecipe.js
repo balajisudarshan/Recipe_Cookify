@@ -173,7 +173,7 @@ const ViewRecipe = () => {
               }
             >
               <Text style={styles.primaryTxt}>{recipe.author.username}</Text>
-              <Text style={styles.secondaryTxt}>12 Recipes Shared</Text>
+              {/* <Text style={styles.secondaryTxt}></Text> */}
             </TouchableOpacity>
           </View>
 
