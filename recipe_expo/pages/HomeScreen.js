@@ -21,7 +21,7 @@ import RecipeOfTheDayCard from "../components/cards/RecipeOfTheDayCard";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import RecentRecipes from "../components/RecentRecipes";
 import { COLORS } from "../const/COLORS";
-import TopChefs from "../components/TopChefs";
+import SeasonalCollections from "../components/SeasonalCollections";
 import { DIETARY_TYPE_MAP } from "../const/DIETARY_TYPES";
 // import { RefreshControl } from "react-native";
 // import { ScrollView } from "react-native";
@@ -196,26 +196,7 @@ const HomeScreen = ({ navigation }) => {
         <RecipeOfTheDayCard />
       </View>
       <RecentRecipes key={refreshKey} dietaryType={DIETARY_TYPE_MAP[category]} category={category} />
-      <TopChefs/>
-      {/* Horizontal Dynamic Cards Track */}
-      <View style={styles.cardsContainerTrack}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContainer}
-        >
-          {CATEGORIES.map((item) => (
-            <CategoryCard
-              key={item.id}
-              title={item.title}
-              backgroundColor={item.bg}
-              borderColor={item.border}
-              Icon={item.icon}
-              onPress={() => setCategory(item.title)}
-            />
-          ))}
-        </ScrollView>
-      </View>
+      <SeasonalCollections />
     </ScrollView>
   );
 };

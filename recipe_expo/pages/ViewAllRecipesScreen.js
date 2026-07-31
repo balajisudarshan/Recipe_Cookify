@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
 import SearchBar from "../components/SearchBar";
 import RecipeCard from "../components/cards/RecipeCard";
 import { getAllRecipes } from "../api/apiRoute";
@@ -45,6 +45,8 @@ const mealTypeOptions = [
   { label: "Lunch", value: "LUNCH" },
   { label: "Dinner", value: "DINNER" },
   { label: "Snack", value: "SNACK" },
+  { label: "Dessert & Sweets 🍰", value: "DESSERT" },
+  { label: "Drinks & Beverages 🍹", value: "BEVERAGE" },
 ];
 
 // Lightweight shimmer-style skeleton card — no extra deps, no extra re-renders.
@@ -69,15 +71,24 @@ const SkeletonSection = () => (
 
 const ViewAllRecipesScreen = () => {
   const navigation = useNavigation();
-  const [selectedCuisine, setSelectedCuisine] = useState("ALL");
+  const route = useRoute();
+  const [selectedCuisine, setSelectedCuisine] = useState(route?.params?.initialCuisine || "ALL");
   const [recipes, setRecipes] = useState({
     BREAKFAST: [],
     LUNCH: [],
     DINNER: [],
     SNACK: [],
+    DESSERT: [],
+    BEVERAGE: [],
   });
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+
+  useEffect(() => {
+    if (route?.params?.initialCuisine) {
+      setSelectedCuisine(route.params.initialCuisine);
+    }
+  }, [route?.params?.initialCuisine]);
 
   const fetchRecipes = async (showLoader = true) => {
     if (showLoader) setLoading(true);

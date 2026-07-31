@@ -44,10 +44,12 @@ const AddRecipePage = () => {
     { label: "Soup", value: "SOUP" },
   ];
   const mealTypes = [
-    {label:"BreakFast",value:"BREAKFAST"}, 
-    {label:"Lunch",value:"LUNCH"}, 
-    {label:"Dinner",value:"DINNER"}, 
-    {label:"Snack",value:"SNACK"},
+    { label: "Breakfast", value: "BREAKFAST" }, 
+    { label: "Lunch", value: "LUNCH" }, 
+    { label: "Dinner", value: "DINNER" }, 
+    { label: "Snack", value: "SNACK" },
+    { label: "Dessert & Sweets 🍰", value: "DESSERT" },
+    { label: "Drinks & Beverages 🍹", value: "BEVERAGE" },
   ];
   const cuisineOptions = [
     { label: "Indian", value: "INDIAN" },

@@ -37,6 +37,8 @@ export const MEAL_TYPE_OPTIONS = [
   { label: "Lunch", value: "LUNCH" },
   { label: "Dinner", value: "DINNER" },
   { label: "Snack", value: "SNACK" },
+  { label: "Dessert & Sweets 🍰", value: "DESSERT" },
+  { label: "Drinks & Beverages 🍹", value: "BEVERAGE" },
 ];
 
 // Course Type Options

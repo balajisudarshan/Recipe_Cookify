@@ -130,6 +130,8 @@ enum MealType {
   LUNCH
   DINNER
   SNACK
+  DESSERT
+  BEVERAGE
 }
 
 enum CourseType {
