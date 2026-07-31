@@ -6,7 +6,7 @@ const BASE_URL = "https://recipe-cookify-backend.onrender.com/api/"
 
 export const api = axios.create({
   baseURL: BASE_URL,
-  timeout: 5000,
+  timeout: 15000,
 })
 
 api.interceptors.request.use(
@@ -24,17 +24,7 @@ api.interceptors.request.use(
 
 const isAuthExpiredError = (error) => {
   const status = error?.response?.status;
-  const message = error?.response?.data?.message || error?.response?.data?.error || error?.message || "";
-  const normalizedMessage = typeof message === "string" ? message.toLowerCase() : "";
-
-  return (
-    status === 401 ||
-    status === 403 ||
-    normalizedMessage.includes("jwt") ||
-    normalizedMessage.includes("expired") ||
-    normalizedMessage.includes("token") ||
-    normalizedMessage.includes("unauthorized")
-  );
+  return status === 401 || status === 403;
 };
 
 api.interceptors.response.use(
@@ -65,12 +55,17 @@ export const registerUser = (data) => api.post("/auth/register", data)
 export const loginUser = (data) => api.post("/auth/login", data)
 
 
-export const getAllRecipes = (dietaryType = null, cuisine = null,mealType = null,page=1,limit=10) => {
-  const params = {page,limit};
+export const getAllRecipes = (dietaryType = null, cuisine = null, mealType = null, page = 1, limit = 10, query = null) => {
+  let params = { page, limit };
 
-  if (dietaryType) params.dietaryType = dietaryType;
-  if (cuisine) params.cuisine = cuisine;
-  if(mealType) params.mealType = mealType
+  if (typeof dietaryType === "object" && dietaryType !== null) {
+    params = { page, limit, ...dietaryType };
+  } else {
+    if (dietaryType) params.dietaryType = dietaryType;
+    if (cuisine) params.cuisine = cuisine;
+    if (mealType) params.mealType = mealType;
+    if (query) params.query = query;
+  }
   return api.get("/recipe", { params });
 };
 export const getMyRecipes = () => api.get('/recipe/my')
@@ -97,6 +92,15 @@ export const rateRecipe = (id,rating)=>api.post(`/recipe/${id}/rate`,{
 export const getMe = () => api.get("/auth/me")
 export const getUserProfile = (id)=>api.get(`/profile/${id}`)
 export const getUserRecipes = (id)=>api.get(`/recipe/user/${id}`)
-export const getUsers = () => api.get('/profile/all-users')
+export const getUsers = (paramsOrQuery = null, page = 1, limit = 10) => {
+  let params = {};
+  if (typeof paramsOrQuery === "object" && paramsOrQuery !== null) {
+    params = { page, limit, ...paramsOrQuery };
+  } else {
+    params = { page, limit };
+    if (paramsOrQuery) params.query = paramsOrQuery;
+  }
+  return api.get('/profile/all-users', { params });
+};
 
 export const updateProfile = (formData) => api.put("/profile/update", formData)

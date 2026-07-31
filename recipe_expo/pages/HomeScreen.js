@@ -154,7 +154,7 @@ const HomeScreen = ({ navigation }) => {
       </View>
       {/* Search Bar section */}
       <View style={styles.searchContainer}>
-        <SearchBar placeholder="Search Recipes" />
+        <SearchBar placeholder="Search Recipes & Chefs..." searchType="all" />
       </View>
       {/* Primary Toggle Chips */}
       <ScrollView
@@ -255,6 +255,7 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     marginTop: height * 0.015,
+    zIndex: 1000,
   },
   chipsContainer: {
     flexDirection: "row",

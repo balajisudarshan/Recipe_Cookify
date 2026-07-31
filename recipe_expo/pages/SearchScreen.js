@@ -31,7 +31,11 @@ const SearchScreen = () => {
     <View style={styles.container}>
       <ScreenHeader title="Search" subtitle="Find Chefs" />
 
-      <SearchBar placeholder="Search users" />
+      <SearchBar
+        placeholder="Search chefs or recipes..."
+        searchType="all"
+        containerStyle={{ paddingHorizontal: 16, zIndex: 1000 }}
+      />
 
       {/* <View>
         <View>

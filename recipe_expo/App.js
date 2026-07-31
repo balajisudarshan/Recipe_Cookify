@@ -87,7 +87,7 @@ function MainTabs() {
 function RootNavigator() {
   const { token, loading } = useAuth();
 
-  if (loading) {
+  if (loading) {  
     return (
       <View style={styles.authLoadingContainer}>
         <View style={styles.authLoadingCard}>

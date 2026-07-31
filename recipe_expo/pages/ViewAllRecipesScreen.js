@@ -146,7 +146,7 @@ const ViewAllRecipesScreen = () => {
         }}
       >
         <View style={styles.sheet}>
-          <SearchBar placeholder="Search recipes, cuisines..." />
+          <SearchBar placeholder="Search recipes, cuisines..." searchType="recipes" />
 
           <View style={styles.badgeSection}>
             <View style={styles.sectionHeadingRow}>
