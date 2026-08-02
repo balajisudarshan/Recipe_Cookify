@@ -50,6 +50,7 @@ export default function Header() {
         <Image source={logo} style={styles.logo} />
 
         <Text style={styles.title}>Cookify</Text>
+        <Text style={styles.versionText}>v1.0.0</Text>
 
         <Text style={styles.subtitle}>
           Discover delicious recipes{"\n"}
@@ -88,6 +89,19 @@ const styles = StyleSheet.create({
     fontSize: width * 0.13,
     fontWeight: "900",
     letterSpacing: 1,
+  },
+
+  versionText: {
+    color: "rgba(255, 255, 255, 0.9)",
+    fontSize: width * 0.032,
+    fontWeight: "700",
+    marginTop: -2,
+    marginBottom: 4,
+    backgroundColor: "rgba(0, 0, 0, 0.18)",
+    paddingHorizontal: 10,
+    paddingVertical: 2,
+    borderRadius: 12,
+    overflow: "hidden",
   },
 
   subtitle: {

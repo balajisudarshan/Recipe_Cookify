@@ -95,6 +95,7 @@ function RootNavigator() {
       <View style={styles.authLoadingContainer}>
         <View style={styles.authLoadingCard}>
           <Text style={styles.authLoadingTitle}>Cookify</Text>
+          <Text style={styles.authLoadingVersion}>v1.0.0</Text>
           <Text style={styles.authLoadingSubtitle}>Preparing your kitchen...</Text>
           <ActivityIndicator size="small" color="#FF6B00" />
         </View>
@@ -152,7 +153,14 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "700",
     color: "#FF6B00",
+    marginBottom: 2,
+  },
+  authLoadingVersion: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: "#FF6B00",
     marginBottom: 6,
+    letterSpacing: 0.5,
   },
   authLoadingSubtitle: {
     fontSize: 14,

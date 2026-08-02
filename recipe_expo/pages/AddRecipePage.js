@@ -12,7 +12,7 @@ import {
 import React, { useState } from "react";
 import { Feather } from "@expo/vector-icons";
 import ScreenWrapper from "../components/ScreenWrapper";
-import { Picker } from "@react-native-picker/picker";
+import CustomDropdown from "../components/CustomDropdown";
 import RadioGroup from "../components/RadioGroup";
 import * as ImagePicker from "expo-image-picker";
 import { createRecipe } from "../api/apiRoute";
@@ -337,76 +337,38 @@ const AddRecipePage = () => {
             </View>
           </View>
 
-          {/* Dropdown System Pickers Row */}
+          {/* Dropdown Pickers Row */}
           <View style={{ flexDirection: "row", gap: 16, marginTop: 5 }}>
             <View style={{ flex: 1 }}>
-              <Text style={styles.inputTxt}>Select Course</Text>
-              <View style={styles.pickerWrapper}>
-                <Picker
-                  selectedValue={selectedCourse}
-                  onValueChange={(itemVal) => setSelectedCourse(itemVal)}
-                  dropdownIconColor="#FF7A00"
-                  mode="dropdown"
-                  style={styles.pickerStyle}
-                >
-                  <Picker.Item label="Course..." value="" color="#A0AEC0" />
-                  {courseOptions.map((option) => (
-                    <Picker.Item
-                      key={option.value}
-                      label={option.label}
-                      value={option.value}
-                      color="#2D3748"
-                    />
-                  ))}
-                </Picker>
-              </View>
+              <CustomDropdown
+                label="Select Course"
+                placeholder="Course..."
+                options={courseOptions}
+                selectedValue={selectedCourse}
+                onSelect={(val) => setSelectedCourse(val)}
+              />
             </View>
 
             <View style={{ flex: 1 }}>
-              <Text style={styles.inputTxt}>Select Cuisine</Text>
-              <View style={styles.pickerWrapper}>
-                <Picker
-                  selectedValue={selectedCuisine}
-                  onValueChange={(itemVal) => setSelectedCuisine(itemVal)}
-                  dropdownIconColor="#FF7A00"
-                  mode="dropdown"
-                  style={styles.pickerStyle}
-                >
-                  <Picker.Item label="Cuisine..." value="" color="#A0AEC0" />
-                  {cuisineOptions.map((option) => (
-                    <Picker.Item
-                      key={option.value}
-                      label={option.label}
-                      value={option.value}
-                      color="#2D3748"
-                    />
-                  ))}
-                </Picker>
-              </View>
+              <CustomDropdown
+                label="Select Cuisine"
+                placeholder="Cuisine..."
+                options={cuisineOptions}
+                selectedValue={selectedCuisine}
+                onSelect={(val) => setSelectedCuisine(val)}
+              />
             </View>
           </View>
-          <View >
-              <Text style={styles.inputTxt}>Select MealType</Text>
-              <View style={styles.pickerWrapper}>
-                <Picker
-                  selectedValue={selectedMealType}
-                  onValueChange={(itemVal) => setSelectedMealType(itemVal)}
-                  dropdownIconColor="#FF7A00"
-                  mode="dropdown"
-                  style={styles.pickerStyle}
-                >
-                  <Picker.Item label="Meal Type..." value="" color="#A0AEC0" />
-                  {mealTypes.map((option) => (
-                    <Picker.Item
-                      key={option.value}
-                      label={option.label}
-                      value={option.value}
-                      color="#2D3748"
-                    />
-                  ))}
-                </Picker>
-              </View>
-            </View>
+
+          <View style={{ marginTop: 10 }}>
+            <CustomDropdown
+              label="Select MealType"
+              placeholder="Meal Type..."
+              options={mealTypes}
+              selectedValue={selectedMealType}
+              onSelect={(val) => setSelectedMealType(val)}
+            />
+          </View>
 
           {/* Radio Group Selector Component */}
           <View style={{ marginTop: 5, flexWrap: "wrap" }}>

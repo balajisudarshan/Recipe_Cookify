@@ -136,16 +136,30 @@ const HomeScreen = ({ navigation }) => {
               fontSize: width * 0.07,
             }}
           />
-          <Text
-            style={{
-              fontSize: width * 0.06,
-              fontWeight: "bold",
-              color: "#f06c00",
-              fontFamily: "Poppins_700Bold",
-            }}
-          >
-            Cookify
-          </Text>
+          <View>
+            <Text
+              style={{
+                fontSize: width * 0.06,
+                fontWeight: "bold",
+                color: "#f06c00",
+                fontFamily: "Poppins_700Bold",
+                lineHeight: width * 0.07,
+              }}
+            >
+              Cookify
+            </Text>
+            <Text
+              style={{
+                fontSize: 10,
+                color: "#FF7A00",
+                fontWeight: "700",
+                letterSpacing: 0.5,
+                marginTop: -2,
+              }}
+            >
+              v1.0.0
+            </Text>
+          </View>
         </View>
         <MaterialCommunityIcons name="bell-outline" size={24} color="#000000" />
       </View>

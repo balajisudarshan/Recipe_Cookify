@@ -21,7 +21,10 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const validateStoredSession = useCallback(async (savedToken) => {
-    if (!savedToken) return;
+    if (!savedToken || savedToken === "null" || savedToken === "undefined" || savedToken.trim() === "") {
+      await handleLogout();
+      return;
+    }
 
     try {
       const response = await getMe();
@@ -29,12 +32,20 @@ export const AuthProvider = ({ children }) => {
         const freshUser = response.data.user;
         setUser(freshUser);
         await AsyncStorage.setItem("user", JSON.stringify(freshUser));
+      } else {
+        await handleLogout();
       }
     } catch (validationError) {
       const status = validationError?.response?.status;
+      const msg = validationError?.response?.data?.message || validationError?.response?.data?.error || "";
       console.log("Token validation status:", status, "error:", validationError?.message);
 
-      if (status === 401 || status === 403) {
+      if (
+        status === 401 ||
+        status === 403 ||
+        status === 400 ||
+        (typeof msg === "string" && /invalid|unauthorized|jwt|token|not found/i.test(msg))
+      ) {
         console.log("Token invalid or expired - clearing auth session");
         await handleLogout();
       } else {
@@ -65,7 +76,14 @@ export const AuthProvider = ({ children }) => {
 
         if (!isMounted) return;
 
-        if (savedToken && savedUser) {
+        const isValidTokenStr =
+          savedToken &&
+          typeof savedToken === "string" &&
+          savedToken !== "null" &&
+          savedToken !== "undefined" &&
+          savedToken.trim() !== "";
+
+        if (isValidTokenStr && savedUser) {
           let parsedUser = null;
 
           try {
@@ -86,12 +104,11 @@ export const AuthProvider = ({ children }) => {
           }
         }
 
-        setToken(null);
-        setUser(null);
+        // Clean up invalid or orphaned storage items
+        await handleLogout();
       } catch (error) {
         console.log("Auth loading error:", error?.message);
-        setToken(null);
-        setUser(null);
+        await handleLogout();
       } finally {
         if (isMounted) {
           setLoading(false);
@@ -104,7 +121,7 @@ export const AuthProvider = ({ children }) => {
     return () => {
       isMounted = false;
     };
-  }, [validateStoredSession]);
+  }, [validateStoredSession, handleLogout]);
 
   return (
     <AuthContext.Provider

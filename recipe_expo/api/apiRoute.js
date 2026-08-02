@@ -1,20 +1,23 @@
-import axios from "axios"
+import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Toast from "react-native-toast-message";
 
 // const BASE_URL = "http://10.196.226.110:5000/api/"
-const BASE_URL = "https://recipe-cookify-backend.onrender.com/api/"
+const BASE_URL = "https://recipe-cookify-backend.onrender.com/api/";
 
 export const api = axios.create({
   baseURL: BASE_URL,
   timeout: 15000,
-})
+});
 
 api.interceptors.request.use(
   async (config) => {
     const token = await AsyncStorage.getItem("token");
 
-    if (token) {
+    if (token && typeof token === "string" && token !== "null" && token !== "undefined" && token.trim() !== "") {
       config.headers.Authorization = `Bearer ${token}`;
+    } else {
+      delete config.headers.Authorization;
     }
 
     return config;
@@ -24,26 +27,46 @@ api.interceptors.request.use(
 
 const isAuthExpiredError = (error) => {
   const status = error?.response?.status;
-  return status === 401 || status === 403;
+  const msg = error?.response?.data?.message || error?.response?.data?.error || "";
+  return (
+    status === 401 ||
+    status === 403 ||
+    (typeof msg === "string" && /jwt|token|unauthorized|invalid token|user not found|no token/i.test(msg))
+  );
 };
+
+let isLoggingOut = false;
 
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (isAuthExpiredError(error)) {
-      try {
-        await AsyncStorage.removeItem("token");
-        await AsyncStorage.removeItem("user");
-      } catch (storageError) {
-        console.log("Auth cleanup error:", storageError?.message);
-      }
-
-      if (typeof globalThis !== "undefined" && globalThis.__authLogoutHandler) {
+      if (!isLoggingOut) {
+        isLoggingOut = true;
         try {
-          await globalThis.__authLogoutHandler();
-        } catch (handlerError) {
-          console.log("Auth logout handler error:", handlerError?.message);
+          await AsyncStorage.removeItem("token");
+          await AsyncStorage.removeItem("user");
+        } catch (storageError) {
+          console.log("Auth cleanup error:", storageError?.message);
         }
+
+        if (typeof globalThis !== "undefined" && globalThis.__authLogoutHandler) {
+          try {
+            await globalThis.__authLogoutHandler();
+          } catch (handlerError) {
+            console.log("Auth logout handler error:", handlerError?.message);
+          }
+        }
+
+        Toast.show({
+          type: "error",
+          text1: "Session Expired",
+          text2: "Please log in again to continue.",
+        });
+
+        setTimeout(() => {
+          isLoggingOut = false;
+        }, 3000);
       }
     }
 
