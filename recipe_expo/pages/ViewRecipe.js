@@ -39,7 +39,8 @@ const ViewRecipe = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showRatingModel, setShowRatingModel] = useState(false);
   const [selectedTab, setSelectedTab] = useState("ingredients");
-  const [selectedRating, setSelectedRating] = useState(recipe?.myRating || 0);
+  const [selectedRating, setSelectedRating] = useState(0);
+  const [ratingSubmitting, setRatingSubmitting] = useState(false);
   const handleDeleteRecipe = async () => {
     if (!recipe?.id) return;
 
@@ -54,25 +55,78 @@ const ViewRecipe = () => {
     }
   };
   const handleSubmitRating = async () => {
-    if (!recipe?.id) return;
+    if (!recipe?.id || selectedRating === 0) return;
+
+    // Snapshot previous values so we can roll back on failure
+    const prevRating      = recipe.averageRating;
+    const prevCount       = recipe.ratingsCount;
+    const prevMyRating    = recipe.myRating;
+
+    // ── Optimistic update ───────────────────────────────────────
+    // Close the modal and reflect the user's chosen star immediately.
+    // We approximate the new average locally so it feels instant.
+    const isNewRating   = !prevMyRating;
+    const newCount      = isNewRating ? prevCount + 1 : prevCount;
+    const newAvg        = isNewRating
+      ? ((prevRating * prevCount) + selectedRating) / newCount
+      : ((prevRating * prevCount) - prevMyRating + selectedRating) / newCount;
+
+    setRecipe((prev) => ({
+      ...prev,
+      averageRating : parseFloat(newAvg.toFixed(1)),
+      ratingsCount  : newCount,
+      myRating      : selectedRating,
+    }));
+    setShowRatingModel(false);
+    setRatingSubmitting(true);
+
+    Toast.show({
+      type         : "info",
+      text1        : "Saving your rating…",
+      visibilityTime: 1500,
+      position     : "top",
+    });
+
     try {
+      // ── Background API call ─────────────────────────────────
       const response = await rateRecipe(recipe.id, selectedRating);
+      const data = response.data?.data;
+
+      // Reconcile with real server values
       setRecipe((prev) => ({
         ...prev,
-        averageRating: response.data.data.averageRating,
-        ratingsCount: response.data.data.ratingsCount,
-        myRating: response.data.data.userRating,
+        averageRating : data?.averageRating ?? prev.averageRating,
+        ratingsCount  : data?.ratingsCount  ?? prev.ratingsCount,
+        myRating      : data?.userRating    ?? selectedRating,
       }));
-      setShowRatingModel(false);
+
       Toast.show({
-        type: "success",
-        text1: "Recipe Rated",
-        text2: "Thanks for your feedback! ⭐",
-        position: "top",
-        visibilityTime: 2000,
+        type           : "success",
+        text1          : "Rating saved ⭐",
+        text2          : "Thanks for your feedback!",
+        visibilityTime : 2000,
+        position       : "top",
       });
     } catch (error) {
-      console.log(error);
+      console.log("Rating error:", error?.message || error);
+
+      // ── Roll back on failure ────────────────────────────────
+      setRecipe((prev) => ({
+        ...prev,
+        averageRating : prevRating,
+        ratingsCount  : prevCount,
+        myRating      : prevMyRating,
+      }));
+
+      Toast.show({
+        type           : "error",
+        text1          : "Couldn't save rating",
+        text2          : "Please try again.",
+        visibilityTime : 2500,
+        position       : "top",
+      });
+    } finally {
+      setRatingSubmitting(false);
     }
   };
   useEffect(() => {
@@ -314,18 +368,26 @@ const ViewRecipe = () => {
               ))}
             </View>
             <TouchableOpacity
-              style={styles.submitBtn}
+              style={[
+                styles.submitBtn,
+                (selectedRating === 0 || ratingSubmitting) && styles.submitBtnDisabled,
+              ]}
               onPress={handleSubmitRating}
-              disabled={selectedRating === 0}
+              disabled={selectedRating === 0 || ratingSubmitting}
             >
-              <Text style={styles.submitBtnText}>Submit Rating</Text>
-
-              <Ionicons
-                name="arrow-forward"
-                size={18}
-                color="#fff"
-                style={{ marginLeft: 8 }}
-              />
+              {ratingSubmitting ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <>
+                  <Text style={styles.submitBtnText}>Submit Rating</Text>
+                  <Ionicons
+                    name="arrow-forward"
+                    size={18}
+                    color="#fff"
+                    style={{ marginLeft: 8 }}
+                  />
+                </>
+              )}
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.cancelBtn}
@@ -543,6 +605,9 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "700",
+  },
+  submitBtnDisabled: {
+    opacity: 0.55,
   },
   // ingredientsContainer: {
   //   backgroundColor: "#fff",
