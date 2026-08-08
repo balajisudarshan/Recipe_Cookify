@@ -18,16 +18,16 @@ const { width, height } = Dimensions.get("window");
 
 const REASONS = [
   { value: "INAPPROPRIATE", label: "Inappropriate", icon: "alert-circle-outline" },
-  { value: "SPAM",          label: "Spam",           icon: "megaphone-outline" },
-  { value: "COPYRIGHT",     label: "Copyright",      icon: "document-text-outline" },
-  { value: "MISLEADING",    label: "Misleading",     icon: "warning-outline" },
-  { value: "DANGEROUS",     label: "Dangerous",      icon: "skull-outline" },
-  { value: "OTHER",         label: "Other",          icon: "help-circle-outline" },
+  { value: "SPAM", label: "Spam", icon: "megaphone-outline" },
+  { value: "COPYRIGHT", label: "Copyright", icon: "document-text-outline" },
+  { value: "MISLEADING", label: "Misleading", icon: "warning-outline" },
+  { value: "DANGEROUS", label: "Dangerous", icon: "skull-outline" },
+  { value: "OTHER", label: "Other", icon: "help-circle-outline" },
 ];
 
 const RecipeTopActions = ({ onBack, onShare, onMore, recipe }) => {
-  const [showModal, setShowModal]     = useState(false);
-  const [selected, setSelected]       = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [selected, setSelected] = useState(null);
   const [description, setDescription] = useState("");
 
   const handleClose = () => {
@@ -60,7 +60,6 @@ const RecipeTopActions = ({ onBack, onShare, onMore, recipe }) => {
         </View>
       </View>
 
-      {/* ── Report modal ── */}
       <Modal
         visible={showModal}
         transparent
@@ -71,14 +70,11 @@ const RecipeTopActions = ({ onBack, onShare, onMore, recipe }) => {
           style={styles.overlay}
           behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
-          {/* dim background tap = close */}
           <TouchableOpacity style={styles.dismissArea} activeOpacity={1} onPress={handleClose} />
 
           <View style={styles.sheet}>
-            {/* handle */}
             <View style={styles.handle} />
 
-            {/* header */}
             <View style={styles.sheetHeader}>
               <Text style={styles.sheetTitle}>Report Recipe</Text>
               <TouchableOpacity onPress={handleClose} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>

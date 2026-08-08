@@ -65,6 +65,8 @@ export const rateRecipe = (id, rating) => api.post(`/recipe/${id}/rate`, {
   rating
 })
 
+export const reportRecipe = (id, reportData) => api.post(`/recipe/${id}/report`, reportData)
+
 export const getMe = () => api.get("/auth/me")
 export const getUserProfile = (id) => api.get(`/profile/${id}`)
 export const getUserRecipes = (id) => api.get(`/recipe/user/${id}`)

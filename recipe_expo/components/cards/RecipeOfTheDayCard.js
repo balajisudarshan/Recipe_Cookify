@@ -18,6 +18,7 @@ import { Dimensions } from "react-native";
 const RecipeOfTheDayCard = () => {
   const [recipe, setRecipe] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
   const { width } = Dimensions.get("window");
 
   const CARD_WIDTH = width * 0.95;
@@ -27,31 +28,29 @@ const RecipeOfTheDayCard = () => {
   const getRecipes = async () => {
     try {
       setIsLoading(true);
+      setHasError(false);
 
       const today = new Date().toDateString();
-
       const cachedDate = await AsyncStorage.getItem("recipe_date");
       const cachedRecipe = await AsyncStorage.getItem("recipe_of_the_day");
 
       if (cachedDate === today && cachedRecipe) {
         setRecipe(JSON.parse(cachedRecipe));
-        return;
+        return; // finally will still run
       }
 
       const response = await getAllRecipes();
-      const recipes = response.data.recipes;
+      const recipes = response.data?.recipes ?? [];
+      if (!recipes.length) return;
 
       const randomRecipe = recipes[Math.floor(Math.random() * recipes.length)];
-
       setRecipe(randomRecipe);
 
       await AsyncStorage.setItem("recipe_date", today);
-      await AsyncStorage.setItem(
-        "recipe_of_the_day",
-        JSON.stringify(randomRecipe),
-      );
+      await AsyncStorage.setItem("recipe_of_the_day", JSON.stringify(randomRecipe));
     } catch (error) {
-      console.log(error);
+      console.log("RecipeOfTheDay error:", error?.message || error);
+      setHasError(true);
     } finally {
       setIsLoading(false);
     }
@@ -68,6 +67,13 @@ const RecipeOfTheDayCard = () => {
       {isLoading ? (
         <View style={styles.loaderContainer}>
           <ActivityIndicator size="large" color="#FF8A00" />
+        </View>
+      ) : hasError ? (
+        <View style={styles.loaderContainer}>
+          <Text style={styles.errorText}>Couldn't load today's recipe.</Text>
+          <TouchableOpacity style={styles.retryBtn} onPress={getRecipes}>
+            <Text style={styles.retryText}>Tap to retry</Text>
+          </TouchableOpacity>
         </View>
       ) : recipe ? (
         <>
@@ -234,10 +240,20 @@ const styles = StyleSheet.create({
 
   errorText: {
     textAlign: "center",
-
     color: "#6B7280",
-
-    paddingVertical: 30,
+    paddingVertical: 8,
+  },
+  retryBtn: {
+    marginTop: 10,
+    backgroundColor: "#FF7A00",
+    paddingHorizontal: 22,
+    paddingVertical: 10,
+    borderRadius: 20,
+  },
+  retryText: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 13,
   },
 });
 
