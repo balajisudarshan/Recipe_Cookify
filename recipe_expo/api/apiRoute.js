@@ -1,9 +1,8 @@
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Toast from "react-native-toast-message";
 
-// const BASE_URL = "http://10.196.226.110:5000/api/"
-const BASE_URL = "https://recipe-cookify-backend.onrender.com/api/";
+const BASE_URL = "http://10.116.205.110:5000/api/";
+// const BASE_URL = "https://recipe-cookify-backend.onrender.com/api/";
 
 export const api = axios.create({
   baseURL: BASE_URL,
@@ -25,55 +24,6 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-const isAuthExpiredError = (error) => {
-  const status = error?.response?.status;
-  const msg = error?.response?.data?.message || error?.response?.data?.error || "";
-  return (
-    status === 401 ||
-    status === 403 ||
-    (typeof msg === "string" && /jwt|token|unauthorized|invalid token|user not found|no token/i.test(msg))
-  );
-};
-
-let isLoggingOut = false;
-
-api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    if (isAuthExpiredError(error)) {
-      if (!isLoggingOut) {
-        isLoggingOut = true;
-        try {
-          await AsyncStorage.removeItem("token");
-          await AsyncStorage.removeItem("user");
-        } catch (storageError) {
-          console.log("Auth cleanup error:", storageError?.message);
-        }
-
-        if (typeof globalThis !== "undefined" && globalThis.__authLogoutHandler) {
-          try {
-            await globalThis.__authLogoutHandler();
-          } catch (handlerError) {
-            console.log("Auth logout handler error:", handlerError?.message);
-          }
-        }
-
-        Toast.show({
-          type: "error",
-          text1: "Session Expired",
-          text2: "Please log in again to continue.",
-        });
-
-        setTimeout(() => {
-          isLoggingOut = false;
-        }, 3000);
-      }
-    }
-
-    return Promise.reject(error);
-  }
-);
-
 export const registerUser = (data) => api.post("/auth/register", data)
 export const loginUser = (data) => api.post("/auth/login", data)
 
@@ -92,29 +42,29 @@ export const getAllRecipes = (dietaryType = null, cuisine = null, mealType = nul
   return api.get("/recipe", { params });
 };
 export const getMyRecipes = () => api.get('/recipe/my')
-export const getRecipe = (id)=>api.get(`/recipe/${id}`)
-export const getRecentRecipes = (dietaryType = null)=> {
+export const getRecipe = (id) => api.get(`/recipe/${id}`)
+export const getRecentRecipes = (dietaryType = null) => {
   if (dietaryType) {
     return api.get('/recipe/recent', { params: { dietaryType } });
   }
   return api.get('/recipe/recent');
 }
-export const getFavourites = ()=>api.get('/recipe/liked')
+export const getFavourites = () => api.get('/recipe/liked')
 export const createRecipe = (formData) => api.post("/recipe/create", formData, {
   headers: {
     'Content-Type': 'multipart/form-data'
   }
 })
 
-export const likeOrUnlikeRecipe = (id)=>api.put(`/recipe/like/${id}`)
+export const likeOrUnlikeRecipe = (id) => api.put(`/recipe/like/${id}`)
 export const deleteRecipe = (id) => api.delete(`/recipe/${id}`)
-export const rateRecipe = (id,rating)=>api.post(`/recipe/${id}/rate`,{
+export const rateRecipe = (id, rating) => api.post(`/recipe/${id}/rate`, {
   rating
 })
 
 export const getMe = () => api.get("/auth/me")
-export const getUserProfile = (id)=>api.get(`/profile/${id}`)
-export const getUserRecipes = (id)=>api.get(`/recipe/user/${id}`)
+export const getUserProfile = (id) => api.get(`/profile/${id}`)
+export const getUserRecipes = (id) => api.get(`/recipe/user/${id}`)
 export const getUsers = (paramsOrQuery = null, page = 1, limit = 10) => {
   let params = {};
   if (typeof paramsOrQuery === "object" && paramsOrQuery !== null) {
@@ -126,4 +76,5 @@ export const getUsers = (paramsOrQuery = null, page = 1, limit = 10) => {
   return api.get('/profile/all-users', { params });
 };
 
-export const updateProfile = (formData) => api.put("/profile/update", formData)
+export const updateProfile = (formData) => api.put("/profile/update", formData);
+export const getAppVersionInfo = () => api.get("/config/version");

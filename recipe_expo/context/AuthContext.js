@@ -46,22 +46,12 @@ export const AuthProvider = ({ children }) => {
         status === 400 ||
         (typeof msg === "string" && /invalid|unauthorized|jwt|token|not found/i.test(msg))
       ) {
-        console.log("Token invalid or expired - clearing auth session");
+        console.log("Token invalid - clearing auth session");
         await handleLogout();
       } else {
         console.log("Network or server error during token validation; keeping current session");
       }
     }
-  }, [handleLogout]);
-
-  useEffect(() => {
-    globalThis.__authLogoutHandler = handleLogout;
-
-    return () => {
-      if (globalThis.__authLogoutHandler === handleLogout) {
-        globalThis.__authLogoutHandler = null;
-      }
-    };
   }, [handleLogout]);
 
   useEffect(() => {

@@ -22,6 +22,14 @@ app.use("/api/upload", uploadRoute)
 app.use("/api/profile", profileRoute)
 app.use("/api/recipe", recipeRoute)
 app.use("/api/comment", commentRoute)
+app.get("/api/config/version", (req, res) => {
+  res.json({
+    latestVersion: "1.0.0", // Change to e.g. "1.1.0" when you build a new APK!
+    downloadUrl: "https://expo.dev/accounts/balajisudarshan/projects/recipi/builds",
+    releaseNotes: "Performance improvements and new recipe features.",
+    isMandatory: false,
+  });
+})
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 app.use(errorHandler)
 

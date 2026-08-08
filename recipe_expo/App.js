@@ -21,10 +21,11 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import Toast from "react-native-toast-message";
 import { View, Text, ActivityIndicator, StyleSheet } from "react-native";
 import UserProfileScreen from "./pages/UserProfileScreen";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import * as NotificationService from "./utils/NotificationService";
-import { getRecentRecipes } from "./api/apiRoute";
+import { getRecentRecipes, getAppVersionInfo } from "./api/apiRoute";
 import * as Updates from "expo-updates";
+import AppUpdateModal from "./components/AppUpdateModal";
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 const HomeStack = createNativeStackNavigator(); // <-- Create the new Home stack
@@ -69,7 +70,7 @@ function MainTabs() {
           } else if (route.name === "AddRecipe") {
             iconName = "add";
           } else {
-            iconName = "person"
+            iconName = "person";
           }
           return <Ionicons name={iconName} size={size} color={color} />;
         },
@@ -167,21 +168,132 @@ const styles = StyleSheet.create({
     color: "#6B7280",
     marginBottom: 12,
   },
+  updateBanner: {
+    position: "absolute",
+    top: 50,
+    left: 16,
+    right: 16,
+    zIndex: 99999,
+    backgroundColor: "#1E293B",
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 10,
+  },
+  updateBannerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+    gap: 10,
+  },
+  updateBannerText: {
+    flex: 1,
+    color: "#FFFFFF",
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  updatePercentText: {
+    color: "#FF7A00",
+    fontSize: 13,
+    fontWeight: "700",
+  },
+  progressBarBackground: {
+    height: 5,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    borderRadius: 3,
+    overflow: "hidden",
+  },
+  progressBarFill: {
+    height: "100%",
+    backgroundColor: "#FF7A00",
+    borderRadius: 3,
+  },
 });
 
 export default function App() {
+  const [updateStatus, setUpdateStatus] = useState({
+    downloading: false,
+    message: "",
+    progress: 0,
+  });
+
+  const [apkUpdate, setApkUpdate] = useState({
+    visible: false,
+    latestVersion: "1.1.0",
+    updateUrl: "https://expo.dev/accounts/balajisudarshan/projects/recipi/builds",
+    releaseNotes: "A major new version of Cookify is available.",
+    isMandatory: false,
+  });
 
   useEffect(() => {
     const checkOTAUpdates = async () => {
+      // Check for remote native APK updates from backend configuration
+      try {
+        const res = await getAppVersionInfo();
+        if (res?.data?.latestVersion && res.data.latestVersion !== "1.0.0") {
+          setApkUpdate({
+            visible: true,
+            latestVersion: res.data.latestVersion,
+            updateUrl: res.data.downloadUrl || "https://expo.dev/accounts/balajisudarshan/projects/recipi/builds",
+            releaseNotes: res.data.releaseNotes || "Performance enhancements & new features.",
+            isMandatory: res.data.isMandatory || false,
+          });
+        }
+      } catch (_) {
+        // Silently skip if config server route is not configured
+      }
+
       if (__DEV__) return;
       try {
         const update = await Updates.checkForUpdateAsync();
         if (update.isAvailable) {
+          setUpdateStatus({
+            downloading: true,
+            message: "New Cookify update found! Downloading...",
+            progress: 0.2,
+          });
+
+          Toast.show({
+            type: "info",
+            text1: "Update Available 🚀",
+            text2: "Downloading latest features in background...",
+            autoHide: false,
+          });
+
+          const interval = setInterval(() => {
+            setUpdateStatus((prev) => ({
+              ...prev,
+              progress: Math.min(prev.progress + 0.15, 0.85),
+            }));
+          }, 400);
+
           await Updates.fetchUpdateAsync();
+          clearInterval(interval);
+
+          setUpdateStatus({
+            downloading: true,
+            message: "Update ready! Reloading app...",
+            progress: 1.0,
+          });
+
+          Toast.hide();
+          Toast.show({
+            type: "success",
+            text1: "Update Downloaded! 🎉",
+            text2: "Applying changes and refreshing...",
+            autoHide: false,
+          });
+
+          await new Promise((resolve) => setTimeout(resolve, 1200));
           await Updates.reloadAsync();
         }
       } catch (error) {
         console.log("Update check error:", error);
+        setUpdateStatus({ downloading: false, message: "", progress: 0 });
       }
     };
 
@@ -229,6 +341,35 @@ export default function App() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <StatusBar hidden />
+
+        {updateStatus.downloading && (
+          <View style={styles.updateBanner}>
+            <View style={styles.updateBannerRow}>
+              <ActivityIndicator size="small" color="#FF7A00" />
+              <Text style={styles.updateBannerText}>{updateStatus.message}</Text>
+              <Text style={styles.updatePercentText}>
+                {Math.round(updateStatus.progress * 100)}%
+              </Text>
+            </View>
+            <View style={styles.progressBarBackground}>
+              <View
+                style={[
+                  styles.progressBarFill,
+                  { width: `${Math.round(updateStatus.progress * 100)}%` },
+                ]}
+              />
+            </View>
+          </View>
+        )}
+
+        <AppUpdateModal
+          visible={apkUpdate.visible}
+          latestVersion={apkUpdate.latestVersion}
+          updateUrl={apkUpdate.updateUrl}
+          releaseNotes={apkUpdate.releaseNotes}
+          isMandatory={apkUpdate.isMandatory}
+          onClose={() => setApkUpdate((prev) => ({ ...prev, visible: false }))}
+        />
 
         <AuthProvider>
           <RootNavigator />
