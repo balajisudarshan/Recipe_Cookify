@@ -4,6 +4,7 @@ import { View, Text, Image, StyleSheet, Dimensions } from "react-native";
 const { width, height } = Dimensions.get("window");
 
 import logo from "../assets/logo.png";
+import icon from "../assets/icon.png";
 import broccoli from "../assets/brocolli.png";
 import tomato from "../assets/tomato.png";
 import onion from "../assets/onion.png";
@@ -49,7 +50,7 @@ export default function Header() {
       </View>
 
       <View style={styles.content}>
-        <Image source={logo} style={styles.logo} />
+        <Image source={icon} style={styles.logo} />
 
         <Text style={styles.title}>RecipPI</Text>
         <Text style={styles.versionText}>v{appJson.expo.version}</Text>
@@ -84,6 +85,7 @@ const styles = StyleSheet.create({
     height: width * 0.18,
     resizeMode: "contain",
     marginBottom: 10,
+    borderRadius: 20
   },
 
   title: {
