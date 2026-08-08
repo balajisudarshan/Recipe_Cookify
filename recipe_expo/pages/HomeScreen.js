@@ -20,6 +20,7 @@ import RecentRecipes from "../components/RecentRecipes";
 import { COLORS } from "../const/COLORS";
 import SeasonalCollections from "../components/SeasonalCollections";
 import { DIETARY_TYPE_MAP } from "../const/DIETARY_TYPES";
+import appJson from "../app.json";
 // import { RefreshControl } from "react-native";
 // import { ScrollView } from "react-native";
 
@@ -146,7 +147,7 @@ const HomeScreen = ({ navigation }) => {
                 lineHeight: width * 0.07,
               }}
             >
-              Cookify
+              ReciPI
             </Text>
             <Text
               style={{
@@ -157,7 +158,7 @@ const HomeScreen = ({ navigation }) => {
                 marginTop: -2,
               }}
             >
-              v1.0.0
+              v{appJson.expo.version}
             </Text>
           </View>
         </View>

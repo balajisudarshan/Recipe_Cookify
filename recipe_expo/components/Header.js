@@ -10,6 +10,8 @@ import onion from "../assets/onion.png";
 // import chilli from "../assets/chilli.png";
 // import leaf from "../assets/leaf.png";
 
+import appJson from "../app.json";
+
 export default function Header() {
   return (
     <LinearGradient
@@ -25,7 +27,7 @@ export default function Header() {
       <View style={[styles.foodShadow, styles.broccoli]}>
         <Image source={broccoli} style={styles.foodImage} />
       </View>
-{/* 
+      {/* 
       <View style={[styles.foodShadow, styles.onion]}>
         <Image source={broccoli} style={styles.foodImage} />
       </View> */}
@@ -49,8 +51,8 @@ export default function Header() {
       <View style={styles.content}>
         <Image source={logo} style={styles.logo} />
 
-        <Text style={styles.title}>Cookify</Text>
-        <Text style={styles.versionText}>v1.0.0</Text>
+        <Text style={styles.title}>RecipPI</Text>
+        <Text style={styles.versionText}>v{appJson.expo.version}</Text>
 
         <Text style={styles.subtitle}>
           Discover delicious recipes{"\n"}
