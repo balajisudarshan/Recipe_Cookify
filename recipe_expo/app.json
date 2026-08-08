@@ -3,7 +3,7 @@
     "name": "reciPI",
     "slug": "recipi",
     "scheme": "recipi",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -35,9 +35,7 @@
         "projectId": "50591844-50cc-4a1b-bb3d-70b23d36a5cd"
       }
     },
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
+    "runtimeVersion": "1.0.0",
     "updates": {
       "url": "https://u.expo.dev/50591844-50cc-4a1b-bb3d-70b23d36a5cd"
     }
