@@ -1,8 +1,8 @@
 const router = require('express').Router()
-const { createRecipe, getAllRecipes, getSingleRecipe, getMyRecipes, getUserRecipes, updateRecipe, deleteRecipe, likeRecipe, saveRecipe, getLikedRecipes, getSavedRecipes, getRecentRecipes, rateRecipe } = require('../controller/recipe.controller')
+const { createRecipe, getAllRecipes, getSingleRecipe, getMyRecipes, getUserRecipes, updateRecipe, deleteRecipe, likeRecipe, saveRecipe, getLikedRecipes, getSavedRecipes, getRecentRecipes, rateRecipe, reportRecipe, getReportedRecipes } = require('../controller/recipe.controller')
 const checkAuth = require('../middleware/checkAuth')
 const upload = require('../middleware/upload')
-
+const checkAdmin = require('../middleware/checkAdmin')
 /**
  * @swagger
  * /api/recipe/create:
@@ -295,6 +295,82 @@ router.put("/:id", checkAuth, updateRecipe);
  */
 router.delete("/:id", checkAuth, deleteRecipe);
 
+/**
+ * @swagger
+ * /api/recipe/{recipeId}/report:
+ *   post:
+ *     summary: Report a recipe
+ *     tags:
+ *       - Recipe
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: recipeId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Recipe ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - reason
+ *             properties:
+ *               reason:
+ *                 type: string
+ *                 enum:
+ *                   - INAPPROPRIATE
+ *                   - SPAM
+ *                   - COPYRIGHT
+ *                   - MISLEADING
+ *                   - DANGEROUS
+ *                   - OTHER
+ *                 example: MISLEADING
+ *                 description: Reason for reporting the recipe
+ *               description:
+ *                 type: string
+ *                 example: The recipe contains incorrect cooking instructions.
+ *                 description: Additional details about the report
+ *     responses:
+ *       201:
+ *         description: Recipe reported successfully
+ *       400:
+ *         description: Invalid report data
+ *       401:
+ *         description: Authentication required
+ *       404:
+ *         description: Recipe not found
+ *       409:
+ *         description: Recipe already reported by this user
+ *       500:
+ *         description: Internal server error
+ */
+router.post("/:recipeId/report", checkAuth, reportRecipe)
+
+/**
+ * @swagger
+ * /api/recipe/reports/all:
+ *   get:
+ *     summary: Get all reported recipes
+ *     tags:
+ *       - Recipe
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Reported recipes retrieved successfully
+ *       401:
+ *         description: Authentication required
+ *       403:
+ *         description: Admin access required
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/reports/all", checkAuth, checkAdmin, getReportedRecipes)
 /**
  * @swagger
  * /api/recipe/like/{id}:

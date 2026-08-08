@@ -7,60 +7,61 @@ datasource db {
 }
 
 model User {
-  id            String         @id @default(cuid())
-  email         String         @unique
-  username      String         @unique
-  avatar        String?
-  bio           String?
-  createdAt     DateTime       @default(now())
-  password      String
-  updatedAt     DateTime       @updatedAt
+  id        String   @id @default(cuid())
+  email     String   @unique
+  username  String   @unique
+  avatar    String?
+  bio       String?
+  createdAt DateTime @default(now())
+  password  String
+  updatedAt DateTime @updatedAt
+  role      UserRole @default(USER)
+
   comments      Comment[]
   following     Follow[]       @relation("following")
   followers     Follow[]       @relation("followers")
   notifications Notification[]
   recipes       Recipe[]
   likes         RecipeLike[]
-  saves         SavedRecipe[]
   ratings       RecipeRating[]
+  saves         SavedRecipe[]
+  recipeReports RecipeReport[]
 }
 
 model Recipe {
-  id          String        @id @default(cuid())
-  title       String
-  description String
-  image       String
-  ingredients Json
-  steps       Json
-  cuisine     String?
-  dietaryType DietaryType
-  mealType    MealType
-  course      CourseType
-  authorId    String
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-
-  averageRating Float       @default(0)
-  ratingsCount  Int         @default(0) 
-
-  comments    Comment[]
-  author      User          @relation(fields: [authorId], references: [id])
-  likes       RecipeLike[]
-  saves       SavedRecipe[]
-  ratings     RecipeRating[]
+  id            String         @id @default(cuid())
+  title         String
+  description   String
+  image         String
+  ingredients   Json
+  steps         Json
+  cuisine       String?
+  dietaryType   DietaryType
+  mealType      MealType
+  course        CourseType
+  authorId      String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  averageRating Float          @default(0)
+  ratingsCount  Int            @default(0)
+  comments      Comment[]
+  author        User           @relation(fields: [authorId], references: [id])
+  likes         RecipeLike[]
+  ratings       RecipeRating[]
+  saves         SavedRecipe[]
+  recipeReports RecipeReport[]
 }
 
-model RecipeRating{
-  id          String    @id @default(cuid())
-  rating      Int       
-  userId      String
-  recipeId    String
-  createdAt   DateTime @default(now())
+model RecipeRating {
+  id        String   @id @default(cuid())
+  rating    Int
+  userId    String
+  recipeId  String
+  createdAt DateTime @default(now())
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  user    User @relation(fields: [userId],references: [id],onDelete:Cascade)
-  recipe  Recipe @relation(fields: [recipeId],references: [id],onDelete: Cascade)
-
-  @@unique([userId,recipeId])
+  @@unique([userId, recipeId])
 }
 
 model RecipeLike {
@@ -118,6 +119,45 @@ model Notification {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model RecipeReport {
+  id          String       @id @default(cuid())
+  recipeId    String
+  reporterId  String
+  reason      ReportReason
+  description String?
+  status      ReportStatus @default(PENDING)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Restrict)
+  reporter User   @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+
+  @@unique([recipeId, reporterId])
+  @@index([status])
+  @@index([recipeId])
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum ReportReason {
+  INAPPROPRIATE
+  SPAM
+  COPYRIGHT
+  MISLEADING
+  DANGEROUS
+  OTHER
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  RESOLVED
+  DISMISSED
+}
+
 enum DietaryType {
   VEGAN
   VEGETARIAN
@@ -130,8 +170,6 @@ enum MealType {
   LUNCH
   DINNER
   SNACK
-  DESSERT
-  BEVERAGE
 }
 
 enum CourseType {

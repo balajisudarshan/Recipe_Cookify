@@ -1,8 +1,8 @@
 import { View, Text, TouchableOpacity, FlatList } from "react-native";
 import React from "react";
-import axios from "axios";
 import { useEffect, useState } from "react";
 import RecipeCard from "./cards/RecipeCard";
+import { getAllRecipes } from "../api/apiRoute";
 
 const PopularRecipe = () => {
   const [recipes, setRecipes] = useState([]);
@@ -12,11 +12,9 @@ const PopularRecipe = () => {
       try {
         setLoading(true);
         console.log("Fetching recipes...");
-        const response = await axios.get(
-          "https://dishcover-plo9.onrender.com/api/recipe/getAllRecipes",
-        );
+        const response = await getAllRecipes();
         console.log(response.data);
-        setRecipes(response.data.recipes);
+        setRecipes(response.data.recipes || response.data);
       } catch (error) {
         console.error("Error fetching recipes:", error);
       } finally {

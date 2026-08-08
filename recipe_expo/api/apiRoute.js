@@ -1,8 +1,11 @@
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// const BASE_URL = "http://10.116.205.110:5000/api/";
-const BASE_URL = "https://recipe-cookify-backend.onrender.com/api/";
+// Base URL read from environment variable (.env)
+// For Dev: process.env.EXPO_PUBLIC_DEV_API_URL (http://localhost:5000/api/)
+// For Deployment: process.env.EXPO_PUBLIC_PROD_API_URL (https://recipe-cookify-backend.onrender.com/api/)
+// const BASE_URL = process.env.EXPO_PUBLIC_API_URL || process.env.EXPO_PUBLIC_PROD_API_URL || "https://recipe-cookify-backend.onrender.com/api/";
+const BASE_URL = process.env.EXPO_PUBLIC_DEV_API_URL
 
 export const api = axios.create({
   baseURL: BASE_URL,

@@ -708,6 +708,107 @@ const getRecipeRating = async (req, res) => {
     });
   }
 };
+
+const reportRecipe = async (req, res) => {
+  try {
+    const { recipeId } = req.params
+    const { reason, description } = req.body
+    const userId = req.user.id
+
+    const recipe = await prisma.recipe.findUnique({
+      where: {
+        id: recipeId
+      }
+    })
+
+    if (!recipe) {
+      return res.status(404).json({ message: "Recipe not found" })
+    }
+
+    const existingReport = await prisma.recipeReport.findUnique({
+      where: {
+        recipeId_reporterId: {
+          recipeId,
+          reporterId: userId
+        }
+      }
+    })
+
+    if (existingReport) {
+      return res.status(400).json({ message: "Recipe already reported" })
+    }
+
+    const report = await prisma.recipeReport.create({
+      data: {
+        recipeId,
+        reporterId: userId,
+        reason,
+        description
+      }
+    })
+
+
+    return res.status(201).json({
+      message: "Report submitted successfully",
+      report
+    })
+  } catch (error) {
+    console.log(error)
+
+    return res.status(500).json({
+      message: "Failed to report recipe"
+    })
+  }
+}
+
+const getReportedRecipes = async (req, res) => {
+  try {
+    const reportedRecipes = await prisma.recipeReport.findMany({
+      select: {
+        id: true,
+        reason: true,
+        description: true,
+        status: true,
+        createdAt: true,
+        recipe: {
+          select: {
+            id: true,
+            title: true,
+            image: true,
+            author: {
+              select: {
+                id: true,
+                username: true,
+                avatar: true
+              }
+            }
+          }
+        },
+        reporter: {
+          select: {
+            id: true,
+            username: true,
+            avatar: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: "desc"
+      }
+    })
+
+    return res.status(200).json({
+      message: "Reported recipes fetched successfully",
+      data: reportedRecipes
+    })
+  } catch (error) {
+    console.log(error)
+
+    return res.status(500).json({
+      message: "Failed to fetch reported recipes"
+    })
+  }
+}
 module.exports = {
   createRecipe,
   getAllRecipes,
@@ -723,4 +824,6 @@ module.exports = {
   getRecentRecipes,
   rateRecipe,
   getRecentRecipes,
+  reportRecipe,
+  getReportedRecipes
 };
